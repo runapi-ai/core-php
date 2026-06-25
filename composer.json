@@ -1,0 +1,51 @@
+{
+  "name": "runapi-ai/core",
+  "description": "RunAPI core Composer package for PHP applications",
+  "type": "library",
+  "license": "Apache-2.0",
+  "authors": [
+    {
+      "name": "RunAPI",
+      "email": "contact@runapi.ai"
+    }
+  ],
+  "require": {
+    "php": ">=8.2",
+    "guzzlehttp/guzzle": "^7.10",
+    "guzzlehttp/psr7": "^2.8",
+    "psr/http-client": "^1.0",
+    "psr/http-factory": "^1.1",
+    "psr/http-message": "^1.1 || ^2.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "RunApi\\Core\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "RunApi\\Core\\Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-main": "0.1.x-dev"
+    }
+  },
+  "minimum-stability": "stable",
+  "homepage": "https://runapi.ai/docs#runapi-sdks",
+  "support": {
+    "source": "https://github.com/runapi-ai/core-php",
+    "docs": "https://runapi.ai/docs#runapi-sdks",
+    "issues": "https://github.com/runapi-ai/core-php/issues"
+  },
+  "keywords": [
+    "runapi",
+    "runapi-ai",
+    "php",
+    "composer",
+    "sdk",
+    "api",
+    "packagist"
+  ]
+}
