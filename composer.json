@@ -33,7 +33,7 @@
     }
   },
   "minimum-stability": "stable",
-  "homepage": "https://runapi.ai/docs#runapi-sdks",
+  "homepage": "https://runapi.ai",
   "support": {
     "source": "https://github.com/runapi-ai/core-php",
     "docs": "https://runapi.ai/docs#runapi-sdks",
