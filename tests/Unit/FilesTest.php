@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace RunApi\Core\Tests\Unit;
 
-use GuzzleHttp\Psr7\MultipartStream;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Utils;
 use PHPUnit\Framework\TestCase;
@@ -60,56 +59,41 @@ final class FilesTest extends TestCase
         );
     }
 
-    public function testCreateFromPathSendsMultipartBody(): void
+    public function testCreateFromPathUploadsDirectly(): void
     {
         $path = tempnam(sys_get_temp_dir(), 'runapi-php-sdk-');
         self::assertIsString($path);
         file_put_contents($path, 'image-bytes');
         $transport = new QueueHttpClient([
+            new Response(200, ['Content-Type' => 'application/json'], '{"signed_id":"signed-blob-id","upload_url":"https://file.runapi.ai/temp/user-uploads/key","headers":{"Content-Type":"application/octet-stream"}}'),
+            new Response(200, [], ''),
             new Response(200, ['Content-Type' => 'application/json'], self::UPLOAD_JSON),
         ]);
         $files = new Files(new HttpClient(new ClientOptions(apiKey: 'test-key', httpClient: $transport)));
 
         try {
-            $files->create([
-                'file' => $path,
-                'file_name' => 'custom.png',
-                'content_type' => 'image/png',
-            ]);
+            $response = $files->create(['file' => $path, 'file_name' => 'custom.png']);
         } finally {
             @unlink($path);
         }
 
-        $request = $transport->requests[0];
-        $body = (string) $request->getBody();
-        self::assertStringStartsWith('multipart/form-data; boundary=runapi-', $request->getHeaderLine('Content-Type'));
-        self::assertStringContainsString('name="file_name"', $body);
-        self::assertStringContainsString('custom.png', $body);
-        self::assertStringContainsString('name="file"; filename="custom.png"', $body);
-        self::assertStringContainsString('Content-Type: image/png', $body);
-        self::assertStringContainsString('image-bytes', $body);
-    }
+        // prepare: declares the file, never sends bytes through the API
+        self::assertSame('/api/v1/files/prepare', $transport->requests[0]->getUri()->getPath());
+        $prepareBody = json_decode((string) $transport->requests[0]->getBody(), true);
+        self::assertSame('custom.png', $prepareBody['filename']);
+        self::assertSame(11, $prepareBody['byte_size']);
+        self::assertSame(base64_encode(md5('image-bytes', true)), $prepareBody['checksum']);
 
-    public function testCreateFromPathUsesStreamingMultipartBody(): void
-    {
-        $path = tempnam(sys_get_temp_dir(), 'runapi-php-sdk-');
-        self::assertIsString($path);
-        file_put_contents($path, 'image-bytes');
-        $transport = new QueueHttpClient([
-            new Response(200, ['Content-Type' => 'application/json'], self::UPLOAD_JSON),
-        ]);
-        $files = new Files(new HttpClient(new ClientOptions(apiKey: 'test-key', httpClient: $transport)));
+        // PUT: bytes go straight to the issued upload URL, without the API key
+        self::assertSame('PUT', $transport->requests[1]->getMethod());
+        self::assertSame('https://file.runapi.ai/temp/user-uploads/key', (string) $transport->requests[1]->getUri());
+        self::assertSame('image-bytes', (string) $transport->requests[1]->getBody());
+        self::assertSame('', $transport->requests[1]->getHeaderLine('Authorization'));
 
-        try {
-            $files->create([
-                'file' => $path,
-                'file_name' => 'custom.png',
-            ]);
-
-            self::assertInstanceOf(MultipartStream::class, $transport->requests[0]->getBody());
-        } finally {
-            @unlink($path);
-        }
+        // confirm: resolves the final resource
+        self::assertSame('/api/v1/files/confirm', $transport->requests[2]->getUri()->getPath());
+        self::assertSame('{"signed_id":"signed-blob-id"}', (string) $transport->requests[2]->getBody());
+        self::assertSame('image.png', $response->fileName);
     }
 
     public function testCreateFromPsrStreamRequiresFileName(): void
@@ -125,9 +109,11 @@ final class FilesTest extends TestCase
         $files->create(['file' => Utils::streamFor('image-bytes')]);
     }
 
-    public function testCreateFromPsrStreamSendsMultipartBody(): void
+    public function testCreateFromPsrStreamUploadsDirectly(): void
     {
         $transport = new QueueHttpClient([
+            new Response(200, ['Content-Type' => 'application/json'], '{"signed_id":"signed-blob-id","upload_url":"https://file.runapi.ai/temp/user-uploads/key","headers":{}}'),
+            new Response(200, [], ''),
             new Response(200, ['Content-Type' => 'application/json'], self::UPLOAD_JSON),
         ]);
         $files = new Files(new HttpClient(new ClientOptions(apiKey: 'test-key', httpClient: $transport)));
@@ -137,9 +123,9 @@ final class FilesTest extends TestCase
             'file_name' => 'stream.png',
         ]);
 
-        $body = (string) $transport->requests[0]->getBody();
-        self::assertStringContainsString('name="file"; filename="stream.png"', $body);
-        self::assertStringContainsString('image-bytes', $body);
+        $prepareBody = json_decode((string) $transport->requests[0]->getBody(), true);
+        self::assertSame('stream.png', $prepareBody['filename']);
+        self::assertSame('image-bytes', (string) $transport->requests[1]->getBody());
     }
 
     public function testRejectsMissingOrMultipleSourcesBeforeRequest(): void

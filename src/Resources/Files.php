@@ -7,8 +7,6 @@ namespace RunApi\Core\Resources;
 use Psr\Http\Message\StreamInterface;
 use RunApi\Core\Errors\ValidationException;
 use RunApi\Core\Http\HttpClient;
-use RunApi\Core\Http\MultipartBody;
-use RunApi\Core\Http\MultipartFile;
 use RunApi\Core\Models\FileUploadResponse;
 use RunApi\Core\RequestOptions;
 
@@ -18,6 +16,8 @@ use RunApi\Core\RequestOptions;
 final readonly class Files
 {
     private const ENDPOINT = '/api/v1/files';
+    private const PREPARE_ENDPOINT = self::ENDPOINT . '/prepare';
+    private const CONFIRM_ENDPOINT = self::ENDPOINT . '/confirm';
 
     /**
      * Create a resource using the shared RunAPI HTTP transport.
@@ -35,12 +35,60 @@ final readonly class Files
     {
         $this->validateSourceCount($params);
 
-        $body = array_key_exists('file', $params)
-            ? $this->multipartBody($params)
-            : $this->jsonBody($params);
+        if (array_key_exists('file', $params)) {
+            return $this->uploadDirect($params, $options);
+        }
 
         return FileUploadResponse::fromArray($this->http->request('POST', self::ENDPOINT, [
-            'body' => $body,
+            'body' => $this->jsonBody($params),
+            'options' => $options,
+        ]));
+    }
+
+    /**
+     * Local files upload straight to storage: ask for a pre-authorized target,
+     * PUT the bytes there (never through the API), then confirm. The caller still
+     * makes a single create call.
+     *
+     * @param array<string, mixed> $params
+     */
+    private function uploadDirect(array $params, ?RequestOptions $options): FileUploadResponse
+    {
+        $file = $params['file'];
+        $fileName = $this->optionalString($params, 'file_name');
+
+        if (is_string($file)) {
+            if (!is_file($file) || !is_readable($file)) {
+                throw new ValidationException('file must be a readable local path');
+            }
+            $data = (string) file_get_contents($file);
+            $resolvedName = $fileName ?? basename($file);
+        } elseif ($file instanceof StreamInterface) {
+            if ($fileName === null) {
+                throw new ValidationException('file_name is required when file is a PSR-7 stream');
+            }
+            if ($file->isSeekable()) {
+                $file->rewind();
+            }
+            $data = $file->getContents();
+            $resolvedName = $fileName;
+        } else {
+            throw new ValidationException('file must be a local path or PSR-7 stream');
+        }
+
+        $prepared = $this->http->request('POST', self::PREPARE_ENDPOINT, [
+            'body' => [
+                'filename' => $resolvedName,
+                'byte_size' => strlen($data),
+                'checksum' => base64_encode(md5($data, true)),
+            ],
+            'options' => $options,
+        ]);
+
+        $this->http->upload($prepared['upload_url'], $prepared['headers'], $data);
+
+        return FileUploadResponse::fromArray($this->http->request('POST', self::CONFIRM_ENDPOINT, [
+            'body' => ['signed_id' => $prepared['signed_id']],
             'options' => $options,
         ]));
     }
@@ -61,37 +109,6 @@ final readonly class Files
         if ($sourceCount !== 1) {
             throw new ValidationException('Exactly one source is required: file or source');
         }
-    }
-
-    /**
-     * @param array<string, mixed> $params
-     */
-    private function multipartBody(array $params): MultipartBody
-    {
-        $file = $params['file'];
-        $fileName = $this->optionalString($params, 'file_name');
-        $contentType = $this->optionalString($params, 'content_type');
-
-        if (is_string($file)) {
-            $multipartFile = MultipartFile::fromPath($file, $fileName, $contentType);
-        } elseif ($file instanceof StreamInterface) {
-            if ($fileName === null) {
-                throw new ValidationException('file_name is required when file is a PSR-7 stream');
-            }
-            $multipartFile = MultipartFile::fromStream($file, $fileName, $contentType);
-        } else {
-            throw new ValidationException('file must be a local path or PSR-7 stream');
-        }
-
-        $fields = [];
-        if ($fileName !== null) {
-            $fields['file_name'] = $fileName;
-        }
-
-        return new MultipartBody(
-            fields: $fields,
-            files: ['file' => $multipartFile],
-        );
     }
 
     /**

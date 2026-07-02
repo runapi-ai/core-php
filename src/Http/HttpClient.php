@@ -89,6 +89,32 @@ final class HttpClient
     }
 
     /**
+     * PUT bytes straight to a pre-authorized upload URL with the exact headers
+     * issued for it. No auth, no retries: the URL is single-use and the body is
+     * not safe to replay.
+     *
+     * @param array<string, string> $headers
+     */
+    public function upload(string $url, array $headers, string $body): void
+    {
+        $request = $this->requestFactory->createRequest('PUT', $url);
+        foreach ($headers as $name => $value) {
+            $request = $request->withHeader((string) $name, (string) $value);
+        }
+        $request = $request->withBody($this->streamFactory->createStream($body));
+
+        try {
+            $response = $this->client->sendRequest($request);
+        } catch (ClientExceptionInterface $exception) {
+            throw new NetworkException('Direct upload network error', previous: $exception);
+        }
+
+        if ($response->getStatusCode() < 200 || $response->getStatusCode() >= 300) {
+            throw ErrorMapper::fromResponse($response, (string) $response->getBody());
+        }
+    }
+
+    /**
      * @param array<string, mixed> $query
      * @param array<string, mixed> $headers
      */
