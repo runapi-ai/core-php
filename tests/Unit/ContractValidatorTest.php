@@ -123,6 +123,20 @@ final class ContractValidatorTest extends TestCase
         ]);
     }
 
+    public function testRejectsForbiddenRuleField(): void
+    {
+        $validator = new ContractValidator($this->repository());
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('output_resolution is not allowed when model is nano-banana-2-lite');
+
+        $validator->validate('nano-banana/text-to-image', 'nano-banana-2-lite', [
+            'prompt' => 'A product render',
+            'aspect_ratio' => 'auto',
+            'output_resolution' => '1k',
+        ]);
+    }
+
     public function testRejectsStringBelowMinimumLength(): void
     {
         $validator = new ContractValidator($this->repository());
@@ -175,6 +189,23 @@ final class ContractValidatorTest extends TestCase
                     'nano-banana-edit' => [
                         'prompt' => ['required' => true],
                         'source_image_urls' => ['required' => true],
+                    ],
+                ],
+            ],
+            'nano-banana/text-to-image' => [
+                'models' => ['nano-banana-2-lite'],
+                'rules' => [
+                    [
+                        'when' => ['model' => 'nano-banana-2-lite'],
+                        'forbidden' => ['output_resolution', 'output_format'],
+                    ],
+                ],
+                'fields_by_model' => [
+                    'nano-banana-2-lite' => [
+                        'prompt' => ['required' => true],
+                        'aspect_ratio' => ['required' => true, 'enum' => ['auto', '16:9']],
+                        'output_resolution' => [],
+                        'output_format' => [],
                     ],
                 ],
             ],
