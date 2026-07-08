@@ -12,7 +12,7 @@ final class ContractRepository
     /**
      * Create a contract repository instance.
      *
-     * @param array<string, array{models: list<string>, rules?: list<array<string, mixed>>, fields_by_model: array<string, array<string, array<string, mixed>>>}>|null $contract
+     * @param array<string, array{models: list<string>, fields_by_model: array<string, array<string, array<string, mixed>>>}>|null $contract
      */
     public function __construct(private ?array $contract = null)
     {
@@ -21,7 +21,7 @@ final class ContractRepository
     /**
      * Return all generated contract metadata.
      *
-     * @return array<string, array{models: list<string>, rules?: list<array<string, mixed>>, fields_by_model: array<string, array<string, array<string, mixed>>>}>
+     * @return array<string, array{models: list<string>, fields_by_model: array<string, array<string, array<string, mixed>>>}>
      */
     public function all(): array
     {
@@ -31,7 +31,7 @@ final class ContractRepository
     /**
      * Return contract metadata for one action, or null when unknown.
      *
-     * @return array{models: list<string>, rules?: list<array<string, mixed>>, fields_by_model: array<string, array<string, array<string, mixed>>>}|null
+     * @return array{models: list<string>, fields_by_model: array<string, array<string, array<string, mixed>>>}|null
      */
     public function action(string $action): ?array
     {

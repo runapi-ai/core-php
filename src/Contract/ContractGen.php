@@ -14,7 +14,7 @@ final class ContractGen
     }
 
     /**
-     * @return array<string, array{models: list<string>, rules?: list<array<string, mixed>>, fields_by_model: array<string, array<string, array<string, mixed>>>}>
+     * @return array<string, array{models: list<string>, fields_by_model: array<string, array<string, array<string, mixed>>>}>
      */
     public static function contract(): array
     {
@@ -81,12 +81,6 @@ final class ContractGen
                         ],
                     ],
                 ],
-                'rules' => [[
-                    'when' => [
-                        'model' => 'text-to-speech-multilingual-v2',
-                    ],
-                    'required' => ['voice'],
-                ]],
             ],
             'flux-2/remix-image' => [
                 'models' => ['flux-2-flex-remix-image', 'flux-2-pro-remix-image'],
@@ -658,7 +652,7 @@ final class ContractGen
                     ],
                     'imagen-4-fast' => [
                         'aspect_ratio' => [
-                            'enum' => ['1:1', '16:9', '9:16', '3:4', '4:3'],
+                            'enum' => ['1:1', '16:9', '9:16', '3:4', '4:3', 'auto'],
                         ],
                         'output_count' => [
                             'enum' => [1, 2, 3, 4],
@@ -905,7 +899,7 @@ final class ContractGen
                 ],
             ],
             'nano-banana/text-to-image' => [
-                'models' => ['nano-banana', 'nano-banana-2', 'nano-banana-2-lite', 'nano-banana-pro'],
+                'models' => ['nano-banana', 'nano-banana-2', 'nano-banana-pro'],
                 'fields_by_model' => [
                     'nano-banana' => [
                         'aspect_ratio' => [
@@ -926,17 +920,6 @@ final class ContractGen
                             'enum' => ['1k', '2k', '4k'],
                         ],
                     ],
-                    'nano-banana-2-lite' => [
-                        'aspect_ratio' => [
-                            'required' => true,
-                            'enum' => ['1:1', '1:4', '1:8', '2:3', '3:2', '3:4', '4:1', '4:3', '4:5', '5:4', '8:1', '9:16', '16:9', '21:9', 'auto'],
-                        ],
-                        'prompt' => [
-                            'required' => true,
-                            'min' => 1,
-                            'max' => 20000,
-                        ],
-                    ],
                     'nano-banana-pro' => [
                         'aspect_ratio' => [
                             'enum' => ['1:1', '2:3', '3:2', '3:4', '4:3', '4:5', '5:4', '9:16', '16:9', '21:9', 'auto'],
@@ -949,12 +932,6 @@ final class ContractGen
                         ],
                     ],
                 ],
-                'rules' => [[
-                    'when' => [
-                        'model' => 'nano-banana-2-lite',
-                    ],
-                    'forbidden' => ['output_resolution', 'output_format'],
-                ]],
             ],
             'qwen-2/edit-image' => [
                 'models' => ['qwen-2-edit-image'],
@@ -1085,7 +1062,7 @@ final class ContractGen
                 ],
             ],
             'seedance/text-to-video' => [
-                'models' => ['seedance-1.5-pro', 'seedance-2.0', 'seedance-2.0-fast', 'seedance-v1-lite', 'seedance-v1-pro', 'seedance-v1-pro-fast'],
+                'models' => ['seedance-1.5-pro', 'seedance-2-mini', 'seedance-2.0', 'seedance-2.0-fast', 'seedance-v1-lite', 'seedance-v1-pro', 'seedance-v1-pro-fast'],
                 'fields_by_model' => [
                     'seedance-1.5-pro' => [
                         'aspect_ratio' => [
@@ -1098,6 +1075,18 @@ final class ContractGen
                         ],
                         'output_resolution' => [
                             'enum' => ['480p', '720p', '1080p'],
+                        ],
+                    ],
+                    'seedance-2-mini' => [
+                        'aspect_ratio' => [
+                            'enum' => ['1:1', '4:3', '3:4', '16:9', '9:16', '21:9', 'auto'],
+                        ],
+                        'duration_seconds' => [
+                            'min' => 4,
+                            'max' => 15,
+                        ],
+                        'output_resolution' => [
+                            'enum' => ['480p', '720p'],
                         ],
                     ],
                     'seedance-2.0' => [
@@ -1448,25 +1437,6 @@ final class ContractGen
                         ],
                     ],
                 ],
-                'rules' => [[
-                    'when' => [
-                        'vocal_mode' => 'auto_lyrics',
-                    ],
-                    'required' => ['prompt'],
-                    'forbidden' => ['lyrics', 'style', 'title'],
-                ], [
-                    'when' => [
-                        'vocal_mode' => 'exact_lyrics',
-                    ],
-                    'required' => ['lyrics', 'style', 'title'],
-                    'forbidden' => ['prompt'],
-                ], [
-                    'when' => [
-                        'vocal_mode' => 'instrumental',
-                    ],
-                    'required' => ['style', 'title'],
-                    'forbidden' => ['prompt', 'lyrics'],
-                ]],
             ],
             'suno/create-mashup' => [
                 'models' => ['suno-v4', 'suno-v4.5', 'suno-v4.5-all', 'suno-v4.5-plus', 'suno-v5', 'suno-v5.5'],
@@ -1580,25 +1550,6 @@ final class ContractGen
                         ],
                     ],
                 ],
-                'rules' => [[
-                    'when' => [
-                        'vocal_mode' => 'auto_lyrics',
-                    ],
-                    'required' => ['prompt'],
-                    'forbidden' => ['lyrics', 'style', 'title'],
-                ], [
-                    'when' => [
-                        'vocal_mode' => 'exact_lyrics',
-                    ],
-                    'required' => ['lyrics', 'style', 'title'],
-                    'forbidden' => ['prompt'],
-                ], [
-                    'when' => [
-                        'vocal_mode' => 'instrumental',
-                    ],
-                    'required' => ['style', 'title'],
-                    'forbidden' => ['prompt', 'lyrics'],
-                ]],
             ],
             'suno/extend-music' => [
                 'models' => ['suno-v4', 'suno-v4.5', 'suno-v4.5-all', 'suno-v4.5-plus', 'suno-v5', 'suno-v5.5'],
@@ -1869,25 +1820,6 @@ final class ContractGen
                         ],
                     ],
                 ],
-                'rules' => [[
-                    'when' => [
-                        'vocal_mode' => 'auto_lyrics',
-                    ],
-                    'required' => ['prompt'],
-                    'forbidden' => ['lyrics', 'style', 'title'],
-                ], [
-                    'when' => [
-                        'vocal_mode' => 'exact_lyrics',
-                    ],
-                    'required' => ['lyrics', 'style', 'title'],
-                    'forbidden' => ['prompt'],
-                ], [
-                    'when' => [
-                        'vocal_mode' => 'instrumental',
-                    ],
-                    'required' => ['style', 'title'],
-                    'forbidden' => ['prompt', 'lyrics'],
-                ]],
             ],
             'suno/text-to-sound' => [
                 'models' => ['suno-v5', 'suno-v5.5'],
