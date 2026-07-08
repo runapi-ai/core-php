@@ -480,7 +480,47 @@ final class AllResourcesOfflineSmokeTest extends TestCase
             $params[$name] ??= self::sampleValue($name, []);
         }
 
+        if (is_array($actionContract)) {
+            foreach (self::modelRequiredRuleFields($actionContract['rules'] ?? [], $model) as $name) {
+                $schema = is_array($fields) && isset($fields[$name]) && is_array($fields[$name]) ? $fields[$name] : [];
+                $params[$name] ??= self::sampleValue($name, $schema);
+            }
+        }
+
         return self::withSpecialParams($package, $resource, $params);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function modelRequiredRuleFields(mixed $rules, string $model): array
+    {
+        if (!is_array($rules)) {
+            return [];
+        }
+
+        $fields = [];
+        foreach ($rules as $rule) {
+            if (!is_array($rule)) {
+                continue;
+            }
+
+            $when = $rule['when'] ?? [];
+            if (!is_array($when) || array_keys($when) !== ['model'] || (string) $when['model'] !== $model) {
+                continue;
+            }
+
+            $required = $rule['required'] ?? [];
+            if (!is_array($required)) {
+                continue;
+            }
+
+            foreach ($required as $name) {
+                $fields[] = (string) $name;
+            }
+        }
+
+        return array_values(array_unique($fields));
     }
 
     /**
@@ -523,6 +563,18 @@ final class AllResourcesOfflineSmokeTest extends TestCase
             $params['vocal_end_seconds'] ??= 5;
             $params['name'] ??= 'Release Day';
             $params['description'] ??= 'A friendly voice with clear pacing.';
+        }
+
+        if ($package === 'runapi-ai/suno' && $resource === 'replaceSection') {
+            $params['upload_url'] = self::AUDIO_URL;
+            $params['model'] = 'suno-v5.5';
+            $params['infill_start_time'] = 10.0;
+            $params['infill_end_time'] = 20.0;
+            unset($params['task_id'], $params['audio_id']);
+        }
+
+        if ($package === 'runapi-ai/elevenlabs' && $resource === 'textToSpeech') {
+            $params['voice'] ??= 'Narrator';
         }
 
         if ($package === 'runapi-ai/gemini-omni' && $resource === 'createAudio') {

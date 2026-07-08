@@ -31,7 +31,17 @@ final readonly class ContractValidator
         }
 
         $fieldsByModel = $actionContract['fields_by_model'];
-        $fields = $fieldsByModel[$model] ?? null;
+        $models = $actionContract['models'];
+        if ($models !== []) {
+            if ($model === '_') {
+                throw new ValidationException('model is required');
+            }
+            if (!in_array($model, $models, true)) {
+                throw new ValidationException('model must be one of the allowed values');
+            }
+        }
+
+        $fields = $fieldsByModel[$model] ?? $fieldsByModel['_'] ?? null;
         if ($fields === null) {
             return;
         }
@@ -39,6 +49,8 @@ final readonly class ContractValidator
         foreach ($fields as $name => $schema) {
             $this->validateField($name, $schema, $params);
         }
+
+        $this->validateRules($actionContract['rules'] ?? [], $model, $params);
     }
 
     /**
@@ -64,7 +76,28 @@ final readonly class ContractValidator
             }
         }
 
+        if (($schema['type'] ?? null) === 'integer') {
+            $this->validateInteger($name, $schema, $value);
+        }
+
         $this->validateRange($name, $schema, $value);
+    }
+
+    /**
+     * @param array<string, mixed> $schema
+     */
+    private function validateInteger(string $name, array $schema, mixed $value): void
+    {
+        if (is_int($value)) {
+            return;
+        }
+
+        $detail = '';
+        if (array_key_exists('min', $schema) && array_key_exists('max', $schema)) {
+            $detail = ' between ' . $schema['min'] . ' and ' . $schema['max'];
+        }
+
+        throw new ValidationException($name . ' must be an integer' . $detail);
     }
 
     /**
@@ -101,5 +134,117 @@ final readonly class ContractValidator
         if (array_key_exists('max', $schema) && $number > (float) $schema['max']) {
             throw new ValidationException($name . ' must be less than or equal to ' . $schema['max']);
         }
+    }
+
+    /**
+     * @param list<array{when?: array<string, mixed>, required?: list<string>, forbidden?: list<string>}> $rules
+     * @param array<string, mixed> $params
+     */
+    private function validateRules(array $rules, string $model, array $params): void
+    {
+        foreach ($rules as $rule) {
+            $conditions = $rule['when'] ?? [];
+            if (!$this->conditionsMet($conditions, $model, $params)) {
+                continue;
+            }
+
+            $context = $this->conditionDescription($conditions);
+            foreach (($rule['required'] ?? []) as $field) {
+                if (!$this->fieldPresent($field, $params)) {
+                    throw new ValidationException($field . ' is required when ' . $context);
+                }
+            }
+
+            foreach (($rule['forbidden'] ?? []) as $field) {
+                if ($this->fieldPresent($field, $params)) {
+                    throw new ValidationException($field . ' is not allowed when ' . $context);
+                }
+            }
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $conditions
+     * @param array<string, mixed> $params
+     */
+    private function conditionsMet(array $conditions, string $model, array $params): bool
+    {
+        foreach ($conditions as $field => $expected) {
+            if ($field === 'model') {
+                if ($model !== (string) $expected) {
+                    return false;
+                }
+
+                continue;
+            }
+
+            if (!array_key_exists($field, $params) || (string) $params[$field] !== (string) $expected) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param array<string, mixed> $conditions
+     */
+    private function conditionDescription(array $conditions): string
+    {
+        ksort($conditions);
+        $parts = [];
+        foreach ($conditions as $field => $value) {
+            $parts[] = $field . ' is ' . $value;
+        }
+
+        return implode(' and ', $parts);
+    }
+
+    /**
+     * @param array<string, mixed> $params
+     */
+    private function fieldPresent(string $field, array $params): bool
+    {
+        if (!array_key_exists($field, $params)) {
+            return false;
+        }
+
+        $value = $params[$field];
+        if ($value === false) {
+            return true;
+        }
+
+        if (is_array($value)) {
+            foreach ($value as $item) {
+                if ($this->presentValue($item)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        return $this->presentValue($value);
+    }
+
+    private function presentValue(mixed $value): bool
+    {
+        if ($value === null || $value === false) {
+            return false;
+        }
+
+        if ($value === true) {
+            return true;
+        }
+
+        if (is_string($value)) {
+            return trim($value) !== '';
+        }
+
+        if (is_array($value)) {
+            return $value !== [];
+        }
+
+        return true;
     }
 }

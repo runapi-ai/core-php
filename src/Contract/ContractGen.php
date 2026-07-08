@@ -14,7 +14,7 @@ final class ContractGen
     }
 
     /**
-     * @return array<string, array{models: list<string>, fields_by_model: array<string, array<string, array<string, mixed>>>}>
+     * @return array<string, array{models: list<string>, fields_by_model: array<string, array<string, array<string, mixed>>>, rules?: list<array{when?: array<string, mixed>, required?: list<string>, forbidden?: list<string>}>}>
      */
     public static function contract(): array
     {
@@ -81,6 +81,12 @@ final class ContractGen
                         ],
                     ],
                 ],
+                'rules' => [[
+                    'when' => [
+                        'model' => 'text-to-speech-multilingual-v2',
+                    ],
+                    'required' => ['voice'],
+                ]],
             ],
             'flux-2/remix-image' => [
                 'models' => ['flux-2-flex-remix-image', 'flux-2-pro-remix-image'],
@@ -158,6 +164,9 @@ final class ContractGen
                         'prompt' => [
                             'required' => true,
                         ],
+                        'safety_tolerance' => [
+                            'type' => 'integer',
+                        ],
                     ],
                     'flux-kontext-pro' => [
                         'aspect_ratio' => [
@@ -171,6 +180,9 @@ final class ContractGen
                         ],
                         'prompt' => [
                             'required' => true,
+                        ],
+                        'safety_tolerance' => [
+                            'type' => 'integer',
                         ],
                     ],
                 ],
@@ -209,14 +221,18 @@ final class ContractGen
                             'enum' => ['16:9', '9:16'],
                         ],
                         'duration_seconds' => [
-                            'required' => true,
                             'enum' => [4, 6, 8, 10],
+                            'required' => true,
+                            'type' => 'integer',
                         ],
                         'output_resolution' => [
                             'enum' => ['720p', '1080p', '4k'],
                         ],
                         'prompt' => [
                             'required' => true,
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                     ],
                 ],
@@ -226,11 +242,12 @@ final class ContractGen
                 'fields_by_model' => [
                     'gpt-4o-image' => [
                         'aspect_ratio' => [
-                            'required' => true,
                             'enum' => ['1:1', '3:2', '2:3'],
+                            'required' => true,
                         ],
                         'output_count' => [
                             'enum' => [1, 2, 4],
+                            'type' => 'integer',
                         ],
                     ],
                 ],
@@ -275,15 +292,15 @@ final class ContractGen
                 'fields_by_model' => [
                     'gpt-image-1.5' => [
                         'aspect_ratio' => [
-                            'required' => true,
                             'enum' => ['1:1', '2:3', '3:2'],
+                            'required' => true,
                         ],
                         'prompt' => [
                             'required' => true,
                         ],
                         'quality' => [
-                            'required' => true,
                             'enum' => ['medium', 'high'],
+                            'required' => true,
                         ],
                         'source_image_urls' => [
                             'required' => true,
@@ -296,15 +313,15 @@ final class ContractGen
                 'fields_by_model' => [
                     'gpt-image-1.5' => [
                         'aspect_ratio' => [
-                            'required' => true,
                             'enum' => ['1:1', '2:3', '3:2'],
+                            'required' => true,
                         ],
                         'prompt' => [
                             'required' => true,
                         ],
                         'quality' => [
-                            'required' => true,
                             'enum' => ['medium', 'high'],
+                            'required' => true,
                         ],
                     ],
                 ],
@@ -325,6 +342,10 @@ final class ContractGen
                     '_' => [
                         'extension_duration_seconds' => [
                             'enum' => [6, 10],
+                            'type' => 'integer',
+                        ],
+                        'start_seconds' => [
+                            'type' => 'integer',
                         ],
                     ],
                 ],
@@ -335,6 +356,12 @@ final class ContractGen
                     'grok-imagine-image-to-video' => [
                         'aspect_ratio' => [
                             'enum' => ['2:3', '3:2', '1:1', '16:9', '9:16'],
+                        ],
+                        'duration_seconds' => [
+                            'type' => 'integer',
+                        ],
+                        'index' => [
+                            'type' => 'integer',
                         ],
                         'motion_style' => [
                             'enum' => ['fun', 'normal', 'spicy'],
@@ -362,6 +389,9 @@ final class ContractGen
                         'aspect_ratio' => [
                             'enum' => ['2:3', '3:2', '1:1', '16:9', '9:16'],
                         ],
+                        'duration_seconds' => [
+                            'type' => 'integer',
+                        ],
                         'motion_style' => [
                             'enum' => ['fun', 'normal', 'spicy'],
                         ],
@@ -381,6 +411,9 @@ final class ContractGen
                 'models' => ['hailuo-02-image-to-video-pro', 'hailuo-02-image-to-video-standard', 'hailuo-2.3-image-to-video-pro', 'hailuo-2.3-image-to-video-standard'],
                 'fields_by_model' => [
                     'hailuo-02-image-to-video-pro' => [
+                        'duration_seconds' => [
+                            'type' => 'integer',
+                        ],
                         'first_frame_image_url' => [
                             'required' => true,
                         ],
@@ -388,6 +421,7 @@ final class ContractGen
                     'hailuo-02-image-to-video-standard' => [
                         'duration_seconds' => [
                             'enum' => [6, 10],
+                            'type' => 'integer',
                         ],
                         'first_frame_image_url' => [
                             'required' => true,
@@ -399,6 +433,7 @@ final class ContractGen
                     'hailuo-2.3-image-to-video-pro' => [
                         'duration_seconds' => [
                             'enum' => [6, 10],
+                            'type' => 'integer',
                         ],
                         'first_frame_image_url' => [
                             'required' => true,
@@ -410,6 +445,7 @@ final class ContractGen
                     'hailuo-2.3-image-to-video-standard' => [
                         'duration_seconds' => [
                             'enum' => [6, 10],
+                            'type' => 'integer',
                         ],
                         'first_frame_image_url' => [
                             'required' => true,
@@ -423,10 +459,15 @@ final class ContractGen
             'hailuo/text-to-video' => [
                 'models' => ['hailuo-02-text-to-video-pro', 'hailuo-02-text-to-video-standard'],
                 'fields_by_model' => [
-                    'hailuo-02-text-to-video-pro' => [],
+                    'hailuo-02-text-to-video-pro' => [
+                        'duration_seconds' => [
+                            'type' => 'integer',
+                        ],
+                    ],
                     'hailuo-02-text-to-video-standard' => [
                         'duration_seconds' => [
                             'enum' => [6, 10],
+                            'type' => 'integer',
                         ],
                     ],
                 ],
@@ -441,6 +482,9 @@ final class ContractGen
                         'output_resolution' => [
                             'enum' => ['720p', '1080p'],
                         ],
+                        'seed' => [
+                            'type' => 'integer',
+                        ],
                         'source_video_url' => [
                             'required' => true,
                         ],
@@ -451,11 +495,17 @@ final class ContractGen
                 'models' => ['happyhorse-image-to-video'],
                 'fields_by_model' => [
                     'happyhorse-image-to-video' => [
+                        'duration_seconds' => [
+                            'type' => 'integer',
+                        ],
                         'first_frame_image_url' => [
                             'required' => true,
                         ],
                         'output_resolution' => [
                             'enum' => ['720p', '1080p'],
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                     ],
                 ],
@@ -467,19 +517,31 @@ final class ContractGen
                         'aspect_ratio' => [
                             'enum' => ['16:9', '9:16', '1:1', '4:3', '3:4'],
                         ],
+                        'duration_seconds' => [
+                            'type' => 'integer',
+                        ],
                         'output_resolution' => [
                             'enum' => ['720p', '1080p'],
                         ],
                         'reference_image_urls' => [
                             'required' => true,
                         ],
+                        'seed' => [
+                            'type' => 'integer',
+                        ],
                     ],
                     'happyhorse-text-to-video' => [
                         'aspect_ratio' => [
                             'enum' => ['16:9', '9:16', '1:1', '4:3', '3:4'],
                         ],
+                        'duration_seconds' => [
+                            'type' => 'integer',
+                        ],
                         'output_resolution' => [
                             'enum' => ['720p', '1080p'],
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                     ],
                 ],
@@ -493,12 +555,16 @@ final class ContractGen
                         ],
                         'output_count' => [
                             'enum' => [1, 2, 3, 4],
+                            'type' => 'integer',
                         ],
                         'reference_image_urls' => [
                             'required' => true,
                         ],
                         'rendering_speed' => [
                             'enum' => ['turbo', 'balanced', 'quality'],
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                         'source_image_url' => [
                             'required' => true,
@@ -513,9 +579,13 @@ final class ContractGen
                         ],
                         'output_count' => [
                             'enum' => [1, 2, 3, 4],
+                            'type' => 'integer',
                         ],
                         'rendering_speed' => [
                             'enum' => ['turbo', 'balanced', 'quality'],
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                         'source_image_url' => [
                             'required' => true,
@@ -532,9 +602,13 @@ final class ContractGen
                         ],
                         'output_count' => [
                             'enum' => [1, 2, 3, 4],
+                            'type' => 'integer',
                         ],
                         'rendering_speed' => [
                             'enum' => ['turbo', 'balanced', 'quality'],
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                         'source_image_url' => [
                             'required' => true,
@@ -554,12 +628,16 @@ final class ContractGen
                         ],
                         'output_count' => [
                             'enum' => [1, 2, 3, 4],
+                            'type' => 'integer',
                         ],
                         'reference_image_urls' => [
                             'required' => true,
                         ],
                         'rendering_speed' => [
                             'enum' => ['turbo', 'balanced', 'quality'],
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                         'source_image_url' => [
                             'required' => true,
@@ -574,9 +652,13 @@ final class ContractGen
                         ],
                         'output_count' => [
                             'enum' => [1, 2, 3, 4],
+                            'type' => 'integer',
                         ],
                         'rendering_speed' => [
                             'enum' => ['turbo', 'balanced', 'quality'],
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                         'source_image_url' => [
                             'required' => true,
@@ -596,12 +678,16 @@ final class ContractGen
                         ],
                         'output_count' => [
                             'enum' => [1, 2, 3, 4],
+                            'type' => 'integer',
                         ],
                         'reference_image_urls' => [
                             'required' => true,
                         ],
                         'rendering_speed' => [
                             'enum' => ['turbo', 'balanced', 'quality'],
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                         'style' => [
                             'enum' => ['auto', 'realistic', 'fiction'],
@@ -613,9 +699,13 @@ final class ContractGen
                         ],
                         'output_count' => [
                             'enum' => [1, 2, 3, 4],
+                            'type' => 'integer',
                         ],
                         'rendering_speed' => [
                             'enum' => ['turbo', 'balanced', 'quality'],
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                         'style' => [
                             'enum' => ['auto', 'general', 'realistic', 'design'],
@@ -649,18 +739,24 @@ final class ContractGen
                         'aspect_ratio' => [
                             'enum' => ['1:1', '16:9', '9:16', '3:4', '4:3'],
                         ],
+                        'seed' => [
+                            'type' => 'integer',
+                        ],
                     ],
                     'imagen-4-fast' => [
                         'aspect_ratio' => [
                             'enum' => ['1:1', '16:9', '9:16', '3:4', '4:3', 'auto'],
                         ],
-                        'output_count' => [
-                            'enum' => [1, 2, 3, 4],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                     ],
                     'imagen-4-ultra' => [
                         'aspect_ratio' => [
                             'enum' => ['1:1', '16:9', '9:16', '3:4', '4:3'],
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                     ],
                 ],
@@ -671,6 +767,9 @@ final class ContractGen
                     'infinitetalk-from-audio' => [
                         'output_resolution' => [
                             'enum' => ['480p', '720p'],
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                         'source_audio_url' => [
                             'required' => true,
@@ -748,6 +847,7 @@ final class ContractGen
                     'kling-v2.1-master-image-to-video' => [
                         'duration_seconds' => [
                             'enum' => [5, 10],
+                            'type' => 'integer',
                         ],
                         'first_frame_image_url' => [
                             'required' => true,
@@ -762,6 +862,7 @@ final class ContractGen
                     'kling-v2.1-pro' => [
                         'duration_seconds' => [
                             'enum' => [5, 10],
+                            'type' => 'integer',
                         ],
                         'first_frame_image_url' => [
                             'required' => true,
@@ -776,6 +877,7 @@ final class ContractGen
                     'kling-v2.1-standard' => [
                         'duration_seconds' => [
                             'enum' => [5, 10],
+                            'type' => 'integer',
                         ],
                         'first_frame_image_url' => [
                             'required' => true,
@@ -790,6 +892,7 @@ final class ContractGen
                     'kling-v2.5-turbo-image-to-video-pro' => [
                         'duration_seconds' => [
                             'enum' => [5, 10],
+                            'type' => 'integer',
                         ],
                         'first_frame_image_url' => [
                             'required' => true,
@@ -837,6 +940,7 @@ final class ContractGen
                         ],
                         'duration_seconds' => [
                             'enum' => [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+                            'type' => 'integer',
                         ],
                         'model' => [
                             'required' => true,
@@ -851,6 +955,7 @@ final class ContractGen
                         ],
                         'duration_seconds' => [
                             'enum' => [5, 10],
+                            'type' => 'integer',
                         ],
                         'model' => [
                             'required' => true,
@@ -862,6 +967,7 @@ final class ContractGen
                         ],
                         'duration_seconds' => [
                             'enum' => [5, 10],
+                            'type' => 'integer',
                         ],
                         'model' => [
                             'required' => true,
@@ -899,7 +1005,7 @@ final class ContractGen
                 ],
             ],
             'nano-banana/text-to-image' => [
-                'models' => ['nano-banana', 'nano-banana-2', 'nano-banana-pro'],
+                'models' => ['nano-banana', 'nano-banana-2', 'nano-banana-2-lite', 'nano-banana-pro'],
                 'fields_by_model' => [
                     'nano-banana' => [
                         'aspect_ratio' => [
@@ -920,6 +1026,18 @@ final class ContractGen
                             'enum' => ['1k', '2k', '4k'],
                         ],
                     ],
+                    'nano-banana-2-lite' => [
+                        'aspect_ratio' => [
+                            'enum' => ['1:1', '1:4', '1:8', '2:3', '3:2', '3:4', '4:1', '4:3', '4:5', '5:4', '8:1', '9:16', '16:9', '21:9', 'auto'],
+                            'required' => true,
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'min' => 1,
+                            'max' => 20000,
+                            'length' => true,
+                        ],
+                    ],
                     'nano-banana-pro' => [
                         'aspect_ratio' => [
                             'enum' => ['1:1', '2:3', '3:2', '3:4', '4:3', '4:5', '5:4', '9:16', '16:9', '21:9', 'auto'],
@@ -932,6 +1050,12 @@ final class ContractGen
                         ],
                     ],
                 ],
+                'rules' => [[
+                    'when' => [
+                        'model' => 'nano-banana-2-lite',
+                    ],
+                    'forbidden' => ['output_resolution', 'output_format'],
+                ]],
             ],
             'qwen-2/edit-image' => [
                 'models' => ['qwen-2-edit-image'],
@@ -946,6 +1070,9 @@ final class ContractGen
                         'prompt' => [
                             'required' => true,
                         ],
+                        'seed' => [
+                            'type' => 'integer',
+                        ],
                         'source_image_url' => [
                             'required' => true,
                         ],
@@ -959,11 +1086,17 @@ final class ContractGen
                         'acceleration' => [
                             'enum' => ['none', 'regular', 'high'],
                         ],
+                        'num_inference_steps' => [
+                            'type' => 'integer',
+                        ],
                         'output_format' => [
                             'enum' => ['png', 'jpeg'],
                         ],
                         'prompt' => [
                             'required' => true,
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                         'source_image_url' => [
                             'required' => true,
@@ -983,6 +1116,9 @@ final class ContractGen
                         ],
                         'prompt' => [
                             'required' => true,
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                     ],
                 ],
@@ -1017,6 +1153,9 @@ final class ContractGen
                         'prompt' => [
                             'required' => true,
                         ],
+                        'seed' => [
+                            'type' => 'integer',
+                        ],
                         'source_video_url' => [
                             'required' => true,
                         ],
@@ -1028,8 +1167,8 @@ final class ContractGen
                 'fields_by_model' => [
                     'runway' => [
                         'output_resolution' => [
-                            'required' => true,
                             'enum' => ['720p', '1080p'],
+                            'required' => true,
                         ],
                         'prompt' => [
                             'required' => true,
@@ -1048,12 +1187,13 @@ final class ContractGen
                             'enum' => ['16:9', '9:16', '1:1', '4:3', '3:4'],
                         ],
                         'duration_seconds' => [
-                            'required' => true,
                             'enum' => [5, 10],
+                            'required' => true,
+                            'type' => 'integer',
                         ],
                         'output_resolution' => [
-                            'required' => true,
                             'enum' => ['720p', '1080p'],
+                            'required' => true,
                         ],
                         'prompt' => [
                             'required' => true,
@@ -1072,6 +1212,7 @@ final class ContractGen
                             'required' => true,
                             'min' => 4,
                             'max' => 12,
+                            'type' => 'integer',
                         ],
                         'output_resolution' => [
                             'enum' => ['480p', '720p', '1080p'],
@@ -1084,6 +1225,7 @@ final class ContractGen
                         'duration_seconds' => [
                             'min' => 4,
                             'max' => 15,
+                            'type' => 'integer',
                         ],
                         'output_resolution' => [
                             'enum' => ['480p', '720p'],
@@ -1096,9 +1238,10 @@ final class ContractGen
                         'duration_seconds' => [
                             'min' => 4,
                             'max' => 15,
+                            'type' => 'integer',
                         ],
                         'output_resolution' => [
-                            'enum' => ['480p', '720p', '1080p'],
+                            'enum' => ['480p', '720p', '1080p', '4k'],
                         ],
                     ],
                     'seedance-2.0-fast' => [
@@ -1108,6 +1251,7 @@ final class ContractGen
                         'duration_seconds' => [
                             'min' => 4,
                             'max' => 15,
+                            'type' => 'integer',
                         ],
                         'output_resolution' => [
                             'enum' => ['480p', '720p'],
@@ -1118,11 +1262,15 @@ final class ContractGen
                             'enum' => ['1:1', '4:3', '3:4', '16:9', '9:16', '9:21'],
                         ],
                         'duration_seconds' => [
-                            'required' => true,
                             'enum' => [5, 10],
+                            'required' => true,
+                            'type' => 'integer',
                         ],
                         'output_resolution' => [
                             'enum' => ['480p', '720p', '1080p'],
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                     ],
                     'seedance-v1-pro' => [
@@ -1130,17 +1278,22 @@ final class ContractGen
                             'enum' => ['1:1', '4:3', '3:4', '16:9', '9:16', '21:9'],
                         ],
                         'duration_seconds' => [
-                            'required' => true,
                             'enum' => [5, 10],
+                            'required' => true,
+                            'type' => 'integer',
                         ],
                         'output_resolution' => [
                             'enum' => ['480p', '720p', '1080p'],
                         ],
+                        'seed' => [
+                            'type' => 'integer',
+                        ],
                     ],
                     'seedance-v1-pro-fast' => [
                         'duration_seconds' => [
-                            'required' => true,
                             'enum' => [5, 10],
+                            'required' => true,
+                            'type' => 'integer',
                         ],
                         'first_frame_image_url' => [
                             'required' => true,
@@ -1156,12 +1309,18 @@ final class ContractGen
                 'fields_by_model' => [
                     'seedream-4.5-edit' => [
                         'aspect_ratio' => [
-                            'required' => true,
                             'enum' => ['1:1', '4:3', '3:4', '16:9', '9:16', '2:3', '3:2', '21:9'],
+                            'required' => true,
+                        ],
+                        'output_count' => [
+                            'type' => 'integer',
                         ],
                         'output_quality' => [
-                            'required' => true,
                             'enum' => ['basic', 'high'],
+                            'required' => true,
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                         'source_image_urls' => [
                             'required' => true,
@@ -1169,12 +1328,18 @@ final class ContractGen
                     ],
                     'seedream-5-lite-edit' => [
                         'aspect_ratio' => [
-                            'required' => true,
                             'enum' => ['1:1', '4:3', '3:4', '16:9', '9:16', '2:3', '3:2', '21:9'],
+                            'required' => true,
+                        ],
+                        'output_count' => [
+                            'type' => 'integer',
                         ],
                         'output_quality' => [
-                            'required' => true,
                             'enum' => ['basic', 'high'],
+                            'required' => true,
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                         'source_image_urls' => [
                             'required' => true,
@@ -1186,9 +1351,13 @@ final class ContractGen
                         ],
                         'output_count' => [
                             'enum' => [1, 2, 3, 4, 5, 6],
+                            'type' => 'integer',
                         ],
                         'output_resolution' => [
                             'enum' => ['1k', '2k', '4k'],
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                         'source_image_urls' => [
                             'required' => true,
@@ -1201,22 +1370,34 @@ final class ContractGen
                 'fields_by_model' => [
                     'seedream-4.5-text-to-image' => [
                         'aspect_ratio' => [
-                            'required' => true,
                             'enum' => ['1:1', '4:3', '3:4', '16:9', '9:16', '2:3', '3:2', '21:9'],
+                            'required' => true,
+                        ],
+                        'output_count' => [
+                            'type' => 'integer',
                         ],
                         'output_quality' => [
-                            'required' => true,
                             'enum' => ['basic', 'high'],
+                            'required' => true,
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                     ],
                     'seedream-5-lite-text-to-image' => [
                         'aspect_ratio' => [
-                            'required' => true,
                             'enum' => ['1:1', '4:3', '3:4', '16:9', '9:16', '2:3', '3:2', '21:9'],
+                            'required' => true,
+                        ],
+                        'output_count' => [
+                            'type' => 'integer',
                         ],
                         'output_quality' => [
-                            'required' => true,
                             'enum' => ['basic', 'high'],
+                            'required' => true,
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                     ],
                     'seedream-v4-text-to-image' => [
@@ -1225,9 +1406,13 @@ final class ContractGen
                         ],
                         'output_count' => [
                             'enum' => [1, 2, 3, 4, 5, 6],
+                            'type' => 'integer',
                         ],
                         'output_resolution' => [
                             'enum' => ['1k', '2k', '4k'],
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                     ],
                 ],
@@ -1342,8 +1527,8 @@ final class ContractGen
                             'enum' => ['male', 'female'],
                         ],
                         'vocal_mode' => [
-                            'required' => true,
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
+                            'required' => true,
                         ],
                     ],
                     'suno-v4.5' => [
@@ -1360,8 +1545,8 @@ final class ContractGen
                             'enum' => ['male', 'female'],
                         ],
                         'vocal_mode' => [
-                            'required' => true,
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
+                            'required' => true,
                         ],
                     ],
                     'suno-v4.5-all' => [
@@ -1378,8 +1563,8 @@ final class ContractGen
                             'enum' => ['male', 'female'],
                         ],
                         'vocal_mode' => [
-                            'required' => true,
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
+                            'required' => true,
                         ],
                     ],
                     'suno-v4.5-plus' => [
@@ -1396,8 +1581,8 @@ final class ContractGen
                             'enum' => ['male', 'female'],
                         ],
                         'vocal_mode' => [
-                            'required' => true,
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
+                            'required' => true,
                         ],
                     ],
                     'suno-v5' => [
@@ -1414,8 +1599,8 @@ final class ContractGen
                             'enum' => ['male', 'female'],
                         ],
                         'vocal_mode' => [
-                            'required' => true,
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
+                            'required' => true,
                         ],
                     ],
                     'suno-v5.5' => [
@@ -1432,11 +1617,30 @@ final class ContractGen
                             'enum' => ['male', 'female'],
                         ],
                         'vocal_mode' => [
-                            'required' => true,
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
+                            'required' => true,
                         ],
                     ],
                 ],
+                'rules' => [[
+                    'when' => [
+                        'vocal_mode' => 'auto_lyrics',
+                    ],
+                    'required' => ['prompt'],
+                    'forbidden' => ['lyrics', 'style', 'title'],
+                ], [
+                    'when' => [
+                        'vocal_mode' => 'exact_lyrics',
+                    ],
+                    'required' => ['lyrics', 'style', 'title'],
+                    'forbidden' => ['prompt'],
+                ], [
+                    'when' => [
+                        'vocal_mode' => 'instrumental',
+                    ],
+                    'required' => ['style', 'title'],
+                    'forbidden' => ['prompt', 'lyrics'],
+                ]],
             ],
             'suno/create-mashup' => [
                 'models' => ['suno-v4', 'suno-v4.5', 'suno-v4.5-all', 'suno-v4.5-plus', 'suno-v5', 'suno-v5.5'],
@@ -1455,8 +1659,8 @@ final class ContractGen
                             'enum' => ['male', 'female'],
                         ],
                         'vocal_mode' => [
-                            'required' => true,
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
+                            'required' => true,
                         ],
                     ],
                     'suno-v4.5' => [
@@ -1473,8 +1677,8 @@ final class ContractGen
                             'enum' => ['male', 'female'],
                         ],
                         'vocal_mode' => [
-                            'required' => true,
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
+                            'required' => true,
                         ],
                     ],
                     'suno-v4.5-all' => [
@@ -1491,8 +1695,8 @@ final class ContractGen
                             'enum' => ['male', 'female'],
                         ],
                         'vocal_mode' => [
-                            'required' => true,
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
+                            'required' => true,
                         ],
                     ],
                     'suno-v4.5-plus' => [
@@ -1509,8 +1713,8 @@ final class ContractGen
                             'enum' => ['male', 'female'],
                         ],
                         'vocal_mode' => [
-                            'required' => true,
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
+                            'required' => true,
                         ],
                     ],
                     'suno-v5' => [
@@ -1527,8 +1731,8 @@ final class ContractGen
                             'enum' => ['male', 'female'],
                         ],
                         'vocal_mode' => [
-                            'required' => true,
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
+                            'required' => true,
                         ],
                     ],
                     'suno-v5.5' => [
@@ -1545,11 +1749,30 @@ final class ContractGen
                             'enum' => ['male', 'female'],
                         ],
                         'vocal_mode' => [
-                            'required' => true,
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
+                            'required' => true,
                         ],
                     ],
                 ],
+                'rules' => [[
+                    'when' => [
+                        'vocal_mode' => 'auto_lyrics',
+                    ],
+                    'required' => ['prompt'],
+                    'forbidden' => ['lyrics', 'style', 'title'],
+                ], [
+                    'when' => [
+                        'vocal_mode' => 'exact_lyrics',
+                    ],
+                    'required' => ['lyrics', 'style', 'title'],
+                    'forbidden' => ['prompt'],
+                ], [
+                    'when' => [
+                        'vocal_mode' => 'instrumental',
+                    ],
+                    'required' => ['style', 'title'],
+                    'forbidden' => ['prompt', 'lyrics'],
+                ]],
             ],
             'suno/extend-music' => [
                 'models' => ['suno-v4', 'suno-v4.5', 'suno-v4.5-all', 'suno-v4.5-plus', 'suno-v5', 'suno-v5.5'],
@@ -1704,10 +1927,25 @@ final class ContractGen
                 'models' => [],
                 'fields_by_model' => [
                     '_' => [
-                        'audio_id' => [
+                        'full_lyrics' => [
                             'required' => true,
                         ],
-                        'task_id' => [
+                        'infill_end_time' => [
+                            'required' => true,
+                        ],
+                        'infill_start_time' => [
+                            'required' => true,
+                        ],
+                        'lyrics' => [
+                            'required' => true,
+                        ],
+                        'model' => [
+                            'enum' => ['suno-v4', 'suno-v4.5', 'suno-v4.5-all', 'suno-v4.5-plus', 'suno-v5', 'suno-v5.5'],
+                        ],
+                        'tags' => [
+                            'required' => true,
+                        ],
+                        'title' => [
                             'required' => true,
                         ],
                     ],
@@ -1730,6 +1968,9 @@ final class ContractGen
                 'models' => ['suno-v4', 'suno-v4.5', 'suno-v4.5-all', 'suno-v4.5-plus', 'suno-v5', 'suno-v5.5'],
                 'fields_by_model' => [
                     'suno-v4' => [
+                        'duration_seconds' => [
+                            'type' => 'integer',
+                        ],
                         'model' => [
                             'required' => true,
                         ],
@@ -1740,11 +1981,14 @@ final class ContractGen
                             'enum' => ['male', 'female'],
                         ],
                         'vocal_mode' => [
-                            'required' => true,
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
+                            'required' => true,
                         ],
                     ],
                     'suno-v4.5' => [
+                        'duration_seconds' => [
+                            'type' => 'integer',
+                        ],
                         'model' => [
                             'required' => true,
                         ],
@@ -1755,11 +1999,14 @@ final class ContractGen
                             'enum' => ['male', 'female'],
                         ],
                         'vocal_mode' => [
-                            'required' => true,
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
+                            'required' => true,
                         ],
                     ],
                     'suno-v4.5-all' => [
+                        'duration_seconds' => [
+                            'type' => 'integer',
+                        ],
                         'model' => [
                             'required' => true,
                         ],
@@ -1770,11 +2017,14 @@ final class ContractGen
                             'enum' => ['male', 'female'],
                         ],
                         'vocal_mode' => [
-                            'required' => true,
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
+                            'required' => true,
                         ],
                     ],
                     'suno-v4.5-plus' => [
+                        'duration_seconds' => [
+                            'type' => 'integer',
+                        ],
                         'model' => [
                             'required' => true,
                         ],
@@ -1785,11 +2035,14 @@ final class ContractGen
                             'enum' => ['male', 'female'],
                         ],
                         'vocal_mode' => [
-                            'required' => true,
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
+                            'required' => true,
                         ],
                     ],
                     'suno-v5' => [
+                        'duration_seconds' => [
+                            'type' => 'integer',
+                        ],
                         'model' => [
                             'required' => true,
                         ],
@@ -1800,11 +2053,14 @@ final class ContractGen
                             'enum' => ['male', 'female'],
                         ],
                         'vocal_mode' => [
-                            'required' => true,
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
+                            'required' => true,
                         ],
                     ],
                     'suno-v5.5' => [
+                        'duration_seconds' => [
+                            'type' => 'integer',
+                        ],
                         'model' => [
                             'required' => true,
                         ],
@@ -1815,11 +2071,30 @@ final class ContractGen
                             'enum' => ['male', 'female'],
                         ],
                         'vocal_mode' => [
-                            'required' => true,
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
+                            'required' => true,
                         ],
                     ],
                 ],
+                'rules' => [[
+                    'when' => [
+                        'vocal_mode' => 'auto_lyrics',
+                    ],
+                    'required' => ['prompt'],
+                    'forbidden' => ['lyrics', 'style', 'title'],
+                ], [
+                    'when' => [
+                        'vocal_mode' => 'exact_lyrics',
+                    ],
+                    'required' => ['lyrics', 'style', 'title'],
+                    'forbidden' => ['prompt'],
+                ], [
+                    'when' => [
+                        'vocal_mode' => 'instrumental',
+                    ],
+                    'required' => ['style', 'title'],
+                    'forbidden' => ['prompt', 'lyrics'],
+                ]],
             ],
             'suno/text-to-sound' => [
                 'models' => ['suno-v5', 'suno-v5.5'],
@@ -1834,6 +2109,9 @@ final class ContractGen
                         'sound_key' => [
                             'enum' => ['Cm', 'C#m', 'Dm', 'D#m', 'Em', 'Fm', 'F#m', 'Gm', 'G#m', 'Am', 'A#m', 'Bm', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'],
                         ],
+                        'sound_tempo' => [
+                            'type' => 'integer',
+                        ],
                     ],
                     'suno-v5.5' => [
                         'model' => [
@@ -1844,6 +2122,9 @@ final class ContractGen
                         ],
                         'sound_key' => [
                             'enum' => ['Cm', 'C#m', 'Dm', 'D#m', 'Em', 'Fm', 'F#m', 'Gm', 'G#m', 'Am', 'A#m', 'Bm', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'],
+                        ],
+                        'sound_tempo' => [
+                            'type' => 'integer',
                         ],
                     ],
                 ],
@@ -1863,9 +2144,11 @@ final class ContractGen
                         ],
                         'vocal_end_seconds' => [
                             'required' => true,
+                            'type' => 'integer',
                         ],
                         'vocal_start_seconds' => [
                             'required' => true,
+                            'type' => 'integer',
                         ],
                     ],
                 ],
@@ -1878,8 +2161,9 @@ final class ContractGen
                             'required' => true,
                         ],
                         'upscale_factor' => [
-                            'required' => true,
                             'enum' => [1, 2, 4, 8],
+                            'required' => true,
+                            'type' => 'integer',
                         ],
                     ],
                 ],
@@ -1893,6 +2177,7 @@ final class ContractGen
                         ],
                         'upscale_factor' => [
                             'enum' => [1, 2, 4],
+                            'type' => 'integer',
                         ],
                     ],
                 ],
@@ -1901,6 +2186,9 @@ final class ContractGen
                 'models' => [],
                 'fields_by_model' => [
                     '_' => [
+                        'seeds' => [
+                            'type' => 'integer',
+                        ],
                         'source_task_id' => [
                             'required' => true,
                         ],
@@ -1916,9 +2204,13 @@ final class ContractGen
                         ],
                         'duration_seconds' => [
                             'enum' => [4, 6, 8],
+                            'type' => 'integer',
                         ],
                         'input_mode' => [
                             'enum' => ['text', 'first_and_last_frames', 'reference'],
+                        ],
+                        'seeds' => [
+                            'type' => 'integer',
                         ],
                     ],
                     'veo-3.1-fast' => [
@@ -1927,9 +2219,13 @@ final class ContractGen
                         ],
                         'duration_seconds' => [
                             'enum' => [4, 6, 8],
+                            'type' => 'integer',
                         ],
                         'input_mode' => [
                             'enum' => ['text', 'first_and_last_frames', 'reference'],
+                        ],
+                        'seeds' => [
+                            'type' => 'integer',
                         ],
                     ],
                 ],
@@ -1938,6 +2234,9 @@ final class ContractGen
                 'models' => [],
                 'fields_by_model' => [
                     '_' => [
+                        'index' => [
+                            'type' => 'integer',
+                        ],
                         'output_resolution' => [
                             'enum' => ['1080p', '4k'],
                         ],
@@ -1975,19 +2274,31 @@ final class ContractGen
                 'models' => ['wan-2.6-edit-video', 'wan-2.6-flash-edit-video', 'wan-2.7-edit-video'],
                 'fields_by_model' => [
                     'wan-2.6-edit-video' => [
+                        'duration_seconds' => [
+                            'type' => 'integer',
+                        ],
                         'output_resolution' => [
                             'enum' => ['720p', '1080p'],
                         ],
                         'prompt' => [
                             'required' => true,
                         ],
+                        'seed' => [
+                            'type' => 'integer',
+                        ],
                         'source_video_urls' => [
                             'required' => true,
                         ],
                     ],
                     'wan-2.6-flash-edit-video' => [
+                        'duration_seconds' => [
+                            'type' => 'integer',
+                        ],
                         'prompt' => [
                             'required' => true,
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                         'source_video_urls' => [
                             'required' => true,
@@ -1997,8 +2308,14 @@ final class ContractGen
                         'aspect_ratio' => [
                             'enum' => ['16:9', '9:16', '1:1', '4:3', '3:4'],
                         ],
+                        'duration_seconds' => [
+                            'type' => 'integer',
+                        ],
                         'output_resolution' => [
                             'enum' => ['720p', '1080p'],
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                         'source_video_url' => [
                             'required' => true,
@@ -2010,28 +2327,41 @@ final class ContractGen
                 'models' => ['wan-2.2-a14b-image-to-video-turbo', 'wan-2.5-image-to-video', 'wan-2.6-flash-image-to-video', 'wan-2.6-image-to-video', 'wan-2.7-image-to-video'],
                 'fields_by_model' => [
                     'wan-2.2-a14b-image-to-video-turbo' => [
+                        'duration_seconds' => [
+                            'type' => 'integer',
+                        ],
                         'first_frame_image_url' => [
                             'required' => true,
                         ],
                         'output_resolution' => [
                             'enum' => ['480p', '720p'],
                         ],
+                        'seed' => [
+                            'type' => 'integer',
+                        ],
                     ],
                     'wan-2.5-image-to-video' => [
                         'duration_seconds' => [
                             'required' => true,
+                            'type' => 'integer',
                         ],
                         'first_frame_image_url' => [
                             'required' => true,
                         ],
                         'output_resolution' => [
                             'enum' => ['720p', '1080p'],
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                     ],
                     'wan-2.6-flash-image-to-video' => [
                         'audio' => [
                             'required' => true,
                         ],
+                        'duration_seconds' => [
+                            'type' => 'integer',
+                        ],
                         'first_frame_image_url' => [
                             'required' => true,
                         ],
@@ -2040,9 +2370,15 @@ final class ContractGen
                         ],
                         'prompt' => [
                             'required' => true,
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                     ],
                     'wan-2.6-image-to-video' => [
+                        'duration_seconds' => [
+                            'type' => 'integer',
+                        ],
                         'first_frame_image_url' => [
                             'required' => true,
                         ],
@@ -2052,13 +2388,22 @@ final class ContractGen
                         'prompt' => [
                             'required' => true,
                         ],
+                        'seed' => [
+                            'type' => 'integer',
+                        ],
                     ],
                     'wan-2.7-image-to-video' => [
+                        'duration_seconds' => [
+                            'type' => 'integer',
+                        ],
                         'output_resolution' => [
                             'enum' => ['720p', '1080p'],
                         ],
                         'prompt' => [
                             'required' => true,
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                     ],
                 ],
@@ -2067,11 +2412,23 @@ final class ContractGen
                 'models' => ['wan-2.2-a14b-speech-to-video-turbo'],
                 'fields_by_model' => [
                     'wan-2.2-a14b-speech-to-video-turbo' => [
+                        'frames_per_second' => [
+                            'type' => 'integer',
+                        ],
+                        'num_frames' => [
+                            'type' => 'integer',
+                        ],
+                        'num_inference_steps' => [
+                            'type' => 'integer',
+                        ],
                         'output_resolution' => [
                             'enum' => ['480p', '580p', '720p'],
                         ],
                         'prompt' => [
                             'required' => true,
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                         'source_audio_url' => [
                             'required' => true,
@@ -2089,16 +2446,28 @@ final class ContractGen
                         'aspect_ratio' => [
                             'enum' => ['1:1', '16:9', '4:3', '21:9', '3:4', '9:16', '8:1', '1:8'],
                         ],
+                        'output_count' => [
+                            'type' => 'integer',
+                        ],
                         'output_resolution' => [
                             'enum' => ['1k', '2k', '4k'],
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                     ],
                     'wan-2.7-image-pro' => [
                         'aspect_ratio' => [
                             'enum' => ['1:1', '16:9', '4:3', '21:9', '3:4', '9:16', '8:1', '1:8'],
                         ],
+                        'output_count' => [
+                            'type' => 'integer',
+                        ],
                         'output_resolution' => [
                             'enum' => ['1k', '2k', '4k'],
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                     ],
                 ],
@@ -2107,18 +2476,36 @@ final class ContractGen
                 'models' => ['wan-2.2-a14b-text-to-video-turbo', 'wan-2.5-text-to-video', 'wan-2.6-text-to-video', 'wan-2.7-r2v', 'wan-2.7-text-to-video'],
                 'fields_by_model' => [
                     'wan-2.2-a14b-text-to-video-turbo' => [
+                        'duration_seconds' => [
+                            'type' => 'integer',
+                        ],
                         'output_resolution' => [
                             'enum' => ['480p', '580p', '720p'],
                         ],
+                        'seed' => [
+                            'type' => 'integer',
+                        ],
                     ],
                     'wan-2.5-text-to-video' => [
+                        'duration_seconds' => [
+                            'type' => 'integer',
+                        ],
                         'output_resolution' => [
                             'enum' => ['720p', '1080p'],
                         ],
+                        'seed' => [
+                            'type' => 'integer',
+                        ],
                     ],
                     'wan-2.6-text-to-video' => [
+                        'duration_seconds' => [
+                            'type' => 'integer',
+                        ],
                         'output_resolution' => [
                             'enum' => ['720p', '1080p'],
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                     ],
                     'wan-2.7-r2v' => [
@@ -2128,14 +2515,24 @@ final class ContractGen
                         'duration_seconds' => [
                             'min' => 2,
                             'max' => 10,
+                            'type' => 'integer',
                         ],
                         'output_resolution' => [
                             'enum' => ['720p', '1080p'],
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                     ],
                     'wan-2.7-text-to-video' => [
+                        'duration_seconds' => [
+                            'type' => 'integer',
+                        ],
                         'output_resolution' => [
                             'enum' => ['720p', '1080p'],
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
                         ],
                     ],
                 ],
@@ -2145,13 +2542,14 @@ final class ContractGen
                 'fields_by_model' => [
                     'z-image' => [
                         'aspect_ratio' => [
-                            'required' => true,
                             'enum' => ['1:1', '4:3', '3:4', '16:9', '9:16'],
+                            'required' => true,
                         ],
                         'prompt' => [
                             'required' => true,
                             'min' => 1,
                             'max' => 1000,
+                            'length' => true,
                         ],
                     ],
                 ],

@@ -123,6 +123,20 @@ final class ContractValidatorTest extends TestCase
         ]);
     }
 
+    public function testRejectsForbiddenRuleField(): void
+    {
+        $validator = new ContractValidator($this->repository());
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('output_resolution is not allowed when model is nano-banana-2-lite');
+
+        $validator->validate('nano-banana/text-to-image', 'nano-banana-2-lite', [
+            'prompt' => 'A product render',
+            'aspect_ratio' => 'auto',
+            'output_resolution' => '1k',
+        ]);
+    }
+
     public function testRejectsStringBelowMinimumLength(): void
     {
         $validator = new ContractValidator($this->repository());
@@ -137,14 +151,72 @@ final class ContractValidatorTest extends TestCase
         ]);
     }
 
-    public function testUnknownActionAndModelAreNoOps(): void
+    public function testUnknownActionIsNoOp(): void
     {
         $validator = new ContractValidator($this->repository());
 
         $validator->validate('unknown/action', 'kling-v2', []);
-        $validator->validate('kling/text-to-video', 'unknown-model', []);
 
         self::assertNull($this->repository()->action('unknown/action'));
+    }
+
+    public function testRejectsUnknownModel(): void
+    {
+        $validator = new ContractValidator($this->repository());
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('model must be one of the allowed values');
+
+        $validator->validate('kling/text-to-video', 'unknown-model', [
+            'model' => 'unknown-model',
+            'prompt' => 'A neon city at night',
+            'aspect_ratio' => '16:9',
+            'duration' => 10,
+        ]);
+    }
+
+    public function testRejectsMissingModel(): void
+    {
+        $validator = new ContractValidator($this->repository());
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('model is required');
+
+        $validator->validate('kling/text-to-video', '_', [
+            'prompt' => 'A neon city at night',
+            'aspect_ratio' => '16:9',
+            'duration' => 10,
+        ]);
+    }
+
+    public function testRejectsNonIntegerField(): void
+    {
+        $validator = new ContractValidator($this->repository());
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('duration must be an integer between 5 and 10');
+
+        $validator->validate('kling/text-to-video', 'kling-v2', [
+            'model' => 'kling-v2',
+            'prompt' => 'A neon city at night',
+            'aspect_ratio' => '16:9',
+            'duration' => 5.5,
+        ]);
+    }
+
+    public function testEnforcesDeclaredForbiddenRules(): void
+    {
+        $validator = new ContractValidator($this->repository());
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('first_frame_image_url is not allowed when model is seedance-2.0 and output_resolution is 4k');
+
+        $validator->validate('seedance/text-to-video', 'seedance-2.0', [
+            'model' => 'seedance-2.0',
+            'prompt' => 'A cinematic city flyover',
+            'output_resolution' => '4k',
+            'first_frame_image_url' => 'https://file.runapi.ai/first.png',
+        ]);
     }
 
     private function repository(): ContractRepository
@@ -156,7 +228,7 @@ final class ContractValidatorTest extends TestCase
                     'kling-v2' => [
                         'prompt' => ['required' => true, 'min' => 3, 'max' => 24],
                         'aspect_ratio' => ['enum' => ['16:9', '9:16']],
-                        'duration' => ['min' => 5, 'max' => 10],
+                        'duration' => ['min' => 5, 'max' => 10, 'type' => 'integer'],
                     ],
                 ],
             ],
@@ -175,6 +247,38 @@ final class ContractValidatorTest extends TestCase
                     'nano-banana-edit' => [
                         'prompt' => ['required' => true],
                         'source_image_urls' => ['required' => true],
+                    ],
+                ],
+            ],
+            'nano-banana/text-to-image' => [
+                'models' => ['nano-banana-2-lite'],
+                'rules' => [
+                    [
+                        'when' => ['model' => 'nano-banana-2-lite'],
+                        'forbidden' => ['output_resolution', 'output_format'],
+                    ],
+                ],
+                'fields_by_model' => [
+                    'nano-banana-2-lite' => [
+                        'prompt' => ['required' => true],
+                        'aspect_ratio' => ['required' => true, 'enum' => ['auto', '16:9']],
+                        'output_resolution' => [],
+                        'output_format' => [],
+                    ],
+                ],
+            ],
+            'seedance/text-to-video' => [
+                'models' => ['seedance-2.0'],
+                'fields_by_model' => [
+                    'seedance-2.0' => [
+                        'prompt' => ['required' => true],
+                        'output_resolution' => ['enum' => ['480p', '720p', '1080p', '4k']],
+                    ],
+                ],
+                'rules' => [
+                    [
+                        'when' => ['model' => 'seedance-2.0', 'output_resolution' => '4k'],
+                        'forbidden' => ['first_frame_image_url'],
                     ],
                 ],
             ],
