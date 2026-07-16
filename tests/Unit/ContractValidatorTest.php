@@ -103,6 +103,20 @@ final class ContractValidatorTest extends TestCase
         ]);
     }
 
+    public function testRejectsStringForIntegerField(): void
+    {
+        $validator = new ContractValidator($this->repository());
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('duration must be an integer between 5 and 10');
+
+        $validator->validate('kling/text-to-video', 'kling-v2', [
+            'prompt' => 'A neon city at night',
+            'aspect_ratio' => '16:9',
+            'duration' => '8',
+        ]);
+    }
+
     public function testValidatesStringRangeAsLength(): void
     {
         $validator = new ContractValidator($this->repository());
@@ -148,6 +162,30 @@ final class ContractValidatorTest extends TestCase
             'prompt' => 'ok',
             'aspect_ratio' => '16:9',
             'duration' => 10,
+        ]);
+    }
+
+    public function testRejectsFieldForbiddenByRuleBeforeMissingRequiredField(): void
+    {
+        $validator = new ContractValidator($this->repository());
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('source_task_id is not allowed when model is grok-imagine-video-1.5-preview');
+
+        $validator->validate('grok-imagine/image-to-video', 'grok-imagine-video-1.5-preview', [
+            'source_task_id' => 'src_1',
+        ]);
+    }
+
+    public function testRejectsFieldRequiredByRule(): void
+    {
+        $validator = new ContractValidator($this->repository());
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('lyrics is required when mode is exact');
+
+        $validator->validate('sample/rules', 'sample-model', [
+            'mode' => 'exact',
         ]);
     }
 
@@ -226,7 +264,7 @@ final class ContractValidatorTest extends TestCase
                 'models' => ['kling-v2'],
                 'fields_by_model' => [
                     'kling-v2' => [
-                        'prompt' => ['required' => true, 'min' => 3, 'max' => 24],
+                        'prompt' => ['required' => true, 'min' => 3, 'max' => 24, 'length' => true],
                         'aspect_ratio' => ['enum' => ['16:9', '9:16']],
                         'duration' => ['min' => 5, 'max' => 10, 'type' => 'integer'],
                     ],
@@ -279,6 +317,34 @@ final class ContractValidatorTest extends TestCase
                     [
                         'when' => ['model' => 'seedance-2.0', 'output_resolution' => '4k'],
                         'forbidden' => ['first_frame_image_url'],
+                    ],
+                ],
+            ],
+            'grok-imagine/image-to-video' => [
+                'models' => ['grok-imagine-video-1.5-preview'],
+                'rules' => [
+                    [
+                        'when' => ['model' => 'grok-imagine-video-1.5-preview'],
+                        'forbidden' => ['source_task_id'],
+                    ],
+                ],
+                'fields_by_model' => [
+                    'grok-imagine-video-1.5-preview' => [
+                        'source_image_urls' => ['required' => true],
+                    ],
+                ],
+            ],
+            'sample/rules' => [
+                'models' => ['sample-model'],
+                'rules' => [
+                    [
+                        'when' => ['mode' => 'exact'],
+                        'required' => ['lyrics'],
+                    ],
+                ],
+                'fields_by_model' => [
+                    'sample-model' => [
+                        'mode' => ['enum' => ['exact', 'auto']],
                     ],
                 ],
             ],

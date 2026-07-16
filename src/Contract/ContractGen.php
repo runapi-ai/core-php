@@ -351,7 +351,7 @@ final class ContractGen
                 ],
             ],
             'grok-imagine/image-to-video' => [
-                'models' => ['grok-imagine-image-to-video'],
+                'models' => ['grok-imagine-image-to-video', 'grok-imagine-video-1.5-preview'],
                 'fields_by_model' => [
                     'grok-imagine-image-to-video' => [
                         'aspect_ratio' => [
@@ -370,7 +370,37 @@ final class ContractGen
                             'enum' => ['480p', '720p'],
                         ],
                     ],
+                    'grok-imagine-video-1.5-preview' => [
+                        'aspect_ratio' => [
+                            'enum' => ['1:1', '16:9', '9:16', '3:2', '2:3', 'auto'],
+                        ],
+                        'duration_seconds' => [
+                            'min' => 1,
+                            'max' => 15,
+                            'type' => 'integer',
+                        ],
+                        'index' => [
+                            'type' => 'integer',
+                        ],
+                        'output_resolution' => [
+                            'enum' => ['480p', '720p'],
+                        ],
+                        'prompt' => [
+                            'min' => 1,
+                            'max' => 4096,
+                            'length' => true,
+                        ],
+                        'source_image_urls' => [
+                            'required' => true,
+                        ],
+                    ],
                 ],
+                'rules' => [[
+                    'when' => [
+                        'model' => 'grok-imagine-video-1.5-preview',
+                    ],
+                    'forbidden' => ['source_task_id', 'index', 'motion_style', 'enable_safety_checker'],
+                ]],
             ],
             'grok-imagine/text-to-image' => [
                 'models' => ['grok-imagine-text-to-image'],
@@ -383,7 +413,7 @@ final class ContractGen
                 ],
             ],
             'grok-imagine/text-to-video' => [
-                'models' => ['grok-imagine-text-to-video'],
+                'models' => ['grok-imagine-text-to-video', 'grok-imagine-video-1.5-preview'],
                 'fields_by_model' => [
                     'grok-imagine-text-to-video' => [
                         'aspect_ratio' => [
@@ -399,7 +429,32 @@ final class ContractGen
                             'enum' => ['480p', '720p'],
                         ],
                     ],
+                    'grok-imagine-video-1.5-preview' => [
+                        'aspect_ratio' => [
+                            'enum' => ['1:1', '16:9', '9:16', '3:2', '2:3', 'auto'],
+                        ],
+                        'duration_seconds' => [
+                            'min' => 1,
+                            'max' => 15,
+                            'type' => 'integer',
+                        ],
+                        'output_resolution' => [
+                            'enum' => ['480p', '720p'],
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'min' => 1,
+                            'max' => 4096,
+                            'length' => true,
+                        ],
+                    ],
                 ],
+                'rules' => [[
+                    'when' => [
+                        'model' => 'grok-imagine-video-1.5-preview',
+                    ],
+                    'forbidden' => ['motion_style', 'enable_safety_checker'],
+                ]],
             ],
             'grok-imagine/upscale-image' => [
                 'models' => [],
@@ -842,7 +897,7 @@ final class ContractGen
                 ],
             ],
             'kling/image-to-video' => [
-                'models' => ['kling-v2.1-master-image-to-video', 'kling-v2.1-pro', 'kling-v2.1-standard', 'kling-v2.5-turbo-image-to-video-pro'],
+                'models' => ['kling-v2.1-master-image-to-video', 'kling-v2.1-pro', 'kling-v2.1-standard', 'kling-v2.5-turbo-image-to-video-pro', 'kling-v3-turbo-image-to-video'],
                 'fields_by_model' => [
                     'kling-v2.1-master-image-to-video' => [
                         'duration_seconds' => [
@@ -904,7 +959,54 @@ final class ContractGen
                             'required' => true,
                         ],
                     ],
+                    'kling-v3-turbo-image-to-video' => [
+                        'duration_seconds' => [
+                            'enum' => [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+                            'type' => 'integer',
+                        ],
+                        'first_frame_image_url' => [
+                            'required' => true,
+                        ],
+                        'model' => [
+                            'required' => true,
+                        ],
+                        'output_resolution' => [
+                            'enum' => ['720p', '1080p'],
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'min' => 1,
+                            'max' => 2500,
+                            'length' => true,
+                        ],
+                    ],
                 ],
+                'rules' => [[
+                    'when' => [
+                        'model' => 'kling-v2.1-master-image-to-video',
+                    ],
+                    'forbidden' => ['output_resolution'],
+                ], [
+                    'when' => [
+                        'model' => 'kling-v2.1-pro',
+                    ],
+                    'forbidden' => ['output_resolution'],
+                ], [
+                    'when' => [
+                        'model' => 'kling-v2.1-standard',
+                    ],
+                    'forbidden' => ['output_resolution'],
+                ], [
+                    'when' => [
+                        'model' => 'kling-v2.5-turbo-image-to-video-pro',
+                    ],
+                    'forbidden' => ['output_resolution'],
+                ], [
+                    'when' => [
+                        'model' => 'kling-v3-turbo-image-to-video',
+                    ],
+                    'forbidden' => ['aspect_ratio', 'negative_prompt', 'cfg_scale', 'last_frame_image_url'],
+                ]],
             ],
             'kling/motion-control' => [
                 'models' => ['kling-3.0'],
@@ -932,7 +1034,7 @@ final class ContractGen
                 ],
             ],
             'kling/text-to-video' => [
-                'models' => ['kling-3.0', 'kling-v2.1-master-text-to-video', 'kling-v2.5-turbo-text-to-video-pro'],
+                'models' => ['kling-3.0', 'kling-v2.1-master-text-to-video', 'kling-v2.5-turbo-text-to-video-pro', 'kling-v3-turbo-text-to-video'],
                 'fields_by_model' => [
                     'kling-3.0' => [
                         'aspect_ratio' => [
@@ -973,7 +1075,34 @@ final class ContractGen
                             'required' => true,
                         ],
                     ],
+                    'kling-v3-turbo-text-to-video' => [
+                        'aspect_ratio' => [
+                            'enum' => ['16:9', '9:16', '1:1'],
+                        ],
+                        'duration_seconds' => [
+                            'enum' => [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+                            'type' => 'integer',
+                        ],
+                        'model' => [
+                            'required' => true,
+                        ],
+                        'output_resolution' => [
+                            'enum' => ['720p', '1080p'],
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'min' => 1,
+                            'max' => 2500,
+                            'length' => true,
+                        ],
+                    ],
                 ],
+                'rules' => [[
+                    'when' => [
+                        'model' => 'kling-v3-turbo-text-to-video',
+                    ],
+                    'forbidden' => ['enable_sound', 'negative_prompt', 'cfg_scale', 'multi_shots', 'multi_prompt', 'first_frame_image_url', 'last_frame_image_url', 'kling_elements'],
+                ]],
             ],
             'luma/modify-video' => [
                 'models' => ['luma-modify-video'],
@@ -989,8 +1118,23 @@ final class ContractGen
                 ],
             ],
             'nano-banana/edit-image' => [
-                'models' => ['nano-banana-edit'],
+                'models' => ['nano-banana-2-lite', 'nano-banana-edit'],
                 'fields_by_model' => [
+                    'nano-banana-2-lite' => [
+                        'aspect_ratio' => [
+                            'enum' => ['1:1', '1:4', '1:8', '2:3', '3:2', '3:4', '4:1', '4:3', '4:5', '5:4', '8:1', '9:16', '16:9', '21:9', 'auto'],
+                            'required' => true,
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'min' => 1,
+                            'max' => 20000,
+                            'length' => true,
+                        ],
+                        'source_image_urls' => [
+                            'required' => true,
+                        ],
+                    ],
                     'nano-banana-edit' => [
                         'aspect_ratio' => [
                             'enum' => ['1:1', '9:16', '16:9', '3:4', '4:3', '3:2', '2:3', '5:4', '4:5', '21:9', 'auto'],
@@ -1003,6 +1147,12 @@ final class ContractGen
                         ],
                     ],
                 ],
+                'rules' => [[
+                    'when' => [
+                        'model' => 'nano-banana-2-lite',
+                    ],
+                    'forbidden' => ['output_format'],
+                ]],
             ],
             'nano-banana/text-to-image' => [
                 'models' => ['nano-banana', 'nano-banana-2', 'nano-banana-2-lite', 'nano-banana-pro'],
@@ -1056,6 +1206,49 @@ final class ContractGen
                     ],
                     'forbidden' => ['output_resolution', 'output_format'],
                 ]],
+            ],
+            'omnihuman/audio-to-video' => [
+                'models' => ['omnihuman-1.5'],
+                'fields_by_model' => [
+                    'omnihuman-1.5' => [
+                        'output_resolution' => [
+                            'enum' => ['720p', '1080p'],
+                        ],
+                        'prompt' => [
+                            'max' => 1000,
+                            'length' => true,
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
+                        ],
+                        'source_audio_url' => [
+                            'required' => true,
+                        ],
+                        'source_image_url' => [
+                            'required' => true,
+                        ],
+                    ],
+                ],
+            ],
+            'omnihuman/human-identification' => [
+                'models' => ['omnihuman-1.5-human-identification'],
+                'fields_by_model' => [
+                    'omnihuman-1.5-human-identification' => [
+                        'source_image_url' => [
+                            'required' => true,
+                        ],
+                    ],
+                ],
+            ],
+            'omnihuman/subject-detection' => [
+                'models' => ['omnihuman-1.5-subject-detection'],
+                'fields_by_model' => [
+                    'omnihuman-1.5-subject-detection' => [
+                        'source_image_url' => [
+                            'required' => true,
+                        ],
+                    ],
+                ],
             ],
             'qwen-2/edit-image' => [
                 'models' => ['qwen-2-edit-image'],
@@ -2242,6 +2435,42 @@ final class ContractGen
                         ],
                     ],
                 ],
+            ],
+            'volcengine-lip-sync/lip-sync-video' => [
+                'models' => ['volcengine-lip-sync'],
+                'fields_by_model' => [
+                    'volcengine-lip-sync' => [
+                        'mode' => [
+                            'enum' => ['lite', 'basic'],
+                            'required' => true,
+                        ],
+                        'source_audio_url' => [
+                            'required' => true,
+                        ],
+                        'source_video_url' => [
+                            'required' => true,
+                        ],
+                        'template_start_seconds' => [
+                            'min' => 0,
+                        ],
+                    ],
+                ],
+                'rules' => [[
+                    'when' => [
+                        'mode' => 'lite',
+                    ],
+                    'forbidden' => ['enable_scene_detection'],
+                ], [
+                    'when' => [
+                        'mode' => 'basic',
+                    ],
+                    'forbidden' => ['align_audio', 'align_audio_reverse', 'template_start_seconds'],
+                ], [
+                    'when' => [
+                        'align_audio_reverse' => true,
+                    ],
+                    'required' => ['align_audio'],
+                ]],
             ],
             'wan/animate' => [
                 'models' => ['wan-2.2-animate-move', 'wan-2.2-animate-replace'],

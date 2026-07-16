@@ -46,11 +46,11 @@ final readonly class ContractValidator
             return;
         }
 
+        $this->validateRules($actionContract['rules'] ?? [], $model, $params);
+
         foreach ($fields as $name => $schema) {
             $this->validateField($name, $schema, $params);
         }
-
-        $this->validateRules($actionContract['rules'] ?? [], $model, $params);
     }
 
     /**
@@ -59,7 +59,7 @@ final readonly class ContractValidator
      */
     private function validateField(string $name, array $schema, array $params): void
     {
-        $hasValue = array_key_exists($name, $params) && $params[$name] !== null;
+        $hasValue = $this->fieldPresent($name, $params);
         if (($schema['required'] ?? false) === true && !$hasValue) {
             throw new ValidationException($name . ' is required');
         }
@@ -92,10 +92,9 @@ final readonly class ContractValidator
             return;
         }
 
-        $detail = '';
-        if (array_key_exists('min', $schema) && array_key_exists('max', $schema)) {
-            $detail = ' between ' . $schema['min'] . ' and ' . $schema['max'];
-        }
+        $detail = array_key_exists('min', $schema) && array_key_exists('max', $schema)
+            ? ' between ' . $schema['min'] . ' and ' . $schema['max']
+            : '';
 
         throw new ValidationException($name . ' must be an integer' . $detail);
     }
@@ -109,8 +108,8 @@ final readonly class ContractValidator
             return;
         }
 
-        if (is_string($value)) {
-            $length = mb_strlen($value);
+        if (($schema['length'] ?? false) === true) {
+            $length = mb_strlen((string) $value);
             if (array_key_exists('min', $schema) && $length < (int) $schema['min']) {
                 throw new ValidationException($name . ' must be at least ' . $schema['min'] . ' characters');
             }
@@ -150,12 +149,14 @@ final readonly class ContractValidator
 
             $context = $this->conditionDescription($conditions);
             foreach (($rule['required'] ?? []) as $field) {
+                $field = (string) $field;
                 if (!$this->fieldPresent($field, $params)) {
                     throw new ValidationException($field . ' is required when ' . $context);
                 }
             }
 
             foreach (($rule['forbidden'] ?? []) as $field) {
+                $field = (string) $field;
                 if ($this->fieldPresent($field, $params)) {
                     throw new ValidationException($field . ' is not allowed when ' . $context);
                 }

@@ -67,8 +67,8 @@ final class AllResourcesOfflineSmokeTest extends TestCase
     {
         $cases = self::discoverResourceCases();
 
-        self::assertCount(85, $cases);
-        self::assertCount(27, array_unique(array_map(static fn (ResourceCase $case): string => $case->package, $cases)));
+        self::assertCount(89, $cases);
+        self::assertCount(29, array_unique(array_map(static fn (ResourceCase $case): string => $case->package, $cases)));
     }
 
     public function testUniversalResourcesUseExpectedHttpBoundary(): void
@@ -266,6 +266,18 @@ final class AllResourcesOfflineSmokeTest extends TestCase
             return $payload;
         }
 
+        if ($case->outputKind === 'mask') {
+            $payload['masks'] = [['url' => 'https://file.runapi.ai/mask.png']];
+
+            return $payload;
+        }
+
+        if ($case->outputKind === 'subject_status') {
+            $payload['subject_status'] = 1;
+
+            return $payload;
+        }
+
         $payload['videos'] = [['url' => 'https://file.runapi.ai/result.mp4']];
 
         return $payload;
@@ -425,6 +437,8 @@ final class AllResourcesOfflineSmokeTest extends TestCase
             str_contains($source, 'CompletedSpeechToTextResponse') => 'text',
             str_contains($source, 'CompletedAudioTaskResponse') => 'audio',
             str_contains($source, 'CompletedImageTaskResponse') => 'image',
+            str_contains($source, 'CompletedMaskTaskResponse') => 'mask',
+            str_contains($source, 'CompletedSubjectStatusTaskResponse') => 'subject_status',
             str_contains($source, 'CompletedVideoTaskResponse') => 'video',
             default => 'none',
         };
