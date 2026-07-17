@@ -351,7 +351,7 @@ final class ContractGen
                 ],
             ],
             'grok-imagine/image-to-video' => [
-                'models' => ['grok-imagine-image-to-video', 'grok-imagine-video-1.5-preview'],
+                'models' => ['grok-imagine-image-to-video', 'grok-imagine-video-1.5-fast', 'grok-imagine-video-1.5-preview'],
                 'fields_by_model' => [
                     'grok-imagine-image-to-video' => [
                         'aspect_ratio' => [
@@ -368,6 +368,25 @@ final class ContractGen
                         ],
                         'output_resolution' => [
                             'enum' => ['480p', '720p'],
+                        ],
+                    ],
+                    'grok-imagine-video-1.5-fast' => [
+                        'aspect_ratio' => [
+                            'enum' => ['1:1', '16:9', '9:16', '3:2', '2:3'],
+                        ],
+                        'duration_seconds' => [
+                            'min' => 1,
+                            'max' => 30,
+                            'type' => 'integer',
+                        ],
+                        'index' => [
+                            'type' => 'integer',
+                        ],
+                        'output_resolution' => [
+                            'enum' => ['480p', '720p'],
+                        ],
+                        'source_image_urls' => [
+                            'required' => true,
                         ],
                     ],
                     'grok-imagine-video-1.5-preview' => [
@@ -397,9 +416,19 @@ final class ContractGen
                 ],
                 'rules' => [[
                     'when' => [
-                        'model' => 'grok-imagine-video-1.5-preview',
+                        'model' => 'grok-imagine-image-to-video',
+                    ],
+                    'forbidden' => ['reference_image_urls'],
+                ], [
+                    'when' => [
+                        'model' => 'grok-imagine-video-1.5-fast',
                     ],
                     'forbidden' => ['source_task_id', 'index', 'motion_style', 'enable_safety_checker'],
+                ], [
+                    'when' => [
+                        'model' => 'grok-imagine-video-1.5-preview',
+                    ],
+                    'forbidden' => ['source_task_id', 'index', 'reference_image_urls', 'motion_style', 'enable_safety_checker'],
                 ]],
             ],
             'grok-imagine/text-to-image' => [
@@ -413,7 +442,7 @@ final class ContractGen
                 ],
             ],
             'grok-imagine/text-to-video' => [
-                'models' => ['grok-imagine-text-to-video', 'grok-imagine-video-1.5-preview'],
+                'models' => ['grok-imagine-text-to-video', 'grok-imagine-video-1.5-fast', 'grok-imagine-video-1.5-preview'],
                 'fields_by_model' => [
                     'grok-imagine-text-to-video' => [
                         'aspect_ratio' => [
@@ -427,6 +456,22 @@ final class ContractGen
                         ],
                         'output_resolution' => [
                             'enum' => ['480p', '720p'],
+                        ],
+                    ],
+                    'grok-imagine-video-1.5-fast' => [
+                        'aspect_ratio' => [
+                            'enum' => ['1:1', '16:9', '9:16', '3:2', '2:3'],
+                        ],
+                        'duration_seconds' => [
+                            'min' => 1,
+                            'max' => 30,
+                            'type' => 'integer',
+                        ],
+                        'output_resolution' => [
+                            'enum' => ['480p', '720p'],
+                        ],
+                        'prompt' => [
+                            'required' => true,
                         ],
                     ],
                     'grok-imagine-video-1.5-preview' => [
@@ -451,9 +496,19 @@ final class ContractGen
                 ],
                 'rules' => [[
                     'when' => [
-                        'model' => 'grok-imagine-video-1.5-preview',
+                        'model' => 'grok-imagine-text-to-video',
+                    ],
+                    'forbidden' => ['reference_image_urls'],
+                ], [
+                    'when' => [
+                        'model' => 'grok-imagine-video-1.5-fast',
                     ],
                     'forbidden' => ['motion_style', 'enable_safety_checker'],
+                ], [
+                    'when' => [
+                        'model' => 'grok-imagine-video-1.5-preview',
+                    ],
+                    'forbidden' => ['reference_image_urls', 'motion_style', 'enable_safety_checker'],
                 ]],
             ],
             'grok-imagine/upscale-image' => [
@@ -1112,6 +1167,62 @@ final class ContractGen
                             'required' => true,
                         ],
                         'source_video_url' => [
+                            'required' => true,
+                        ],
+                    ],
+                ],
+            ],
+            'midjourney/edit-image' => [
+                'models' => ['midjourney-edit-image'],
+                'fields_by_model' => [
+                    'midjourney-edit-image' => [
+                        'prompt' => [
+                            'required' => true,
+                        ],
+                        'source_image_url' => [
+                            'required' => true,
+                        ],
+                    ],
+                ],
+            ],
+            'midjourney/get-seed' => [
+                'models' => [],
+                'fields_by_model' => [
+                    '_' => [
+                        'image_id' => [
+                            'required' => true,
+                        ],
+                    ],
+                ],
+            ],
+            'midjourney/image-to-prompt' => [
+                'models' => [],
+                'fields_by_model' => [
+                    '_' => [
+                        'source_image_url' => [
+                            'required' => true,
+                        ],
+                    ],
+                ],
+            ],
+            'midjourney/image-to-video' => [
+                'models' => ['midjourney-image-to-video'],
+                'fields_by_model' => [
+                    'midjourney-image-to-video' => [
+                        'output_resolution' => [
+                            'enum' => ['480p'],
+                        ],
+                        'source_image_url' => [
+                            'required' => true,
+                        ],
+                    ],
+                ],
+            ],
+            'midjourney/text-to-image' => [
+                'models' => ['midjourney-v8.1'],
+                'fields_by_model' => [
+                    'midjourney-v8.1' => [
+                        'prompt' => [
                             'required' => true,
                         ],
                     ],

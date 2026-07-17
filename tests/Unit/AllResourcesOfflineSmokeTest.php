@@ -67,8 +67,8 @@ final class AllResourcesOfflineSmokeTest extends TestCase
     {
         $cases = self::discoverResourceCases();
 
-        self::assertCount(89, $cases);
-        self::assertCount(29, array_unique(array_map(static fn (ResourceCase $case): string => $case->package, $cases)));
+        self::assertCount(94, $cases);
+        self::assertCount(30, array_unique(array_map(static fn (ResourceCase $case): string => $case->package, $cases)));
     }
 
     public function testUniversalResourcesUseExpectedHttpBoundary(): void
@@ -321,6 +321,10 @@ final class AllResourcesOfflineSmokeTest extends TestCase
             $payload['style'] = 'indie pop, warm drums';
         } elseif ($case->resource === 'checkVoice') {
             $payload['is_available'] = true;
+        } elseif ($case->resource === 'getSeed') {
+            $payload['seed'] = 8675309;
+        } elseif ($case->resource === 'imageToPrompt') {
+            $payload['prompts'] = ['one', 'two', 'three', 'four'];
         }
 
         return $payload;
