@@ -9,4 +9,15 @@ namespace RunApi\Core\Errors;
  */
 final class NotFoundException extends RunApiException
 {
+    public function __construct(
+        string $message,
+        int $statusCode = 404,
+        ?string $requestId = null,
+        ?string $errorCode = 'not_found',
+        mixed $details = null,
+        ?string $responseBody = null,
+        ?\Throwable $previous = null,
+    ) {
+        parent::__construct($message, $statusCode, $requestId, $errorCode, $details, $responseBody, $previous);
+    }
 }

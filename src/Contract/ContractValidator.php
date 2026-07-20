@@ -59,6 +59,11 @@ final readonly class ContractValidator
      */
     private function validateField(string $name, array $schema, array $params): void
     {
+        $value = $params[$name] ?? null;
+        if ($value !== null && (array_key_exists('min_items', $schema) || array_key_exists('max_items', $schema))) {
+            $this->validateItemCount($name, $schema, $value);
+        }
+
         $hasValue = $this->fieldPresent($name, $params);
         if (($schema['required'] ?? false) === true && !$hasValue) {
             throw new ValidationException($name . ' is required');
@@ -68,7 +73,6 @@ final readonly class ContractValidator
             return;
         }
 
-        $value = $params[$name];
         if (array_key_exists('enum', $schema)) {
             $enum = $schema['enum'];
             if (!is_array($enum) || !in_array($value, $enum, true)) {
@@ -81,6 +85,37 @@ final readonly class ContractValidator
         }
 
         $this->validateRange($name, $schema, $value);
+    }
+
+    /**
+     * @param array<string, mixed> $schema
+     */
+    private function validateItemCount(string $name, array $schema, mixed $value): void
+    {
+        if (!is_array($value) || !array_is_list($value)) {
+            throw new ValidationException($name . ' must be an array');
+        }
+
+        $minimum = $schema['min_items'] ?? null;
+        $maximum = $schema['max_items'] ?? null;
+        $count = count($value);
+        if (($minimum === null || $count >= (int) $minimum) && ($maximum === null || $count <= (int) $maximum)) {
+            return;
+        }
+
+        throw new ValidationException($this->itemCountMessage($name, $minimum, $maximum));
+    }
+
+    private function itemCountMessage(string $name, mixed $minimum, mixed $maximum): string
+    {
+        if ($minimum !== null && $maximum !== null) {
+            return $name . ' must contain between ' . $minimum . ' and ' . $maximum . ' items';
+        }
+        if ($minimum !== null) {
+            return $name . ' must contain at least ' . $minimum . ' items';
+        }
+
+        return $name . ' must contain at most ' . $maximum . ' items';
     }
 
     /**

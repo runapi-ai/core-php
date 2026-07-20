@@ -110,8 +110,6 @@ final class ErrorMapper
             return $error['code'];
         }
 
-        $code = $details['code'] ?? null;
-
-        return is_string($code) ? $code : null;
+        return null;
     }
 }

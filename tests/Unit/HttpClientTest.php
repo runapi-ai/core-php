@@ -16,6 +16,7 @@ use Psr\Http\Message\StreamFactoryInterface;
 use RunApi\Core\ClientOptions;
 use RunApi\Core\Errors\NetworkException;
 use RunApi\Core\Errors\RateLimitException;
+use RunApi\Core\Errors\RunApiException;
 use RunApi\Core\Errors\ServerException;
 use RunApi\Core\Http\HttpClient;
 use RunApi\Core\RequestOptions;
@@ -95,6 +96,64 @@ final class HttpClientTest extends TestCase
             self::assertSame(2.0, $exception->retryAfterSeconds);
             self::assertIsArray($exception->details);
         }
+    }
+
+    public function testMissingHttpErrorCodeRemainsNull(): void
+    {
+        $transport = new QueueHttpClient([
+            new Response(409, ['Content-Type' => 'application/json'], '{"error":{"message":"wait"}}'),
+        ]);
+        $client = new HttpClient(new ClientOptions(apiKey: 'test-key', httpClient: $transport, maxRetries: 0));
+
+        try {
+            $client->request('get', '/api/v1/tasks/task_123');
+            self::fail('Expected an API exception.');
+        } catch (\RunApi\Core\Errors\RunApiException $exception) {
+            self::assertNull($exception->errorCode);
+        }
+    }
+
+    public function testContinuationErrorsPreserveCodesAndStatusClassification(): void
+    {
+        $cases = [
+            [400, 'invalid_resource_id', \RunApi\Core\Errors\ValidationException::class],
+            [409, 'request_conflict', RunApiException::class],
+            [409, 'source_task_not_ready', RunApiException::class],
+            [422, 'source_task_unusable', \RunApi\Core\Errors\ValidationException::class],
+            [422, 'continuation_not_supported', \RunApi\Core\Errors\ValidationException::class],
+            [429, 'rate_limited', RateLimitException::class],
+            [503, 'continuation_unavailable', ServerException::class],
+        ];
+
+        foreach ($cases as [$status, $code, $exceptionClass]) {
+            $transport = new QueueHttpClient([
+                new Response($status, ['Content-Type' => 'application/json'], sprintf(
+                    '{"error":{"code":"%s","message":"failed"}}',
+                    $code,
+                )),
+            ]);
+            $client = new HttpClient(new ClientOptions(apiKey: 'test-key', httpClient: $transport, maxRetries: 0));
+
+            try {
+                $client->request('post', '/api/v1/continuation');
+                self::fail('Expected an API exception.');
+            } catch (RunApiException $exception) {
+                self::assertInstanceOf($exceptionClass, $exception);
+                self::assertSame($status, $exception->statusCode);
+                self::assertSame($code, $exception->errorCode);
+            }
+        }
+    }
+
+    public function testSdkLocalErrorsDeclareExplicitCodes(): void
+    {
+        self::assertSame('validation', (new \RunApi\Core\Errors\ValidationException('invalid'))->errorCode);
+        self::assertSame('authentication', (new \RunApi\Core\Errors\AuthenticationException('unauthorized'))->errorCode);
+        self::assertSame('network', (new NetworkException('offline'))->errorCode);
+        self::assertSame('rate_limit', (new RateLimitException('slow down'))->errorCode);
+        self::assertSame('task_failed', (new \RunApi\Core\Errors\TaskFailedException('failed'))->errorCode);
+        self::assertSame('task_timeout', (new \RunApi\Core\Errors\TaskTimeoutException('timeout'))->errorCode);
+        self::assertSame('timeout', (new \RunApi\Core\Errors\TimeoutException('timeout'))->errorCode);
     }
 
     public function testRetriesIdempotentRequestsOnRetryableStatus(): void

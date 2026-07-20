@@ -61,6 +61,32 @@ final class ContractValidatorTest extends TestCase
         ]);
     }
 
+    public function testValidatesArrayItemCountConstraints(): void
+    {
+        $validator = new ContractValidator($this->repository());
+
+        foreach ([
+            ['image.png', 'source_image_urls must be an array'],
+            [[], 'source_image_urls must contain between 1 and 3 items'],
+            [['a', 'b', 'c', 'd'], 'source_image_urls must contain between 1 and 3 items'],
+        ] as [$value, $message]) {
+            try {
+                $validator->validate('nano-banana/edit-image', 'nano-banana-edit', [
+                    'prompt' => 'A product render',
+                    'source_image_urls' => $value,
+                ]);
+                self::fail('Expected array item count validation to fail');
+            } catch (ValidationException $error) {
+                self::assertSame($message, $error->getMessage());
+            }
+        }
+
+        $validator->validate('nano-banana/edit-image', 'nano-banana-edit', [
+            'prompt' => 'A product render',
+            'source_image_urls' => ['a', 'b', 'c'],
+        ]);
+    }
+
     public function testRejectsEnumMismatch(): void
     {
         $validator = new ContractValidator($this->repository());
@@ -284,7 +310,7 @@ final class ContractValidatorTest extends TestCase
                 'fields_by_model' => [
                     'nano-banana-edit' => [
                         'prompt' => ['required' => true],
-                        'source_image_urls' => ['required' => true],
+                        'source_image_urls' => ['required' => true, 'min_items' => 1, 'max_items' => 3],
                     ],
                 ],
             ],

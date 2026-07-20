@@ -17,7 +17,7 @@ final class RateLimitException extends RunApiException
         public readonly ?float $retryAfterSeconds = null,
         int $statusCode = 429,
         ?string $requestId = null,
-        ?string $errorCode = null,
+        ?string $errorCode = 'rate_limit',
         mixed $details = null,
         ?string $responseBody = null,
         ?\Throwable $previous = null,

@@ -88,6 +88,21 @@ final class ContractGen
                     'required' => ['voice'],
                 ]],
             ],
+            'fish-audio/text-to-speech' => [
+                'models' => ['s1', 's2-pro'],
+                'fields_by_model' => [
+                    's1' => [
+                        'text' => [
+                            'required' => true,
+                        ],
+                    ],
+                    's2-pro' => [
+                        'text' => [
+                            'required' => true,
+                        ],
+                    ],
+                ],
+            ],
             'flux-2/remix-image' => [
                 'models' => ['flux-2-flex-remix-image', 'flux-2-pro-remix-image'],
                 'fields_by_model' => [
@@ -103,6 +118,8 @@ final class ContractGen
                         ],
                         'source_image_urls' => [
                             'required' => true,
+                            'min_items' => 1,
+                            'max_items' => 8,
                         ],
                     ],
                     'flux-2-pro-remix-image' => [
@@ -117,6 +134,8 @@ final class ContractGen
                         ],
                         'source_image_urls' => [
                             'required' => true,
+                            'min_items' => 1,
+                            'max_items' => 8,
                         ],
                     ],
                 ],
@@ -214,11 +233,34 @@ final class ContractGen
                 ],
             ],
             'gemini-omni/text-to-video' => [
-                'models' => ['gemini-omni-text-to-video'],
+                'models' => ['gemini-omni-flash-preview', 'gemini-omni-text-to-video'],
                 'fields_by_model' => [
+                    'gemini-omni-flash-preview' => [
+                        'aspect_ratio' => [
+                            'enum' => ['16:9', '9:16'],
+                        ],
+                        'duration_seconds' => [
+                            'type' => 'integer',
+                        ],
+                        'output_resolution' => [
+                            'enum' => ['720p'],
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
+                        ],
+                    ],
                     'gemini-omni-text-to-video' => [
                         'aspect_ratio' => [
                             'enum' => ['16:9', '9:16'],
+                        ],
+                        'audio_ids' => [
+                            'max_items' => 3,
+                        ],
+                        'character_ids' => [
+                            'max_items' => 3,
                         ],
                         'duration_seconds' => [
                             'enum' => [4, 6, 8, 10],
@@ -231,8 +273,59 @@ final class ContractGen
                         'prompt' => [
                             'required' => true,
                         ],
+                        'reference_image_urls' => [
+                            'max_items' => 7,
+                        ],
                         'seed' => [
                             'type' => 'integer',
+                        ],
+                        'video_list' => [
+                            'max_items' => 1,
+                        ],
+                    ],
+                ],
+                'rules' => [[
+                    'when' => [
+                        'model' => 'gemini-omni-flash-preview',
+                    ],
+                    'forbidden' => ['reference_image_urls', 'audio_ids', 'video_list', 'character_ids', 'duration_seconds', 'seed'],
+                ]],
+            ],
+            'gemini-tts/text-to-speech' => [
+                'models' => ['gemini-2.5-pro-tts', 'gemini-3.1-flash-tts'],
+                'fields_by_model' => [
+                    'gemini-2.5-pro-tts' => [
+                        'dialogue_turns' => [
+                            'required' => true,
+                            'min_items' => 1,
+                        ],
+                        'model' => [
+                            'required' => true,
+                        ],
+                        'speakers' => [
+                            'required' => true,
+                            'min_items' => 1,
+                        ],
+                        'temperature' => [
+                            'min' => 0,
+                            'max' => 2,
+                        ],
+                    ],
+                    'gemini-3.1-flash-tts' => [
+                        'dialogue_turns' => [
+                            'required' => true,
+                            'min_items' => 1,
+                        ],
+                        'model' => [
+                            'required' => true,
+                        ],
+                        'speakers' => [
+                            'required' => true,
+                            'min_items' => 1,
+                        ],
+                        'temperature' => [
+                            'min' => 0,
+                            'max' => 2,
                         ],
                     ],
                 ],
@@ -248,6 +341,9 @@ final class ContractGen
                         'output_count' => [
                             'enum' => [1, 2, 4],
                             'type' => 'integer',
+                        ],
+                        'source_image_urls' => [
+                            'max_items' => 5,
                         ],
                     ],
                 ],
@@ -385,7 +481,7 @@ final class ContractGen
                         'output_resolution' => [
                             'enum' => ['480p', '720p'],
                         ],
-                        'source_image_urls' => [
+                        'source_image_url' => [
                             'required' => true,
                         ],
                     ],
@@ -409,7 +505,7 @@ final class ContractGen
                             'max' => 4096,
                             'length' => true,
                         ],
-                        'source_image_urls' => [
+                        'source_image_url' => [
                             'required' => true,
                         ],
                     ],
@@ -592,6 +688,9 @@ final class ContractGen
                         'output_resolution' => [
                             'enum' => ['720p', '1080p'],
                         ],
+                        'reference_image_urls' => [
+                            'max_items' => 5,
+                        ],
                         'seed' => [
                             'type' => 'integer',
                         ],
@@ -635,6 +734,8 @@ final class ContractGen
                         ],
                         'reference_image_urls' => [
                             'required' => true,
+                            'min_items' => 1,
+                            'max_items' => 9,
                         ],
                         'seed' => [
                             'type' => 'integer',
@@ -838,6 +939,8 @@ final class ContractGen
                         ],
                         'source_image_urls' => [
                             'required' => true,
+                            'min_items' => 1,
+                            'max_items' => 8,
                         ],
                     ],
                 ],
@@ -1218,6 +1321,16 @@ final class ContractGen
                     ],
                 ],
             ],
+            'midjourney/shorten-prompt' => [
+                'models' => [],
+                'fields_by_model' => [
+                    '_' => [
+                        'prompt' => [
+                            'required' => true,
+                        ],
+                    ],
+                ],
+            ],
             'midjourney/text-to-image' => [
                 'models' => ['midjourney-v8.1'],
                 'fields_by_model' => [
@@ -1244,6 +1357,8 @@ final class ContractGen
                         ],
                         'source_image_urls' => [
                             'required' => true,
+                            'min_items' => 1,
+                            'max_items' => 10,
                         ],
                     ],
                     'nano-banana-edit' => [
@@ -1298,6 +1413,9 @@ final class ContractGen
                             'max' => 20000,
                             'length' => true,
                         ],
+                        'reference_image_urls' => [
+                            'max_items' => 10,
+                        ],
                     ],
                     'nano-banana-pro' => [
                         'aspect_ratio' => [
@@ -1322,6 +1440,9 @@ final class ContractGen
                 'models' => ['omnihuman-1.5'],
                 'fields_by_model' => [
                     'omnihuman-1.5' => [
+                        'mask_urls' => [
+                            'max_items' => 5,
+                        ],
                         'output_resolution' => [
                             'enum' => ['720p', '1080p'],
                         ],
@@ -1360,6 +1481,56 @@ final class ContractGen
                         ],
                     ],
                 ],
+            ],
+            'openai-tts/text-to-speech' => [
+                'models' => ['tts-1', 'tts-1-hd'],
+                'fields_by_model' => [
+                    'tts-1' => [
+                        'text' => [
+                            'required' => true,
+                            'max' => 4096,
+                            'length' => true,
+                        ],
+                    ],
+                    'tts-1-hd' => [
+                        'text' => [
+                            'required' => true,
+                            'max' => 4096,
+                            'length' => true,
+                        ],
+                    ],
+                ],
+            ],
+            'producer/text-to-music' => [
+                'models' => ['fuzz-2.0'],
+                'fields_by_model' => [
+                    'fuzz-2.0' => [
+                        'model' => [
+                            'required' => true,
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'min' => 1,
+                            'max' => 200,
+                            'length' => true,
+                        ],
+                        'vocal_mode' => [
+                            'enum' => ['exact_lyrics', 'instrumental'],
+                            'required' => true,
+                        ],
+                    ],
+                ],
+                'rules' => [[
+                    'when' => [
+                        'vocal_mode' => 'exact_lyrics',
+                    ],
+                    'required' => ['lyrics'],
+                ], [
+                    'when' => [
+                        'vocal_mode' => 'instrumental',
+                    ],
+                    'forbidden' => ['lyrics'],
+                ]],
             ],
             'qwen-2/edit-image' => [
                 'models' => ['qwen-2-edit-image'],
@@ -1521,6 +1692,9 @@ final class ContractGen
                         'output_resolution' => [
                             'enum' => ['480p', '720p', '1080p'],
                         ],
+                        'source_image_urls' => [
+                            'max_items' => 2,
+                        ],
                     ],
                     'seedance-2-mini' => [
                         'aspect_ratio' => [
@@ -1533,6 +1707,15 @@ final class ContractGen
                         ],
                         'output_resolution' => [
                             'enum' => ['480p', '720p'],
+                        ],
+                        'reference_audio_urls' => [
+                            'max_items' => 3,
+                        ],
+                        'reference_image_urls' => [
+                            'max_items' => 9,
+                        ],
+                        'reference_video_urls' => [
+                            'max_items' => 3,
                         ],
                     ],
                     'seedance-2.0' => [
@@ -1547,6 +1730,15 @@ final class ContractGen
                         'output_resolution' => [
                             'enum' => ['480p', '720p', '1080p', '4k'],
                         ],
+                        'reference_audio_urls' => [
+                            'max_items' => 3,
+                        ],
+                        'reference_image_urls' => [
+                            'max_items' => 9,
+                        ],
+                        'reference_video_urls' => [
+                            'max_items' => 3,
+                        ],
                     ],
                     'seedance-2.0-fast' => [
                         'aspect_ratio' => [
@@ -1559,6 +1751,15 @@ final class ContractGen
                         ],
                         'output_resolution' => [
                             'enum' => ['480p', '720p'],
+                        ],
+                        'reference_audio_urls' => [
+                            'max_items' => 3,
+                        ],
+                        'reference_image_urls' => [
+                            'max_items' => 9,
+                        ],
+                        'reference_video_urls' => [
+                            'max_items' => 3,
                         ],
                     ],
                     'seedance-v1-lite' => [
@@ -1609,7 +1810,7 @@ final class ContractGen
                 ],
             ],
             'seedream/edit-image' => [
-                'models' => ['seedream-4.5-edit', 'seedream-5-lite-edit', 'seedream-v4-edit'],
+                'models' => ['seedream-4.5-edit', 'seedream-5-lite-edit', 'seedream-5-pro-edit', 'seedream-v4-edit'],
                 'fields_by_model' => [
                     'seedream-4.5-edit' => [
                         'aspect_ratio' => [
@@ -1628,6 +1829,8 @@ final class ContractGen
                         ],
                         'source_image_urls' => [
                             'required' => true,
+                            'min_items' => 1,
+                            'max_items' => 14,
                         ],
                     ],
                     'seedream-5-lite-edit' => [
@@ -1638,6 +1841,9 @@ final class ContractGen
                         'output_count' => [
                             'type' => 'integer',
                         ],
+                        'output_format' => [
+                            'enum' => ['png', 'jpeg'],
+                        ],
                         'output_quality' => [
                             'enum' => ['basic', 'high'],
                             'required' => true,
@@ -1647,6 +1853,32 @@ final class ContractGen
                         ],
                         'source_image_urls' => [
                             'required' => true,
+                            'min_items' => 1,
+                            'max_items' => 14,
+                        ],
+                    ],
+                    'seedream-5-pro-edit' => [
+                        'aspect_ratio' => [
+                            'enum' => ['1:1', '4:3', '3:4', '16:9', '9:16', '2:3', '3:2', '21:9'],
+                            'required' => true,
+                        ],
+                        'output_format' => [
+                            'enum' => ['png', 'jpeg'],
+                        ],
+                        'output_quality' => [
+                            'enum' => ['basic', 'high'],
+                            'required' => true,
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'min' => 3,
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                        'source_image_urls' => [
+                            'required' => true,
+                            'min_items' => 1,
+                            'max_items' => 10,
                         ],
                     ],
                     'seedream-v4-edit' => [
@@ -1665,12 +1897,30 @@ final class ContractGen
                         ],
                         'source_image_urls' => [
                             'required' => true,
+                            'min_items' => 1,
+                            'max_items' => 10,
                         ],
                     ],
                 ],
+                'rules' => [[
+                    'when' => [
+                        'model' => 'seedream-4.5-edit',
+                    ],
+                    'forbidden' => ['output_format'],
+                ], [
+                    'when' => [
+                        'model' => 'seedream-5-pro-edit',
+                    ],
+                    'forbidden' => ['output_resolution', 'output_count', 'seed'],
+                ], [
+                    'when' => [
+                        'model' => 'seedream-v4-edit',
+                    ],
+                    'forbidden' => ['output_format'],
+                ]],
             ],
             'seedream/text-to-image' => [
-                'models' => ['seedream-4.5-text-to-image', 'seedream-5-lite-text-to-image', 'seedream-v4-text-to-image'],
+                'models' => ['seedream-4.5-text-to-image', 'seedream-5-lite-text-to-image', 'seedream-5-pro-text-to-image', 'seedream-v4-text-to-image'],
                 'fields_by_model' => [
                     'seedream-4.5-text-to-image' => [
                         'aspect_ratio' => [
@@ -1696,12 +1946,34 @@ final class ContractGen
                         'output_count' => [
                             'type' => 'integer',
                         ],
+                        'output_format' => [
+                            'enum' => ['png', 'jpeg'],
+                        ],
                         'output_quality' => [
                             'enum' => ['basic', 'high'],
                             'required' => true,
                         ],
                         'seed' => [
                             'type' => 'integer',
+                        ],
+                    ],
+                    'seedream-5-pro-text-to-image' => [
+                        'aspect_ratio' => [
+                            'enum' => ['1:1', '4:3', '3:4', '16:9', '9:16', '2:3', '3:2', '21:9'],
+                            'required' => true,
+                        ],
+                        'output_format' => [
+                            'enum' => ['png', 'jpeg'],
+                        ],
+                        'output_quality' => [
+                            'enum' => ['basic', 'high'],
+                            'required' => true,
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'min' => 3,
+                            'max' => 5000,
+                            'length' => true,
                         ],
                     ],
                     'seedream-v4-text-to-image' => [
@@ -1720,6 +1992,22 @@ final class ContractGen
                         ],
                     ],
                 ],
+                'rules' => [[
+                    'when' => [
+                        'model' => 'seedream-4.5-text-to-image',
+                    ],
+                    'forbidden' => ['output_format'],
+                ], [
+                    'when' => [
+                        'model' => 'seedream-5-pro-text-to-image',
+                    ],
+                    'forbidden' => ['output_resolution', 'output_count', 'seed'],
+                ], [
+                    'when' => [
+                        'model' => 'seedream-v4-text-to-image',
+                    ],
+                    'forbidden' => ['output_format'],
+                ]],
             ],
             'suno/add-instrumental' => [
                 'models' => ['suno-v4.5-plus', 'suno-v5', 'suno-v5.5'],
@@ -1958,6 +2246,8 @@ final class ContractGen
                         ],
                         'upload_url_list' => [
                             'required' => true,
+                            'min_items' => 2,
+                            'max_items' => 2,
                         ],
                         'vocal_gender' => [
                             'enum' => ['male', 'female'],
@@ -1976,6 +2266,8 @@ final class ContractGen
                         ],
                         'upload_url_list' => [
                             'required' => true,
+                            'min_items' => 2,
+                            'max_items' => 2,
                         ],
                         'vocal_gender' => [
                             'enum' => ['male', 'female'],
@@ -1994,6 +2286,8 @@ final class ContractGen
                         ],
                         'upload_url_list' => [
                             'required' => true,
+                            'min_items' => 2,
+                            'max_items' => 2,
                         ],
                         'vocal_gender' => [
                             'enum' => ['male', 'female'],
@@ -2012,6 +2306,8 @@ final class ContractGen
                         ],
                         'upload_url_list' => [
                             'required' => true,
+                            'min_items' => 2,
+                            'max_items' => 2,
                         ],
                         'vocal_gender' => [
                             'enum' => ['male', 'female'],
@@ -2030,6 +2326,8 @@ final class ContractGen
                         ],
                         'upload_url_list' => [
                             'required' => true,
+                            'min_items' => 2,
+                            'max_items' => 2,
                         ],
                         'vocal_gender' => [
                             'enum' => ['male', 'female'],
@@ -2048,6 +2346,8 @@ final class ContractGen
                         ],
                         'upload_url_list' => [
                             'required' => true,
+                            'min_items' => 2,
+                            'max_items' => 2,
                         ],
                         'vocal_gender' => [
                             'enum' => ['male', 'female'],
@@ -2262,11 +2562,23 @@ final class ContractGen
                         'audio_id' => [
                             'required' => true,
                         ],
+                        'stem_name' => [
+                            'enum' => ['Lead Vocal', 'Drum Kit', 'Kick', 'Snare', 'Risers', 'Bass', 'Backing Vocals', 'Piano', 'Electric Guitar', 'Percussion', 'String Section', 'Synth', 'Acoustic Guitar', 'Sound Effects', 'Synth Pad', 'Synth Bass', 'Guitar', 'Brass Section', 'Organ', 'Electronic Drum Kit', 'Lead Electric Guitar', 'Synth Keys', 'Rhythm Electric Guitar', 'Electric Piano', 'Upright Bass', 'Keyboards', 'Distorted Electric Guitar', 'Synth Strings', 'Synth Lead', 'Woodwinds', 'Rhythm Acoustic Guitar', 'Flute', 'Harp', 'Tambourine', 'Trumpet', 'Arpeggiator', 'Accordion', 'Fiddle', 'Pedal Steel Guitar', 'Synth Voice', 'Violin', 'Digital Piano', 'Synth Brass', 'Mandolin', 'Choir', 'Banjo', 'Bells', 'Clarinet', 'Tenor Saxophone', 'Trombone', 'Shaker', 'French Horn', 'Glockenspiel', 'Electric Bass', 'Cello', 'Timpani', 'Harmonica', 'Marimba', 'Vibraphone', 'Lap Steel Guitar', 'Saxophone', 'Orchestra', 'Horns', 'Cymbals', 'Hand Clap', 'Oboe', 'Celesta', 'Congas', 'Drone', 'Alto Saxophone', 'Double Bass', 'Ukulele', 'Harpsichord', 'Baritone Saxophone', 'Xylophone', 'Tuba', 'Bass Guitar', 'Whistle', 'Lead Guitar', 'Rhodes', '808', 'Bongos', 'Bassoon', 'Cowbell', 'Viola', 'Sitar', 'Steel Drums', 'Piccolo', 'Theremin', 'Bagpipes', 'Hi-Hat', 'Music Box', 'Melodica', 'Tabla', 'Koto', 'Djembe', 'Taiko', 'Didgeridoo'],
+                        ],
                         'task_id' => [
                             'required' => true,
                         ],
+                        'type' => [
+                            'enum' => ['separate_vocal', 'split_stem', 'split_stem_advanced'],
+                        ],
                     ],
                 ],
+                'rules' => [[
+                    'when' => [
+                        'type' => 'split_stem_advanced',
+                    ],
+                    'required' => ['stem_name'],
+                ]],
             ],
             'suno/text-to-music' => [
                 'models' => ['suno-v4', 'suno-v4.5', 'suno-v4.5-all', 'suno-v4.5-plus', 'suno-v5', 'suno-v5.5'],
@@ -2513,6 +2825,10 @@ final class ContractGen
                         'input_mode' => [
                             'enum' => ['text', 'first_and_last_frames', 'reference'],
                         ],
+                        'reference_image_urls' => [
+                            'min_items' => 1,
+                            'max_items' => 3,
+                        ],
                         'seeds' => [
                             'type' => 'integer',
                         ],
@@ -2527,6 +2843,10 @@ final class ContractGen
                         ],
                         'input_mode' => [
                             'enum' => ['text', 'first_and_last_frames', 'reference'],
+                        ],
+                        'reference_image_urls' => [
+                            'min_items' => 1,
+                            'max_items' => 3,
                         ],
                         'seeds' => [
                             'type' => 'integer',
@@ -2711,9 +3031,6 @@ final class ContractGen
                         'prompt' => [
                             'required' => true,
                         ],
-                        'seed' => [
-                            'type' => 'integer',
-                        ],
                     ],
                     'wan-2.6-image-to-video' => [
                         'duration_seconds' => [
@@ -2727,9 +3044,6 @@ final class ContractGen
                         ],
                         'prompt' => [
                             'required' => true,
-                        ],
-                        'seed' => [
-                            'type' => 'integer',
                         ],
                     ],
                     'wan-2.7-image-to-video' => [
@@ -2747,6 +3061,17 @@ final class ContractGen
                         ],
                     ],
                 ],
+                'rules' => [[
+                    'when' => [
+                        'model' => 'wan-2.6-flash-image-to-video',
+                    ],
+                    'forbidden' => ['seed'],
+                ], [
+                    'when' => [
+                        'model' => 'wan-2.6-image-to-video',
+                    ],
+                    'forbidden' => ['seed'],
+                ]],
             ],
             'wan/speech-to-video' => [
                 'models' => ['wan-2.2-a14b-speech-to-video-turbo'],
@@ -2844,9 +3169,6 @@ final class ContractGen
                         'output_resolution' => [
                             'enum' => ['720p', '1080p'],
                         ],
-                        'seed' => [
-                            'type' => 'integer',
-                        ],
                     ],
                     'wan-2.7-r2v' => [
                         'aspect_ratio' => [
@@ -2876,6 +3198,12 @@ final class ContractGen
                         ],
                     ],
                 ],
+                'rules' => [[
+                    'when' => [
+                        'model' => 'wan-2.6-text-to-video',
+                    ],
+                    'forbidden' => ['seed'],
+                ]],
             ],
             'z-image/text-to-image' => [
                 'models' => ['z-image'],

@@ -67,8 +67,8 @@ final class AllResourcesOfflineSmokeTest extends TestCase
     {
         $cases = self::discoverResourceCases();
 
-        self::assertCount(94, $cases);
-        self::assertCount(30, array_unique(array_map(static fn (ResourceCase $case): string => $case->package, $cases)));
+        self::assertCount(99, $cases);
+        self::assertCount(34, array_unique(array_map(static fn (ResourceCase $case): string => $case->package, $cases)));
     }
 
     public function testUniversalResourcesUseExpectedHttpBoundary(): void
@@ -260,6 +260,15 @@ final class AllResourcesOfflineSmokeTest extends TestCase
             return $payload;
         }
 
+        if ($case->outputKind === 'separated_audio') {
+            $payload['separated_audios'] = [
+                'vocal_url' => 'https://file.runapi.ai/vocal.mp3',
+                'instrumental_url' => 'https://file.runapi.ai/instrumental.mp3',
+            ];
+
+            return $payload;
+        }
+
         if ($case->outputKind === 'image') {
             $payload['images'] = [['url' => 'https://file.runapi.ai/result.png']];
 
@@ -290,10 +299,18 @@ final class AllResourcesOfflineSmokeTest extends TestCase
     {
         $payload = [
             'id' => 'sync_result',
+            'status' => 'completed',
             'extra_field' => 'kept',
         ];
 
-        if ($case->resource === 'createAudio') {
+        if ($case->resource === 'textToSpeech' && $case->outputKind === 'audio') {
+            $payload['audios'] = [[
+                'url' => 'https://file.runapi.ai/result.mp3',
+                'format' => 'mp3',
+                'mime_type' => 'audio/mpeg',
+                'size_bytes' => 128,
+            ]];
+        } elseif ($case->resource === 'createAudio') {
             $payload['audio'] = [
                 'id' => 'audio_1',
                 'name' => 'Narrator',
@@ -323,7 +340,7 @@ final class AllResourcesOfflineSmokeTest extends TestCase
             $payload['is_available'] = true;
         } elseif ($case->resource === 'getSeed') {
             $payload['seed'] = 8675309;
-        } elseif ($case->resource === 'imageToPrompt') {
+        } elseif (in_array($case->resource, ['imageToPrompt', 'shortenPrompt'], true)) {
             $payload['prompts'] = ['one', 'two', 'three', 'four'];
         }
 
@@ -404,7 +421,7 @@ final class AllResourcesOfflineSmokeTest extends TestCase
         }
 
         if ($package === 'runapi-ai/suno') {
-            $endpointName = self::match($source, '/new self\(\$http, \'([^\']+)\'/');
+            $endpointName = self::match($source, '/new self\(\s*\$http,\s*\'([^\']+)\'/s');
 
             return '/api/v1/suno/' . $endpointName;
         }
@@ -419,7 +436,7 @@ final class AllResourcesOfflineSmokeTest extends TestCase
         }
 
         if ($package === 'runapi-ai/suno') {
-            $actionName = self::match($source, '/new self\(\$http, \'[^\']+\', \'([^\']+)\'/');
+            $actionName = self::match($source, '/new self\(\s*\$http,\s*\'[^\']+\',\s*\'([^\']+)\'/s');
 
             return 'suno/' . $actionName;
         }
@@ -433,13 +450,17 @@ final class AllResourcesOfflineSmokeTest extends TestCase
 
     private static function outputKind(string $source, string $package): string
     {
+        if (str_contains($source, 'CompletedSeparateAudioStemsResponse')) {
+            return 'separated_audio';
+        }
+
         if ($package === 'runapi-ai/suno') {
             return 'audio';
         }
 
         return match (true) {
             str_contains($source, 'CompletedSpeechToTextResponse') => 'text',
-            str_contains($source, 'CompletedAudioTaskResponse') => 'audio',
+            str_contains($source, 'CompletedAudioTaskResponse'), str_contains($source, 'TextToSpeechResponse') => 'audio',
             str_contains($source, 'CompletedImageTaskResponse') => 'image',
             str_contains($source, 'CompletedMaskTaskResponse') => 'mask',
             str_contains($source, 'CompletedSubjectStatusTaskResponse') => 'subject_status',
@@ -499,7 +520,7 @@ final class AllResourcesOfflineSmokeTest extends TestCase
         }
 
         if (is_array($actionContract)) {
-            foreach (self::modelRequiredRuleFields($actionContract['rules'] ?? [], $model) as $name) {
+            foreach (self::conditionalRequiredRuleFields($actionContract['rules'] ?? [], $params) as $name) {
                 $schema = is_array($fields) && isset($fields[$name]) && is_array($fields[$name]) ? $fields[$name] : [];
                 $params[$name] ??= self::sampleValue($name, $schema);
             }
@@ -509,9 +530,11 @@ final class AllResourcesOfflineSmokeTest extends TestCase
     }
 
     /**
+     * @param array<string, mixed> $params
+     *
      * @return list<string>
      */
-    private static function modelRequiredRuleFields(mixed $rules, string $model): array
+    private static function conditionalRequiredRuleFields(mixed $rules, array $params): array
     {
         if (!is_array($rules)) {
             return [];
@@ -524,7 +547,19 @@ final class AllResourcesOfflineSmokeTest extends TestCase
             }
 
             $when = $rule['when'] ?? [];
-            if (!is_array($when) || array_keys($when) !== ['model'] || (string) $when['model'] !== $model) {
+            if (!is_array($when) || $when === []) {
+                continue;
+            }
+
+            $matches = true;
+            foreach ($when as $name => $value) {
+                if (!array_key_exists($name, $params) || $params[$name] !== $value) {
+                    $matches = false;
+                    break;
+                }
+            }
+
+            if (!$matches) {
                 continue;
             }
 
@@ -606,6 +641,20 @@ final class AllResourcesOfflineSmokeTest extends TestCase
             $params['character_name'] ??= 'Guide';
         }
 
+        if ($package === 'runapi-ai/gemini-tts' && $resource === 'textToSpeech') {
+            $params['speakers'] = [[
+                'speaker_id' => 'Speaker 1',
+                'voice_name' => 'Fenrir',
+                'accent' => 'British (RP)',
+                'style' => 'Deadpan',
+                'pace' => 'Natural',
+            ]];
+            $params['dialogue_turns'] = [[
+                'speaker_id' => 'Speaker 1',
+                'text' => 'Welcome.',
+            ]];
+        }
+
         if ($package === 'runapi-ai/runway' && $resource === 'extendVideo') {
             $params['source_task_id'] ??= 'task_123';
             $params['output_resolution'] ??= '720p';
@@ -637,7 +686,9 @@ final class AllResourcesOfflineSmokeTest extends TestCase
         }
 
         if ($type === 'array' || str_ends_with($name, '_urls') || str_ends_with($name, '_ids') || str_ends_with($name, '_list')) {
-            return [self::sampleScalarForField($name)];
+            $itemCount = max(1, (int) ($schema['min_items'] ?? 1));
+
+            return array_fill(0, $itemCount, self::sampleScalarForField($name));
         }
 
         return self::sampleScalarForField($name);

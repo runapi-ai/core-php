@@ -34,9 +34,9 @@ abstract readonly class AsyncResource
      */
     public function create(array $params, ?RequestOptions $options = null): TaskCreateResponse
     {
-        $params = $this->compact($params);
         $model = $this->model($params);
         $this->validator->validate($this->action(), $model, $params);
+        $params = $this->compact($params);
         $this->validate($params, $model);
 
         return TaskCreateResponse::fromArray($this->http->request('post', $this->endpoint(), [
