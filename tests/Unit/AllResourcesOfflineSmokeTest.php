@@ -67,7 +67,7 @@ final class AllResourcesOfflineSmokeTest extends TestCase
     {
         $cases = self::discoverResourceCases();
 
-        self::assertCount(99, $cases);
+        self::assertCount(100, $cases);
         self::assertCount(34, array_unique(array_map(static fn (ResourceCase $case): string => $case->package, $cases)));
     }
 
@@ -256,6 +256,15 @@ final class AllResourcesOfflineSmokeTest extends TestCase
 
         if ($case->outputKind === 'audio') {
             $payload['audios'] = [['url' => 'https://file.runapi.ai/result.mp3']];
+
+            return $payload;
+        }
+
+        if ($case->outputKind === 'lyrics') {
+            $payload['lyrics'] = [[
+                'title' => 'Release Day',
+                'text' => "Verse one\nChorus line",
+            ]];
 
             return $payload;
         }
@@ -452,6 +461,10 @@ final class AllResourcesOfflineSmokeTest extends TestCase
     {
         if (str_contains($source, 'CompletedSeparateAudioStemsResponse')) {
             return 'separated_audio';
+        }
+
+        if (str_contains($source, 'CompletedLyricsTaskResponse')) {
+            return 'lyrics';
         }
 
         if ($package === 'runapi-ai/suno') {

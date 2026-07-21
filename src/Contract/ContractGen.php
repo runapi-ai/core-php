@@ -1692,6 +1692,11 @@ final class ContractGen
                         'output_resolution' => [
                             'enum' => ['480p', '720p', '1080p'],
                         ],
+                        'seed' => [
+                            'min' => -1,
+                            'max' => 2147483647,
+                            'type' => 'integer',
+                        ],
                         'source_image_urls' => [
                             'max_items' => 2,
                         ],
@@ -1805,6 +1810,11 @@ final class ContractGen
                         ],
                         'output_resolution' => [
                             'enum' => ['720p', '1080p'],
+                        ],
+                        'seed' => [
+                            'min' => -1,
+                            'max' => 2147483647,
+                            'type' => 'integer',
                         ],
                     ],
                 ],
@@ -2076,6 +2086,19 @@ final class ContractGen
                         ],
                         'vocal_gender' => [
                             'enum' => ['male', 'female'],
+                        ],
+                    ],
+                ],
+            ],
+            'suno/blend-lyrics' => [
+                'models' => [],
+                'fields_by_model' => [
+                    '_' => [
+                        'lyrics_a' => [
+                            'required' => true,
+                        ],
+                        'lyrics_b' => [
+                            'required' => true,
                         ],
                     ],
                 ],
@@ -2480,7 +2503,11 @@ final class ContractGen
             'suno/generate-lyrics' => [
                 'models' => [],
                 'fields_by_model' => [
-                    '_' => [],
+                    '_' => [
+                        'prompt' => [
+                            'required' => true,
+                        ],
+                    ],
                 ],
             ],
             'suno/generate-midi' => [
