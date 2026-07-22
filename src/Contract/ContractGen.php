@@ -206,6 +206,97 @@ final class ContractGen
                     ],
                 ],
             ],
+            'flux/remix-image' => [
+                'models' => ['flux-dev', 'flux-pro'],
+                'fields_by_model' => [
+                    'flux-dev' => [
+                        'aspect_ratio' => [
+                            'enum' => ['1:1', '4:3', '3:4', '16:9', '9:16', '3:2', '2:3'],
+                        ],
+                        'output_count' => [
+                            'enum' => [1],
+                            'type' => 'integer',
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'min' => 3,
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                        'source_image_url' => [
+                            'required' => true,
+                        ],
+                    ],
+                    'flux-pro' => [
+                        'aspect_ratio' => [
+                            'enum' => ['1:1', '4:3', '3:4', '16:9', '9:16', '3:2', '2:3'],
+                        ],
+                        'output_count' => [
+                            'enum' => [1],
+                            'type' => 'integer',
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'min' => 3,
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                        'source_image_url' => [
+                            'required' => true,
+                        ],
+                    ],
+                ],
+            ],
+            'flux/text-to-image' => [
+                'models' => ['flux-2-klein', 'flux-dev', 'flux-pro'],
+                'fields_by_model' => [
+                    'flux-2-klein' => [
+                        'aspect_ratio' => [
+                            'enum' => ['1:1', '4:3', '3:4', '16:9', '9:16', '3:2', '2:3'],
+                        ],
+                        'output_count' => [
+                            'enum' => [1],
+                            'type' => 'integer',
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'min' => 3,
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                    ],
+                    'flux-dev' => [
+                        'aspect_ratio' => [
+                            'enum' => ['1:1', '4:3', '3:4', '16:9', '9:16', '3:2', '2:3'],
+                        ],
+                        'output_count' => [
+                            'enum' => [1],
+                            'type' => 'integer',
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'min' => 3,
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                    ],
+                    'flux-pro' => [
+                        'aspect_ratio' => [
+                            'enum' => ['1:1', '4:3', '3:4', '16:9', '9:16', '3:2', '2:3'],
+                        ],
+                        'output_count' => [
+                            'enum' => [1],
+                            'type' => 'integer',
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'min' => 3,
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                    ],
+                ],
+            ],
             'gemini-omni/create-audio' => [
                 'models' => ['gemini-omni-audio'],
                 'fields_by_model' => [
@@ -701,8 +792,22 @@ final class ContractGen
                 ],
             ],
             'happyhorse/image-to-video' => [
-                'models' => ['happyhorse-image-to-video'],
+                'models' => ['happyhorse-1.0-i2v', 'happyhorse-image-to-video'],
                 'fields_by_model' => [
+                    'happyhorse-1.0-i2v' => [
+                        'duration_seconds' => [
+                            'type' => 'integer',
+                        ],
+                        'first_frame_image_url' => [
+                            'required' => true,
+                        ],
+                        'output_resolution' => [
+                            'enum' => ['720p', '1080p'],
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
+                        ],
+                    ],
                     'happyhorse-image-to-video' => [
                         'duration_seconds' => [
                             'type' => 'integer',
@@ -720,8 +825,41 @@ final class ContractGen
                 ],
             ],
             'happyhorse/text-to-video' => [
-                'models' => ['happyhorse-character', 'happyhorse-text-to-video'],
+                'models' => ['happyhorse-1.0-r2v', 'happyhorse-1.0-t2v', 'happyhorse-character', 'happyhorse-text-to-video'],
                 'fields_by_model' => [
+                    'happyhorse-1.0-r2v' => [
+                        'aspect_ratio' => [
+                            'enum' => ['16:9', '9:16', '1:1', '4:3', '3:4'],
+                        ],
+                        'duration_seconds' => [
+                            'type' => 'integer',
+                        ],
+                        'output_resolution' => [
+                            'enum' => ['720p', '1080p'],
+                        ],
+                        'reference_image_urls' => [
+                            'required' => true,
+                            'min_items' => 1,
+                            'max_items' => 9,
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
+                        ],
+                    ],
+                    'happyhorse-1.0-t2v' => [
+                        'aspect_ratio' => [
+                            'enum' => ['16:9', '9:16', '1:1', '4:3', '3:4'],
+                        ],
+                        'duration_seconds' => [
+                            'type' => 'integer',
+                        ],
+                        'output_resolution' => [
+                            'enum' => ['720p', '1080p'],
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
+                        ],
+                    ],
                     'happyhorse-character' => [
                         'aspect_ratio' => [
                             'enum' => ['16:9', '9:16', '1:1', '4:3', '3:4'],
@@ -1055,7 +1193,7 @@ final class ContractGen
                 ],
             ],
             'kling/image-to-video' => [
-                'models' => ['kling-v2.1-master-image-to-video', 'kling-v2.1-pro', 'kling-v2.1-standard', 'kling-v2.5-turbo-image-to-video-pro', 'kling-v3-turbo-image-to-video'],
+                'models' => ['kling-v2.1-master-image-to-video', 'kling-v2.1-pro', 'kling-v2.1-standard', 'kling-v2.5-turbo-image-to-video-pro', 'kling-v2.6', 'kling-v3-turbo-image-to-video'],
                 'fields_by_model' => [
                     'kling-v2.1-master-image-to-video' => [
                         'duration_seconds' => [
@@ -1117,6 +1255,30 @@ final class ContractGen
                             'required' => true,
                         ],
                     ],
+                    'kling-v2.6' => [
+                        'aspect_ratio' => [
+                            'enum' => ['16:9', '9:16', '1:1'],
+                        ],
+                        'duration_seconds' => [
+                            'enum' => [5, 10],
+                            'type' => 'integer',
+                        ],
+                        'first_frame_image_url' => [
+                            'required' => true,
+                        ],
+                        'mode' => [
+                            'enum' => ['std', 'pro'],
+                        ],
+                        'model' => [
+                            'required' => true,
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'min' => 1,
+                            'max' => 2500,
+                            'length' => true,
+                        ],
+                    ],
                     'kling-v3-turbo-image-to-video' => [
                         'duration_seconds' => [
                             'enum' => [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
@@ -1143,27 +1305,32 @@ final class ContractGen
                     'when' => [
                         'model' => 'kling-v2.1-master-image-to-video',
                     ],
-                    'forbidden' => ['output_resolution'],
+                    'forbidden' => ['output_resolution', 'mode', 'enable_sound'],
                 ], [
                     'when' => [
                         'model' => 'kling-v2.1-pro',
                     ],
-                    'forbidden' => ['output_resolution'],
+                    'forbidden' => ['output_resolution', 'mode', 'enable_sound'],
                 ], [
                     'when' => [
                         'model' => 'kling-v2.1-standard',
                     ],
-                    'forbidden' => ['output_resolution'],
+                    'forbidden' => ['output_resolution', 'mode', 'enable_sound'],
                 ], [
                     'when' => [
                         'model' => 'kling-v2.5-turbo-image-to-video-pro',
                     ],
-                    'forbidden' => ['output_resolution'],
+                    'forbidden' => ['output_resolution', 'mode', 'enable_sound'],
+                ], [
+                    'when' => [
+                        'model' => 'kling-v2.6',
+                    ],
+                    'forbidden' => ['output_resolution', 'negative_prompt', 'cfg_scale'],
                 ], [
                     'when' => [
                         'model' => 'kling-v3-turbo-image-to-video',
                     ],
-                    'forbidden' => ['aspect_ratio', 'negative_prompt', 'cfg_scale', 'last_frame_image_url'],
+                    'forbidden' => ['mode', 'enable_sound', 'aspect_ratio', 'negative_prompt', 'cfg_scale', 'last_frame_image_url'],
                 ]],
             ],
             'kling/motion-control' => [
@@ -1192,7 +1359,7 @@ final class ContractGen
                 ],
             ],
             'kling/text-to-video' => [
-                'models' => ['kling-3.0', 'kling-v2.1-master-text-to-video', 'kling-v2.5-turbo-text-to-video-pro', 'kling-v3-turbo-text-to-video'],
+                'models' => ['kling-3.0', 'kling-v2.1-master-text-to-video', 'kling-v2.5-turbo-text-to-video-pro', 'kling-v2.6', 'kling-v3-turbo-text-to-video'],
                 'fields_by_model' => [
                     'kling-3.0' => [
                         'aspect_ratio' => [
@@ -1233,6 +1400,27 @@ final class ContractGen
                             'required' => true,
                         ],
                     ],
+                    'kling-v2.6' => [
+                        'aspect_ratio' => [
+                            'enum' => ['16:9', '9:16', '1:1'],
+                        ],
+                        'duration_seconds' => [
+                            'enum' => [5, 10],
+                            'type' => 'integer',
+                        ],
+                        'mode' => [
+                            'enum' => ['std', 'pro'],
+                        ],
+                        'model' => [
+                            'required' => true,
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'min' => 1,
+                            'max' => 2500,
+                            'length' => true,
+                        ],
+                    ],
                     'kling-v3-turbo-text-to-video' => [
                         'aspect_ratio' => [
                             'enum' => ['16:9', '9:16', '1:1'],
@@ -1257,9 +1445,29 @@ final class ContractGen
                 ],
                 'rules' => [[
                     'when' => [
+                        'model' => 'kling-3.0',
+                    ],
+                    'forbidden' => ['mode'],
+                ], [
+                    'when' => [
+                        'model' => 'kling-v2.1-master-text-to-video',
+                    ],
+                    'forbidden' => ['mode'],
+                ], [
+                    'when' => [
+                        'model' => 'kling-v2.5-turbo-text-to-video-pro',
+                    ],
+                    'forbidden' => ['mode'],
+                ], [
+                    'when' => [
+                        'model' => 'kling-v2.6',
+                    ],
+                    'forbidden' => ['output_resolution', 'negative_prompt', 'cfg_scale', 'multi_shots', 'multi_prompt', 'first_frame_image_url', 'last_frame_image_url', 'kling_elements'],
+                ], [
+                    'when' => [
                         'model' => 'kling-v3-turbo-text-to-video',
                     ],
-                    'forbidden' => ['enable_sound', 'negative_prompt', 'cfg_scale', 'multi_shots', 'multi_prompt', 'first_frame_image_url', 'last_frame_image_url', 'kling_elements'],
+                    'forbidden' => ['mode', 'enable_sound', 'negative_prompt', 'cfg_scale', 'multi_shots', 'multi_prompt', 'first_frame_image_url', 'last_frame_image_url', 'kling_elements'],
                 ]],
             ],
             'luma/modify-video' => [
@@ -1283,6 +1491,16 @@ final class ContractGen
                             'required' => true,
                         ],
                         'source_image_url' => [
+                            'required' => true,
+                        ],
+                    ],
+                ],
+            ],
+            'midjourney/extend-video' => [
+                'models' => ['midjourney-image-to-video'],
+                'fields_by_model' => [
+                    'midjourney-image-to-video' => [
+                        'source_task_id' => [
                             'required' => true,
                         ],
                     ],
@@ -1554,31 +1772,6 @@ final class ContractGen
                     ],
                 ],
             ],
-            'qwen-2/remix-image' => [
-                'models' => ['qwen-2-remix-image'],
-                'fields_by_model' => [
-                    'qwen-2-remix-image' => [
-                        'acceleration' => [
-                            'enum' => ['none', 'regular', 'high'],
-                        ],
-                        'num_inference_steps' => [
-                            'type' => 'integer',
-                        ],
-                        'output_format' => [
-                            'enum' => ['png', 'jpeg'],
-                        ],
-                        'prompt' => [
-                            'required' => true,
-                        ],
-                        'seed' => [
-                            'type' => 'integer',
-                        ],
-                        'source_image_url' => [
-                            'required' => true,
-                        ],
-                    ],
-                ],
-            ],
             'qwen-2/text-to-image' => [
                 'models' => ['qwen-2-text-to-image'],
                 'fields_by_model' => [
@@ -1591,6 +1784,88 @@ final class ContractGen
                         ],
                         'prompt' => [
                             'required' => true,
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
+                        ],
+                    ],
+                ],
+            ],
+            'qwen-image/edit-image' => [
+                'models' => ['qwen-image-edit-image'],
+                'fields_by_model' => [
+                    'qwen-image-edit-image' => [
+                        'aspect_ratio' => [
+                            'enum' => ['1:1', '3:4', '9:16', '4:3', '16:9'],
+                        ],
+                        'model' => [
+                            'required' => true,
+                        ],
+                        'output_format' => [
+                            'enum' => ['png', 'jpeg'],
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'min' => 1,
+                            'max' => 2000,
+                            'length' => true,
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
+                        ],
+                        'source_image_url' => [
+                            'required' => true,
+                        ],
+                    ],
+                ],
+            ],
+            'qwen-image/remix-image' => [
+                'models' => ['qwen-image-remix-image'],
+                'fields_by_model' => [
+                    'qwen-image-remix-image' => [
+                        'model' => [
+                            'required' => true,
+                        ],
+                        'output_format' => [
+                            'enum' => ['png', 'jpeg'],
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'min' => 1,
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                        'seed' => [
+                            'type' => 'integer',
+                        ],
+                        'source_image_url' => [
+                            'required' => true,
+                        ],
+                        'strength' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                    ],
+                ],
+            ],
+            'qwen-image/text-to-image' => [
+                'models' => ['qwen-image-text-to-image'],
+                'fields_by_model' => [
+                    'qwen-image-text-to-image' => [
+                        'aspect_ratio' => [
+                            'enum' => ['1:1', '3:4', '9:16', '4:3', '16:9'],
+                        ],
+                        'model' => [
+                            'required' => true,
+                        ],
+                        'output_format' => [
+                            'enum' => ['png', 'jpeg'],
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'min' => 1,
+                            'max' => 5000,
+                            'length' => true,
                         ],
                         'seed' => [
                             'type' => 'integer',
@@ -2839,7 +3114,7 @@ final class ContractGen
                 ],
             ],
             'veo-3-1/text-to-video' => [
-                'models' => ['veo-3.1', 'veo-3.1-fast'],
+                'models' => ['veo-3.1', 'veo-3.1-fast', 'veo-3.1-lite'],
                 'fields_by_model' => [
                     'veo-3.1' => [
                         'aspect_ratio' => [
@@ -2879,7 +3154,46 @@ final class ContractGen
                             'type' => 'integer',
                         ],
                     ],
+                    'veo-3.1-lite' => [
+                        'aspect_ratio' => [
+                            'enum' => ['16:9', '9:16'],
+                        ],
+                        'duration_seconds' => [
+                            'enum' => [4, 6, 8],
+                            'type' => 'integer',
+                        ],
+                        'input_mode' => [
+                            'enum' => ['text', 'first_and_last_frames', 'reference'],
+                        ],
+                        'reference_image_urls' => [
+                            'min_items' => 1,
+                            'max_items' => 3,
+                        ],
+                        'seeds' => [
+                            'type' => 'integer',
+                        ],
+                    ],
                 ],
+                'rules' => [[
+                    'when' => [
+                        'model' => 'veo-3.1-lite',
+                    ],
+                    'forbidden' => ['seeds', 'output_resolution'],
+                ], [
+                    'when' => [
+                        'model' => 'veo-3.1-lite',
+                        'input_mode' => 'reference',
+                        'duration_seconds' => 4,
+                    ],
+                    'forbidden' => ['duration_seconds'],
+                ], [
+                    'when' => [
+                        'model' => 'veo-3.1-lite',
+                        'input_mode' => 'reference',
+                        'duration_seconds' => 6,
+                    ],
+                    'forbidden' => ['duration_seconds'],
+                ]],
             ],
             'veo-3-1/upscale-video' => [
                 'models' => [],

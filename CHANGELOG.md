@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.2.2](https://github.com/runapi-ai/core-php/releases/tag/v0.2.2) - 2026-07-22
+
+### Added
+- Add Kling 2.6 text-to-video and image-to-video constraints to shared PHP contract metadata.
+- Add generated validation metadata for Midjourney first-video extension requests.
+- Add generated validation metadata for Flux text-to-image and remix-image requests.
+- Publish Veo 3.1 Lite model and input constraints in aggregate Composer contract metadata.
+- Add shared PHP request validation metadata for Qwen Image endpoints.
+
+
 ## [v0.2.1](https://github.com/runapi-ai/core-php/releases/tag/v0.2.1) - 2026-07-21
 
 ### Added

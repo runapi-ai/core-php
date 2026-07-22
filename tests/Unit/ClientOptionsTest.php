@@ -12,9 +12,9 @@ final class ClientOptionsTest extends TestCase
 {
     public function testResolvedBaseUrlTrimsTrailingSlash(): void
     {
-        $options = new ClientOptions(baseUrl: ' https://api.runapi.ai/ ');
+        $options = new ClientOptions(baseUrl: ' https://runapi.ai/ ');
 
-        self::assertSame('https://api.runapi.ai', $options->resolvedBaseUrl());
+        self::assertSame('https://runapi.ai', $options->resolvedBaseUrl());
     }
 
     public function testResolvedBaseUrlFallsBackToEnvironment(): void

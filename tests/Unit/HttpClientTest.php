@@ -41,7 +41,7 @@ final class HttpClientTest extends TestCase
         ]);
         $client = new HttpClient(new ClientOptions(
             apiKey: 'test-key',
-            baseUrl: 'https://api.runapi.ai/base/',
+            baseUrl: 'https://runapi.ai/base/',
             httpClient: $transport,
             maxRetries: 0,
             headers: ['X-Client' => 'base'],
@@ -59,7 +59,7 @@ final class HttpClientTest extends TestCase
 
         $request = $transport->requests[0];
         self::assertSame('POST', $request->getMethod());
-        self::assertSame('https://api.runapi.ai/base/api/v1/tasks?model=kling', (string) $request->getUri());
+        self::assertSame('https://runapi.ai/base/api/v1/tasks?model=kling', (string) $request->getUri());
         self::assertSame('Bearer test-key', $request->getHeaderLine('Authorization'));
         self::assertSame('application/json', $request->getHeaderLine('Accept'));
         self::assertSame('identity', $request->getHeaderLine('Accept-Encoding'));
