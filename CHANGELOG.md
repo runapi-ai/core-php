@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.2.3](https://github.com/runapi-ai/core-php/releases/tag/v0.2.3) - 2026-07-23
+
+### Added
+- Add Kling V3 Omni text-to-video and image-to-video constraints to shared PHP contract metadata.
+- Add generated validation metadata for seven additional Producer FUZZ music generation versions.
+- Add generated contract metadata required by the Kling video continuation resource.
+
+
 ## [v0.2.2](https://github.com/runapi-ai/core-php/releases/tag/v0.2.2) - 2026-07-22
 
 ### Added

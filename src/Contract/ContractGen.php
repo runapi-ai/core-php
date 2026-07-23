@@ -1192,8 +1192,29 @@ final class ContractGen
                     ],
                 ],
             ],
+            'kling/extend-video' => [
+                'models' => ['kling-v2.5-turbo-image-to-video-pro', 'kling-v2.5-turbo-text-to-video-pro'],
+                'fields_by_model' => [
+                    'kling-v2.5-turbo-image-to-video-pro' => [
+                        'mode' => [
+                            'enum' => ['std', 'pro'],
+                        ],
+                        'source_task_id' => [
+                            'required' => true,
+                        ],
+                    ],
+                    'kling-v2.5-turbo-text-to-video-pro' => [
+                        'mode' => [
+                            'enum' => ['std', 'pro'],
+                        ],
+                        'source_task_id' => [
+                            'required' => true,
+                        ],
+                    ],
+                ],
+            ],
             'kling/image-to-video' => [
-                'models' => ['kling-v2.1-master-image-to-video', 'kling-v2.1-pro', 'kling-v2.1-standard', 'kling-v2.5-turbo-image-to-video-pro', 'kling-v2.6', 'kling-v3-turbo-image-to-video'],
+                'models' => ['kling-v2.1-master-image-to-video', 'kling-v2.1-pro', 'kling-v2.1-standard', 'kling-v2.5-turbo-image-to-video-pro', 'kling-v2.6', 'kling-v3-omni', 'kling-v3-turbo-image-to-video'],
                 'fields_by_model' => [
                     'kling-v2.1-master-image-to-video' => [
                         'duration_seconds' => [
@@ -1279,6 +1300,30 @@ final class ContractGen
                             'length' => true,
                         ],
                     ],
+                    'kling-v3-omni' => [
+                        'aspect_ratio' => [
+                            'enum' => ['16:9', '9:16', '1:1'],
+                        ],
+                        'duration_seconds' => [
+                            'enum' => [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+                            'type' => 'integer',
+                        ],
+                        'first_frame_image_url' => [
+                            'required' => true,
+                        ],
+                        'model' => [
+                            'required' => true,
+                        ],
+                        'output_resolution' => [
+                            'enum' => ['720p', '1080p', '4k'],
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'min' => 1,
+                            'max' => 2500,
+                            'length' => true,
+                        ],
+                    ],
                     'kling-v3-turbo-image-to-video' => [
                         'duration_seconds' => [
                             'enum' => [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
@@ -1305,22 +1350,22 @@ final class ContractGen
                     'when' => [
                         'model' => 'kling-v2.1-master-image-to-video',
                     ],
-                    'forbidden' => ['output_resolution', 'mode', 'enable_sound'],
+                    'forbidden' => ['output_resolution', 'enable_sound'],
                 ], [
                     'when' => [
                         'model' => 'kling-v2.1-pro',
                     ],
-                    'forbidden' => ['output_resolution', 'mode', 'enable_sound'],
+                    'forbidden' => ['output_resolution', 'enable_sound'],
                 ], [
                     'when' => [
                         'model' => 'kling-v2.1-standard',
                     ],
-                    'forbidden' => ['output_resolution', 'mode', 'enable_sound'],
+                    'forbidden' => ['output_resolution', 'enable_sound'],
                 ], [
                     'when' => [
                         'model' => 'kling-v2.5-turbo-image-to-video-pro',
                     ],
-                    'forbidden' => ['output_resolution', 'mode', 'enable_sound'],
+                    'forbidden' => ['output_resolution', 'enable_sound'],
                 ], [
                     'when' => [
                         'model' => 'kling-v2.6',
@@ -1328,9 +1373,14 @@ final class ContractGen
                     'forbidden' => ['output_resolution', 'negative_prompt', 'cfg_scale'],
                 ], [
                     'when' => [
+                        'model' => 'kling-v3-omni',
+                    ],
+                    'forbidden' => ['negative_prompt', 'cfg_scale'],
+                ], [
+                    'when' => [
                         'model' => 'kling-v3-turbo-image-to-video',
                     ],
-                    'forbidden' => ['mode', 'enable_sound', 'aspect_ratio', 'negative_prompt', 'cfg_scale', 'last_frame_image_url'],
+                    'forbidden' => ['enable_sound', 'aspect_ratio', 'negative_prompt', 'cfg_scale', 'last_frame_image_url'],
                 ]],
             ],
             'kling/motion-control' => [
@@ -1359,7 +1409,7 @@ final class ContractGen
                 ],
             ],
             'kling/text-to-video' => [
-                'models' => ['kling-3.0', 'kling-v2.1-master-text-to-video', 'kling-v2.5-turbo-text-to-video-pro', 'kling-v2.6', 'kling-v3-turbo-text-to-video'],
+                'models' => ['kling-3.0', 'kling-v2.1-master-text-to-video', 'kling-v2.5-turbo-text-to-video-pro', 'kling-v2.6', 'kling-v3-omni', 'kling-v3-turbo-text-to-video'],
                 'fields_by_model' => [
                     'kling-3.0' => [
                         'aspect_ratio' => [
@@ -1421,6 +1471,27 @@ final class ContractGen
                             'length' => true,
                         ],
                     ],
+                    'kling-v3-omni' => [
+                        'aspect_ratio' => [
+                            'enum' => ['16:9', '9:16', '1:1'],
+                        ],
+                        'duration_seconds' => [
+                            'enum' => [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+                            'type' => 'integer',
+                        ],
+                        'model' => [
+                            'required' => true,
+                        ],
+                        'output_resolution' => [
+                            'enum' => ['720p', '1080p', '4k'],
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'min' => 1,
+                            'max' => 2500,
+                            'length' => true,
+                        ],
+                    ],
                     'kling-v3-turbo-text-to-video' => [
                         'aspect_ratio' => [
                             'enum' => ['16:9', '9:16', '1:1'],
@@ -1445,16 +1516,6 @@ final class ContractGen
                 ],
                 'rules' => [[
                     'when' => [
-                        'model' => 'kling-3.0',
-                    ],
-                    'forbidden' => ['mode'],
-                ], [
-                    'when' => [
-                        'model' => 'kling-v2.1-master-text-to-video',
-                    ],
-                    'forbidden' => ['mode'],
-                ], [
-                    'when' => [
                         'model' => 'kling-v2.5-turbo-text-to-video-pro',
                     ],
                     'forbidden' => ['mode'],
@@ -1465,9 +1526,14 @@ final class ContractGen
                     'forbidden' => ['output_resolution', 'negative_prompt', 'cfg_scale', 'multi_shots', 'multi_prompt', 'first_frame_image_url', 'last_frame_image_url', 'kling_elements'],
                 ], [
                     'when' => [
+                        'model' => 'kling-v3-omni',
+                    ],
+                    'forbidden' => ['negative_prompt', 'cfg_scale', 'multi_shots', 'multi_prompt', 'first_frame_image_url', 'last_frame_image_url', 'kling_elements'],
+                ], [
+                    'when' => [
                         'model' => 'kling-v3-turbo-text-to-video',
                     ],
-                    'forbidden' => ['mode', 'enable_sound', 'negative_prompt', 'cfg_scale', 'multi_shots', 'multi_prompt', 'first_frame_image_url', 'last_frame_image_url', 'kling_elements'],
+                    'forbidden' => ['enable_sound', 'negative_prompt', 'cfg_scale', 'multi_shots', 'multi_prompt', 'first_frame_image_url', 'last_frame_image_url', 'kling_elements'],
                 ]],
             ],
             'luma/modify-video' => [
@@ -1720,9 +1786,114 @@ final class ContractGen
                 ],
             ],
             'producer/text-to-music' => [
-                'models' => ['fuzz-2.0'],
+                'models' => ['fuzz-0.8', 'fuzz-1.0', 'fuzz-1.0-pro', 'fuzz-1.1', 'fuzz-1.1-pro', 'fuzz-2.0', 'fuzz-2.0-pro', 'fuzz-2.0-raw'],
                 'fields_by_model' => [
+                    'fuzz-0.8' => [
+                        'model' => [
+                            'required' => true,
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'min' => 1,
+                            'max' => 200,
+                            'length' => true,
+                        ],
+                        'vocal_mode' => [
+                            'enum' => ['exact_lyrics', 'instrumental'],
+                            'required' => true,
+                        ],
+                    ],
+                    'fuzz-1.0' => [
+                        'model' => [
+                            'required' => true,
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'min' => 1,
+                            'max' => 200,
+                            'length' => true,
+                        ],
+                        'vocal_mode' => [
+                            'enum' => ['exact_lyrics', 'instrumental'],
+                            'required' => true,
+                        ],
+                    ],
+                    'fuzz-1.0-pro' => [
+                        'model' => [
+                            'required' => true,
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'min' => 1,
+                            'max' => 200,
+                            'length' => true,
+                        ],
+                        'vocal_mode' => [
+                            'enum' => ['exact_lyrics', 'instrumental'],
+                            'required' => true,
+                        ],
+                    ],
+                    'fuzz-1.1' => [
+                        'model' => [
+                            'required' => true,
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'min' => 1,
+                            'max' => 200,
+                            'length' => true,
+                        ],
+                        'vocal_mode' => [
+                            'enum' => ['exact_lyrics', 'instrumental'],
+                            'required' => true,
+                        ],
+                    ],
+                    'fuzz-1.1-pro' => [
+                        'model' => [
+                            'required' => true,
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'min' => 1,
+                            'max' => 200,
+                            'length' => true,
+                        ],
+                        'vocal_mode' => [
+                            'enum' => ['exact_lyrics', 'instrumental'],
+                            'required' => true,
+                        ],
+                    ],
                     'fuzz-2.0' => [
+                        'model' => [
+                            'required' => true,
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'min' => 1,
+                            'max' => 200,
+                            'length' => true,
+                        ],
+                        'vocal_mode' => [
+                            'enum' => ['exact_lyrics', 'instrumental'],
+                            'required' => true,
+                        ],
+                    ],
+                    'fuzz-2.0-pro' => [
+                        'model' => [
+                            'required' => true,
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'min' => 1,
+                            'max' => 200,
+                            'length' => true,
+                        ],
+                        'vocal_mode' => [
+                            'enum' => ['exact_lyrics', 'instrumental'],
+                            'required' => true,
+                        ],
+                    ],
+                    'fuzz-2.0-raw' => [
                         'model' => [
                             'required' => true,
                         ],
