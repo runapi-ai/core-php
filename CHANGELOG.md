@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.2.4](https://github.com/runapi-ai/core-php/releases/tag/v0.2.4) - 2026-07-23
+
+### Added
+- Add generated contract metadata required by Kling 2.6 motion-control validation.
+
+
 ## [v0.2.3](https://github.com/runapi-ai/core-php/releases/tag/v0.2.3) - 2026-07-23
 
 ### Added

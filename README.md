@@ -19,6 +19,19 @@ composer require runapi-ai/core
 
 The package includes a Guzzle-based default HTTP stack and also accepts custom PSR implementations.
 
+## Request Identifiers And Safe Task Creation
+
+Task-creation calls accept an optional opaque `Idempotency-Key` up to 512 characters. Generate one value per logical task and reuse it only with identical input after an unknown result. Reusing the value with different input returns `409 Conflict`; do not derive it from `X-Client-Request-Id`.
+
+```php
+use RunApi\Core\RequestOptions;
+
+$options = new RequestOptions(headers: [
+    'X-Client-Request-Id' => 'order-123',
+    'Idempotency-Key' => 'opaque-logical-task-123',
+]);
+```
+
 ## Links
 
 - SDK docs: https://runapi.ai/docs#runapi-sdks

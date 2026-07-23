@@ -1384,7 +1384,7 @@ final class ContractGen
                 ]],
             ],
             'kling/motion-control' => [
-                'models' => ['kling-3.0'],
+                'models' => ['kling-3.0', 'kling-v2.6'],
                 'fields_by_model' => [
                     'kling-3.0' => [
                         'background_source' => [
@@ -1406,7 +1406,36 @@ final class ContractGen
                             'required' => true,
                         ],
                     ],
+                    'kling-v2.6' => [
+                        'character_orientation' => [
+                            'enum' => ['video', 'image'],
+                            'required' => true,
+                        ],
+                        'model' => [
+                            'required' => true,
+                        ],
+                        'output_resolution' => [
+                            'enum' => ['720p', '1080p'],
+                            'required' => true,
+                        ],
+                        'prompt' => [
+                            'max' => 2500,
+                            'length' => true,
+                        ],
+                        'reference_video_url' => [
+                            'required' => true,
+                        ],
+                        'source_image_url' => [
+                            'required' => true,
+                        ],
+                    ],
                 ],
+                'rules' => [[
+                    'when' => [
+                        'model' => 'kling-v2.6',
+                    ],
+                    'forbidden' => ['background_source'],
+                ]],
             ],
             'kling/text-to-video' => [
                 'models' => ['kling-3.0', 'kling-v2.1-master-text-to-video', 'kling-v2.5-turbo-text-to-video-pro', 'kling-v2.6', 'kling-v3-omni', 'kling-v3-turbo-text-to-video'],
