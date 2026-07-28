@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.2.6](https://github.com/runapi-ai/core-php/releases/tag/v0.2.6) - 2026-07-28
+
+### Changed
+- Describe and validate the documented Gemini Omni, Grok Imagine, and Topaz request fields.
+
+### Fixed
+- Validate required audio and music request fields before sending requests.
+- Carry supported Wan Flash image-to-video duration values in generated contract metadata; request defaults remain API-applied.
+
+
 ## [v0.2.5](https://github.com/runapi-ai/core-php/releases/tag/v0.2.5) - 2026-07-28
 
 ### Added

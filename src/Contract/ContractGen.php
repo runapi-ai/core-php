@@ -71,11 +71,17 @@ final class ContractGen
                 'models' => ['text-to-speech-multilingual-v2', 'text-to-speech-turbo-v2.5'],
                 'fields_by_model' => [
                     'text-to-speech-multilingual-v2' => [
+                        'model' => [
+                            'required' => true,
+                        ],
                         'text' => [
                             'required' => true,
                         ],
                     ],
                     'text-to-speech-turbo-v2.5' => [
+                        'model' => [
+                            'required' => true,
+                        ],
                         'text' => [
                             'required' => true,
                         ],
@@ -92,11 +98,17 @@ final class ContractGen
                 'models' => ['s1', 's2-pro'],
                 'fields_by_model' => [
                     's1' => [
+                        'model' => [
+                            'required' => true,
+                        ],
                         'text' => [
                             'required' => true,
                         ],
                     ],
                     's2-pro' => [
+                        'model' => [
+                            'required' => true,
+                        ],
                         'text' => [
                             'required' => true,
                         ],
@@ -409,8 +421,18 @@ final class ContractGen
                         'audio_id' => [
                             'required' => true,
                         ],
+                        'example_dialogue' => [
+                            'max' => 120,
+                            'length' => true,
+                        ],
                         'name' => [
                             'required' => true,
+                            'max' => 210,
+                            'length' => true,
+                        ],
+                        'voice_description' => [
+                            'max' => 20000,
+                            'length' => true,
                         ],
                     ],
                 ],
@@ -419,8 +441,14 @@ final class ContractGen
                 'models' => ['gemini-omni-character'],
                 'fields_by_model' => [
                     'gemini-omni-character' => [
+                        'character_name' => [
+                            'max' => 210,
+                            'length' => true,
+                        ],
                         'descriptions' => [
                             'required' => true,
+                            'max' => 20000,
+                            'length' => true,
                         ],
                         'reference_image_url' => [
                             'required' => true,
@@ -443,6 +471,8 @@ final class ContractGen
                         ],
                         'prompt' => [
                             'required' => true,
+                            'max' => 20000,
+                            'length' => true,
                         ],
                         'seed' => [
                             'type' => 'integer',
@@ -468,11 +498,15 @@ final class ContractGen
                         ],
                         'prompt' => [
                             'required' => true,
+                            'max' => 20000,
+                            'length' => true,
                         ],
                         'reference_image_urls' => [
                             'max_items' => 7,
                         ],
                         'seed' => [
+                            'min' => 0,
+                            'max' => 2147483647,
                             'type' => 'integer',
                         ],
                         'video_list' => [
@@ -622,6 +656,9 @@ final class ContractGen
                 'models' => ['grok-imagine-edit-image'],
                 'fields_by_model' => [
                     'grok-imagine-edit-image' => [
+                        'model' => [
+                            'required' => true,
+                        ],
                         'source_image_url' => [
                             'required' => true,
                         ],
@@ -634,9 +671,20 @@ final class ContractGen
                     '_' => [
                         'extension_duration_seconds' => [
                             'enum' => [6, 10],
+                            'required' => true,
                             'type' => 'integer',
                         ],
+                        'prompt' => [
+                            'required' => true,
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                        'source_task_id' => [
+                            'required' => true,
+                        ],
                         'start_seconds' => [
+                            'required' => true,
+                            'min' => 0,
                             'type' => 'integer',
                         ],
                     ],
@@ -650,16 +698,27 @@ final class ContractGen
                             'enum' => ['2:3', '3:2', '1:1', '16:9', '9:16'],
                         ],
                         'duration_seconds' => [
+                            'min' => 6,
+                            'max' => 30,
                             'type' => 'integer',
                         ],
                         'index' => [
+                            'min' => 0,
+                            'max' => 5,
                             'type' => 'integer',
+                        ],
+                        'model' => [
+                            'required' => true,
                         ],
                         'motion_style' => [
                             'enum' => ['fun', 'normal', 'spicy'],
                         ],
                         'output_resolution' => [
                             'enum' => ['480p', '720p'],
+                        ],
+                        'prompt' => [
+                            'max' => 5000,
+                            'length' => true,
                         ],
                     ],
                     'grok-imagine-video-1.5-fast' => [
@@ -674,8 +733,15 @@ final class ContractGen
                         'index' => [
                             'type' => 'integer',
                         ],
+                        'model' => [
+                            'required' => true,
+                        ],
                         'output_resolution' => [
                             'enum' => ['480p', '720p'],
+                        ],
+                        'prompt' => [
+                            'max' => 5000,
+                            'length' => true,
                         ],
                         'source_image_url' => [
                             'required' => true,
@@ -692,6 +758,9 @@ final class ContractGen
                         ],
                         'index' => [
                             'type' => 'integer',
+                        ],
+                        'model' => [
+                            'required' => true,
                         ],
                         'output_resolution' => [
                             'enum' => ['480p', '720p'],
@@ -730,6 +799,14 @@ final class ContractGen
                         'aspect_ratio' => [
                             'enum' => ['2:3', '3:2', '1:1', '16:9', '9:16'],
                         ],
+                        'model' => [
+                            'required' => true,
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'max' => 5000,
+                            'length' => true,
+                        ],
                     ],
                 ],
             ],
@@ -741,13 +818,23 @@ final class ContractGen
                             'enum' => ['2:3', '3:2', '1:1', '16:9', '9:16'],
                         ],
                         'duration_seconds' => [
+                            'min' => 6,
+                            'max' => 30,
                             'type' => 'integer',
+                        ],
+                        'model' => [
+                            'required' => true,
                         ],
                         'motion_style' => [
                             'enum' => ['fun', 'normal', 'spicy'],
                         ],
                         'output_resolution' => [
                             'enum' => ['480p', '720p'],
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'max' => 5000,
+                            'length' => true,
                         ],
                     ],
                     'grok-imagine-video-1.5-fast' => [
@@ -759,11 +846,16 @@ final class ContractGen
                             'max' => 30,
                             'type' => 'integer',
                         ],
+                        'model' => [
+                            'required' => true,
+                        ],
                         'output_resolution' => [
                             'enum' => ['480p', '720p'],
                         ],
                         'prompt' => [
                             'required' => true,
+                            'max' => 5000,
+                            'length' => true,
                         ],
                     ],
                     'grok-imagine-video-1.5-preview' => [
@@ -774,6 +866,9 @@ final class ContractGen
                             'min' => 1,
                             'max' => 15,
                             'type' => 'integer',
+                        ],
+                        'model' => [
+                            'required' => true,
                         ],
                         'output_resolution' => [
                             'enum' => ['480p', '720p'],
@@ -806,7 +901,11 @@ final class ContractGen
             'grok-imagine/upscale-image' => [
                 'models' => [],
                 'fields_by_model' => [
-                    '_' => [],
+                    '_' => [
+                        'source_task_id' => [
+                            'required' => true,
+                        ],
+                    ],
                 ],
             ],
             'hailuo/image-to-video' => [
@@ -1983,6 +2082,9 @@ final class ContractGen
                 'models' => ['tts-1', 'tts-1-hd'],
                 'fields_by_model' => [
                     'tts-1' => [
+                        'model' => [
+                            'required' => true,
+                        ],
                         'text' => [
                             'required' => true,
                             'max' => 4096,
@@ -1990,6 +2092,9 @@ final class ContractGen
                         ],
                     ],
                     'tts-1-hd' => [
+                        'model' => [
+                            'required' => true,
+                        ],
                         'text' => [
                             'required' => true,
                             'max' => 4096,
@@ -2721,6 +2826,15 @@ final class ContractGen
                         'model' => [
                             'required' => true,
                         ],
+                        'negative_tags' => [
+                            'required' => true,
+                        ],
+                        'tags' => [
+                            'required' => true,
+                        ],
+                        'title' => [
+                            'required' => true,
+                        ],
                         'upload_url' => [
                             'required' => true,
                         ],
@@ -2732,6 +2846,15 @@ final class ContractGen
                         'model' => [
                             'required' => true,
                         ],
+                        'negative_tags' => [
+                            'required' => true,
+                        ],
+                        'tags' => [
+                            'required' => true,
+                        ],
+                        'title' => [
+                            'required' => true,
+                        ],
                         'upload_url' => [
                             'required' => true,
                         ],
@@ -2741,6 +2864,15 @@ final class ContractGen
                     ],
                     'suno-v5.5' => [
                         'model' => [
+                            'required' => true,
+                        ],
+                        'negative_tags' => [
+                            'required' => true,
+                        ],
+                        'tags' => [
+                            'required' => true,
+                        ],
+                        'title' => [
                             'required' => true,
                         ],
                         'upload_url' => [
@@ -2762,6 +2894,15 @@ final class ContractGen
                         'model' => [
                             'required' => true,
                         ],
+                        'negative_tags' => [
+                            'required' => true,
+                        ],
+                        'style' => [
+                            'required' => true,
+                        ],
+                        'title' => [
+                            'required' => true,
+                        ],
                         'upload_url' => [
                             'required' => true,
                         ],
@@ -2774,6 +2915,15 @@ final class ContractGen
                             'required' => true,
                         ],
                         'model' => [
+                            'required' => true,
+                        ],
+                        'negative_tags' => [
+                            'required' => true,
+                        ],
+                        'style' => [
+                            'required' => true,
+                        ],
+                        'title' => [
                             'required' => true,
                         ],
                         'upload_url' => [
@@ -2801,7 +2951,11 @@ final class ContractGen
             'suno/boost-style' => [
                 'models' => [],
                 'fields_by_model' => [
-                    '_' => [],
+                    '_' => [
+                        'description' => [
+                            'required' => true,
+                        ],
+                    ],
                 ],
             ],
             'suno/check-voice' => [
@@ -2817,7 +2971,14 @@ final class ContractGen
             'suno/convert-audio' => [
                 'models' => [],
                 'fields_by_model' => [
-                    '_' => [],
+                    '_' => [
+                        'audio_id' => [
+                            'required' => true,
+                        ],
+                        'task_id' => [
+                            'required' => true,
+                        ],
+                    ],
                 ],
             ],
             'suno/cover-audio' => [
@@ -3105,6 +3266,7 @@ final class ContractGen
                         ],
                         'parameter_mode' => [
                             'enum' => ['source', 'custom'],
+                            'required' => true,
                         ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
@@ -3119,6 +3281,7 @@ final class ContractGen
                         ],
                         'parameter_mode' => [
                             'enum' => ['source', 'custom'],
+                            'required' => true,
                         ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
@@ -3133,6 +3296,7 @@ final class ContractGen
                         ],
                         'parameter_mode' => [
                             'enum' => ['source', 'custom'],
+                            'required' => true,
                         ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
@@ -3147,6 +3311,7 @@ final class ContractGen
                         ],
                         'parameter_mode' => [
                             'enum' => ['source', 'custom'],
+                            'required' => true,
                         ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
@@ -3161,6 +3326,7 @@ final class ContractGen
                         ],
                         'parameter_mode' => [
                             'enum' => ['source', 'custom'],
+                            'required' => true,
                         ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
@@ -3175,6 +3341,7 @@ final class ContractGen
                         ],
                         'parameter_mode' => [
                             'enum' => ['source', 'custom'],
+                            'required' => true,
                         ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
@@ -3208,13 +3375,30 @@ final class ContractGen
             'suno/generate-midi' => [
                 'models' => [],
                 'fields_by_model' => [
-                    '_' => [],
+                    '_' => [
+                        'task_id' => [
+                            'required' => true,
+                        ],
+                    ],
                 ],
             ],
             'suno/generate-persona' => [
                 'models' => [],
                 'fields_by_model' => [
-                    '_' => [],
+                    '_' => [
+                        'audio_id' => [
+                            'required' => true,
+                        ],
+                        'description' => [
+                            'required' => true,
+                        ],
+                        'name' => [
+                            'required' => true,
+                        ],
+                        'task_id' => [
+                            'required' => true,
+                        ],
+                    ],
                 ],
             ],
             'suno/generate-voice' => [
@@ -3236,7 +3420,14 @@ final class ContractGen
             'suno/get-timestamped-lyrics' => [
                 'models' => [],
                 'fields_by_model' => [
-                    '_' => [],
+                    '_' => [
+                        'audio_id' => [
+                            'required' => true,
+                        ],
+                        'task_id' => [
+                            'required' => true,
+                        ],
+                    ],
                 ],
             ],
             'suno/regenerate-validation-phrase' => [
@@ -3470,7 +3661,14 @@ final class ContractGen
             'suno/visualize-music' => [
                 'models' => [],
                 'fields_by_model' => [
-                    '_' => [],
+                    '_' => [
+                        'audio_id' => [
+                            'required' => true,
+                        ],
+                        'task_id' => [
+                            'required' => true,
+                        ],
+                    ],
                 ],
             ],
             'suno/voice-to-validation-phrase' => [
@@ -3488,6 +3686,9 @@ final class ContractGen
                             'required' => true,
                             'type' => 'integer',
                         ],
+                        'voice_url' => [
+                            'required' => true,
+                        ],
                     ],
                 ],
             ],
@@ -3495,6 +3696,9 @@ final class ContractGen
                 'models' => ['topaz-upscale-image'],
                 'fields_by_model' => [
                     'topaz-upscale-image' => [
+                        'model' => [
+                            'required' => true,
+                        ],
                         'source_image_url' => [
                             'required' => true,
                         ],
@@ -3510,6 +3714,9 @@ final class ContractGen
                 'models' => ['topaz-upscale-video'],
                 'fields_by_model' => [
                     'topaz-upscale-video' => [
+                        'model' => [
+                            'required' => true,
+                        ],
                         'source_video_url' => [
                             'required' => true,
                         ],
@@ -3781,6 +3988,7 @@ final class ContractGen
                             'required' => true,
                         ],
                         'duration_seconds' => [
+                            'enum' => [5, 10, 15],
                             'type' => 'integer',
                         ],
                         'first_frame_image_url' => [
