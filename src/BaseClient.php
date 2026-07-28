@@ -7,6 +7,7 @@ namespace RunApi\Core;
 use RunApi\Core\Http\HttpClient;
 use RunApi\Core\Resources\Account;
 use RunApi\Core\Resources\Files;
+use RunApi\Core\Resources\Pricing;
 
 /**
  * Core RunAPI PHP client.
@@ -23,6 +24,8 @@ abstract class BaseClient
      * Universal account identity and balance resource.
      */
     public readonly Account $account;
+    /** Live Price Schedule and Price Quote resource. */
+    public readonly Pricing $pricing;
 
     protected readonly HttpClient $http;
 
@@ -34,5 +37,6 @@ abstract class BaseClient
         $this->http = new HttpClient($options);
         $this->files = new Files($this->http);
         $this->account = new Account($this->http);
+        $this->pricing = new Pricing($this->http);
     }
 }

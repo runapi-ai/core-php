@@ -10,6 +10,7 @@ use RunApi\Core\BaseClient;
 use RunApi\Core\ClientOptions;
 use RunApi\Core\Resources\Account;
 use RunApi\Core\Resources\Files;
+use RunApi\Core\Resources\Pricing;
 use RunApi\Core\Tests\Fixtures\QueueHttpClient;
 
 final class BaseClientTest extends TestCase
@@ -24,5 +25,6 @@ final class BaseClientTest extends TestCase
 
         self::assertInstanceOf(Files::class, $client->files);
         self::assertInstanceOf(Account::class, $client->account);
+        self::assertInstanceOf(Pricing::class, $client->pricing);
     }
 }

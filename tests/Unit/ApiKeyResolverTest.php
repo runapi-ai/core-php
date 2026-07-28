@@ -6,7 +6,6 @@ namespace RunApi\Core\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 use RunApi\Core\Auth\ApiKeyResolver;
-use RunApi\Core\Errors\AuthenticationException;
 
 final class ApiKeyResolverTest extends TestCase
 {
@@ -24,13 +23,10 @@ final class ApiKeyResolverTest extends TestCase
         });
     }
 
-    public function testRaisesAuthenticationExceptionWhenMissing(): void
+    public function testReturnsNullWhenMissing(): void
     {
         $this->withEnv('RUNAPI_API_KEY', null, function (): void {
-            $this->expectException(AuthenticationException::class);
-            $this->expectExceptionMessage('API key is required');
-
-            ApiKeyResolver::resolve('   ');
+            self::assertNull(ApiKeyResolver::resolve('   '));
         });
     }
 

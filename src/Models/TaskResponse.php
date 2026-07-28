@@ -11,6 +11,8 @@ use RunApi\Core\Support\Payload;
  */
 readonly class TaskResponse extends BaseModel
 {
+    public ?TaskBillingFacts $billing;
+
     /**
      * Create a task response value object.
      *
@@ -21,11 +23,14 @@ readonly class TaskResponse extends BaseModel
         public string $status,
         public ?string $error = null,
         array $raw = [],
+        ?TaskBillingFacts $billing = null,
     ) {
+        $this->billing = $billing ?? self::billing($raw);
         parent::__construct($raw === [] ? [
             'id' => $id,
             'status' => $status,
             'error' => $error,
+            'billing' => $this->billing?->toArray(),
         ] : $raw);
     }
 
@@ -37,5 +42,11 @@ readonly class TaskResponse extends BaseModel
     protected static function error(array $raw): ?string
     {
         return Payload::optionalString($raw, 'error');
+    }
+
+    /** @param array<string, mixed> $raw */
+    private static function billing(array $raw): ?TaskBillingFacts
+    {
+        return isset($raw['billing']) && is_array($raw['billing']) ? TaskBillingFacts::fromArray($raw['billing']) : null;
     }
 }

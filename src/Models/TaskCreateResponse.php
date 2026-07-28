@@ -11,6 +11,8 @@ use RunApi\Core\Support\Payload;
  */
 readonly class TaskCreateResponse extends BaseModel
 {
+    public ?TaskBillingFacts $billing;
+
     /**
      * Create a task creation response value object.
      *
@@ -19,8 +21,11 @@ readonly class TaskCreateResponse extends BaseModel
     public function __construct(
         public string $id,
         array $raw = [],
+        public ?bool $taskReplayed = null,
+        ?TaskBillingFacts $billing = null,
     ) {
-        parent::__construct($raw === [] ? ['id' => $id] : $raw);
+        $this->billing = $billing ?? self::billing($raw);
+        parent::__construct($raw === [] ? ['id' => $id, 'billing' => $this->billing?->toArray()] : $raw);
     }
 
     /**
@@ -32,7 +37,15 @@ readonly class TaskCreateResponse extends BaseModel
     {
         return new self(
             id: Payload::string($raw, 'id'),
+            billing: isset($raw['billing']) && is_array($raw['billing']) ? TaskBillingFacts::fromArray($raw['billing']) : null,
             raw: $raw,
+            taskReplayed: Payload::optionalBool($raw, 'task_replayed'),
         );
+    }
+
+    /** @param array<string, mixed> $raw */
+    private static function billing(array $raw): ?TaskBillingFacts
+    {
+        return isset($raw['billing']) && is_array($raw['billing']) ? TaskBillingFacts::fromArray($raw['billing']) : null;
     }
 }

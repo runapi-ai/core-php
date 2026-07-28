@@ -33,7 +33,7 @@ final class HttpClient
     private readonly ClientInterface $client;
     private readonly RequestFactoryInterface $requestFactory;
     private readonly StreamFactoryInterface $streamFactory;
-    private readonly string $apiKey;
+    private readonly ?string $apiKey;
     private readonly string $baseUrl;
 
     /**
@@ -81,11 +81,20 @@ final class HttpClient
         $response = $this->sendWithRetry($psrRequest, $requestOptions);
         $responseBody = (string) $response->getBody();
 
+        $allowNotModified = ($request['allow_not_modified'] ?? false) === true;
+        if ($response->getStatusCode() === 304 && $allowNotModified) {
+            return ['not_modified' => true, 'etag' => $response->getHeaderLine('ETag') ?: null];
+        }
+
         if ($response->getStatusCode() < 200 || $response->getStatusCode() >= 300) {
             throw ErrorMapper::fromResponse($response, $responseBody);
         }
 
-        return Json::decodeObject($responseBody);
+        $decoded = Json::decodeObject($responseBody);
+        if ($allowNotModified) {
+            $decoded['_etag'] = $response->getHeaderLine('ETag') ?: null;
+        }
+        return $decoded;
     }
 
     /**
@@ -132,9 +141,12 @@ final class HttpClient
         }
 
         $request = $request
-            ->withHeader('Authorization', 'Bearer ' . $this->apiKey)
             ->withHeader('Accept', 'application/json')
             ->withHeader('User-Agent', $this->options->userAgent);
+
+        if ($this->apiKey !== null) {
+            $request = $request->withHeader('Authorization', 'Bearer ' . $this->apiKey);
+        }
 
         if (!$request->hasHeader('Accept-Encoding')) {
             $request = $request->withHeader('Accept-Encoding', 'identity');

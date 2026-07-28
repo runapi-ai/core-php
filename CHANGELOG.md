@@ -1,5 +1,16 @@
 # Changelog
 
+## [v0.2.5](https://github.com/runapi-ai/core-php/releases/tag/v0.2.5) - 2026-07-28
+
+### Added
+- Expose typed live Price Schedule, Price Quote, and Task Billing Facts through every Provider Client.
+- Add generated contract metadata required by Kling O1 reference-media validation.
+- Expose whether an async create response reused an idempotent task.
+
+### Changed
+- Support generated Flux 2 Max request validation metadata used by the Flux 2 PHP SDK.
+
+
 ## [v0.2.4](https://github.com/runapi-ai/core-php/releases/tag/v0.2.4) - 2026-07-23
 
 ### Added

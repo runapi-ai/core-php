@@ -32,6 +32,17 @@ $options = new RequestOptions(headers: [
 ]);
 ```
 
+## Live Pricing
+
+Every Provider Client exposes a typed `$client->pricing` resource. Read the current schedule or request a reservation estimate before creating a task; schedules work without an API key, while quotes that reference an account-owned source task use the configured API key.
+
+```php
+$schedule = $client->pricing->list(service: 'flux');
+$quote = $client->pricing->quote('flux', 'text_to_image', 'flux-2-klein', ['prompt' => 'A glass observatory']);
+```
+
+- Live pricing API: https://runapi.ai/docs#pricing
+
 ## Links
 
 - SDK docs: https://runapi.ai/docs#runapi-sdks

@@ -78,6 +78,24 @@ final class Payload
     }
 
     /**
+     * Read an optional boolean field: null when absent, validated when present.
+     *
+     * @param array<string, mixed> $payload
+     */
+    public static function optionalBool(array $payload, string $key): ?bool
+    {
+        $value = $payload[$key] ?? null;
+        if ($value === null) {
+            return null;
+        }
+        if (!is_bool($value)) {
+            throw new ValidationException($key . ' must be a boolean');
+        }
+
+        return $value;
+    }
+
+    /**
      * Hydrate a list of objects from a response payload, validating shape.
      *
      * @template T
