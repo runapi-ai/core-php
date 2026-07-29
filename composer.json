@@ -36,7 +36,7 @@
   "homepage": "https://runapi.ai",
   "support": {
     "source": "https://github.com/runapi-ai/core-php",
-    "docs": "https://runapi.ai/docs#runapi-sdks",
+    "docs": "https://runapi.ai/docs/resources/sdks",
     "issues": "https://github.com/runapi-ai/core-php/issues"
   },
   "keywords": [

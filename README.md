@@ -41,11 +41,11 @@ $schedule = $client->pricing->list(service: 'flux');
 $quote = $client->pricing->quote('flux', 'text_to_image', 'flux-2-klein', ['prompt' => 'A glass observatory']);
 ```
 
-- Live pricing API: https://runapi.ai/docs#pricing
+- Live pricing API: https://runapi.ai/models
 
 ## Links
 
-- SDK docs: https://runapi.ai/docs#runapi-sdks
+- SDK docs: https://runapi.ai/docs/resources/sdks
 - Model catalog: https://runapi.ai/models
 - GitHub repository: https://github.com/runapi-ai/core-php
 - Multi-language SDK repository: https://github.com/runapi-ai/core-sdk
