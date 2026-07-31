@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.2.8](https://github.com/runapi-ai/core-php/releases/tag/v0.2.8) - 2026-07-31
+
+### Added
+- Expose generic cache-write prices separately from TTL-specific cache-write prices.
+
+### Removed
+- Remove seedance-v1-lite from shared Seedance contract metadata.
+  Migration: Use seedance-v1-pro or another supported Seedance model.
+
+
 ## [v0.2.7](https://github.com/runapi-ai/core-php/releases/tag/v0.2.7) - 2026-07-29
 
 ### Removed

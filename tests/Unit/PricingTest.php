@@ -17,7 +17,7 @@ final class PricingTest extends TestCase
     public function testReadsLiveScheduleAndCreatesTypedQuoteWithoutAuthentication(): void
     {
         $transport = new QueueHttpClient([
-            new Response(200, ['ETag' => '"v1"'], '{"as_of":"2026-07-23T12:00:00.000000Z","price_schedules":[{"service":"flux","action":"text_to_image","pricing_status":"available","catalog_status":"active","currency":"USD","billing_unit":"per_call","billing_strategy":"flat","billing_config":{}}]}'),
+            new Response(200, ['ETag' => '"v1"'], '{"as_of":"2026-07-23T12:00:00.000000Z","price_schedules":[{"service":"flux","action":"text_to_image","pricing_status":"available","catalog_status":"active","currency":"USD","billing_unit":"per_call","billing_strategy":"flat","cache_write_price_per_1m_cents":125,"billing_config":{}}]}'),
             new Response(200, [], '{"price_quote":{"service":"flux","action":"text_to_image","pricing_status":"available","currency":"USD","reservation_amount_cents":12,"estimate_basis":"exact","as_of":"2026-07-23T12:00:00.000000Z"}}'),
         ]);
         $client = new class (new ClientOptions(httpClient: $transport, maxRetries: 0)) extends BaseClient {};
@@ -27,6 +27,7 @@ final class PricingTest extends TestCase
 
         self::assertInstanceOf(PriceScheduleListResponse::class, $schedule);
         self::assertSame('flux', $schedule->priceSchedules[0]->service);
+        self::assertSame(125, $schedule->priceSchedules[0]->cacheWritePricePer1mCents);
         self::assertSame('"v1"', $schedule->etag);
         self::assertInstanceOf(PriceQuote::class, $quote);
         self::assertSame('available', $quote->pricingStatus);
