@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.2.9](https://github.com/runapi-ai/core-php/releases/tag/v0.2.9) - 2026-08-04
+
+### Added
+- Register the five PixVerse V6 video actions in shared contract metadata.
+
+
 ## [v0.2.8](https://github.com/runapi-ai/core-php/releases/tag/v0.2.8) - 2026-07-31
 
 ### Added

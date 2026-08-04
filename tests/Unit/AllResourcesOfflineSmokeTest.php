@@ -67,8 +67,8 @@ final class AllResourcesOfflineSmokeTest extends TestCase
     {
         $cases = self::discoverResourceCases();
 
-        self::assertCount(106, $cases);
-        self::assertCount(36, array_unique(array_map(static fn (ResourceCase $case): string => $case->package, $cases)));
+        self::assertCount(111, $cases);
+        self::assertCount(37, array_unique(array_map(static fn (ResourceCase $case): string => $case->package, $cases)));
     }
 
     public function testUniversalResourcesUseExpectedHttpBoundary(): void
