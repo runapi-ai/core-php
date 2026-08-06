@@ -1,5 +1,14 @@
 # Changelog
 
+## [v0.2.10](https://github.com/runapi-ai/core-php/releases/tag/v0.2.10) - 2026-08-06
+
+### Added
+- Register the stitching, remastering, and sampling actions in shared contract metadata.
+
+### Fixed
+- Validate the optional PixVerse enable_audio field for text-to-video and image-to-video requests.
+
+
 ## [v0.2.9](https://github.com/runapi-ai/core-php/releases/tag/v0.2.9) - 2026-08-04
 
 ### Added

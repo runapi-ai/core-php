@@ -67,7 +67,7 @@ final class AllResourcesOfflineSmokeTest extends TestCase
     {
         $cases = self::discoverResourceCases();
 
-        self::assertCount(111, $cases);
+        self::assertCount(114, $cases);
         self::assertCount(37, array_unique(array_map(static fn (ResourceCase $case): string => $case->package, $cases)));
     }
 
@@ -637,6 +637,11 @@ final class AllResourcesOfflineSmokeTest extends TestCase
             $params['infill_start_time'] = 10.0;
             $params['infill_end_time'] = 20.0;
             unset($params['task_id'], $params['audio_id']);
+        }
+
+        if ($package === 'runapi-ai/suno' && $resource === 'addSamples') {
+            $params['start_seconds'] = 5;
+            $params['end_seconds'] = 20;
         }
 
         if ($package === 'runapi-ai/elevenlabs' && $resource === 'textToSpeech') {
