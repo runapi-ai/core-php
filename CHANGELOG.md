@@ -1,5 +1,21 @@
 # Changelog
 
+## [v0.3.0](https://github.com/runapi-ai/core-php/releases/tag/v0.3.0) - 2026-08-07
+
+### Added
+- Validate the optional multi_shots field for supported WAN 2.6 video requests.
+- Preserve repeated multipart fields and successful JSON, text, and subtitle response bodies.
+- Add generated MiniMax H3 input contract metadata.
+- Add shared PHP request validation metadata for Qwen 3 image endpoints.
+- Add Fish Audio s2.1-pro and MP3 or WAV output constraints to shared PHP contract metadata.
+
+### Changed
+- Update generated Grok Imagine Preview resolution and reference image constraints.
+
+### Fixed
+- Validate the 10 to 360 second custom duration range and reject controls that the selected vocal mode or model cannot honor.
+
+
 ## [v0.2.10](https://github.com/runapi-ai/core-php/releases/tag/v0.2.10) - 2026-08-06
 
 ### Added

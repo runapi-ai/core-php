@@ -58,27 +58,7 @@ final class HttpClient
      */
     public function request(string $method, string $path, array $request = []): array
     {
-        $requestOptions = $request['options'] ?? null;
-        if ($requestOptions !== null && !$requestOptions instanceof RequestOptions) {
-            throw new \InvalidArgumentException('options must be an instance of RequestOptions');
-        }
-
-        $query = $request['query'] ?? [];
-        if (!is_array($query)) {
-            throw new \InvalidArgumentException('query must be an array');
-        }
-
-        $headers = $request['headers'] ?? [];
-        if (!is_array($headers)) {
-            throw new \InvalidArgumentException('headers must be an array');
-        }
-        if ($requestOptions !== null) {
-            $headers = array_merge($requestOptions->headers, $headers);
-        }
-
-        $body = $request['body'] ?? null;
-        $psrRequest = $this->buildRequest($method, $path, $query, $headers, $body);
-        $response = $this->sendWithRetry($psrRequest, $requestOptions);
+        $response = $this->performRequest($method, $path, $request);
         $responseBody = (string) $response->getBody();
 
         $allowNotModified = ($request['allow_not_modified'] ?? false) === true;
@@ -95,6 +75,22 @@ final class HttpClient
             $decoded['_etag'] = $response->getHeaderLine('ETag') ?: null;
         }
         return $decoded;
+    }
+
+    /**
+     * Send a RunAPI HTTP request without forcing the successful body to be a JSON object.
+     *
+     * @param array<string, mixed> $request
+     */
+    public function requestRaw(string $method, string $path, array $request = []): RawResponse
+    {
+        $response = $this->performRequest($method, $path, $request);
+        $body = (string) $response->getBody();
+        if ($response->getStatusCode() < 200 || $response->getStatusCode() >= 300) {
+            throw ErrorMapper::fromResponse($response, $body);
+        }
+
+        return new RawResponse($response->getStatusCode(), $body, $response->getHeaderLine('Content-Type') ?: null);
     }
 
     /**
@@ -121,6 +117,31 @@ final class HttpClient
         if ($response->getStatusCode() < 200 || $response->getStatusCode() >= 300) {
             throw ErrorMapper::fromResponse($response, (string) $response->getBody());
         }
+    }
+
+    /**
+     * @param array<string, mixed> $request
+     */
+    private function performRequest(string $method, string $path, array $request): ResponseInterface
+    {
+        $requestOptions = $request['options'] ?? null;
+        if ($requestOptions !== null && !$requestOptions instanceof RequestOptions) {
+            throw new \InvalidArgumentException('options must be an instance of RequestOptions');
+        }
+        $query = $request['query'] ?? [];
+        if (!is_array($query)) {
+            throw new \InvalidArgumentException('query must be an array');
+        }
+        $headers = $request['headers'] ?? [];
+        if (!is_array($headers)) {
+            throw new \InvalidArgumentException('headers must be an array');
+        }
+        if ($requestOptions !== null) {
+            $headers = array_merge($requestOptions->headers, $headers);
+        }
+        $psrRequest = $this->buildRequest($method, $path, $query, $headers, $request['body'] ?? null);
+
+        return $this->sendWithRetry($psrRequest, $requestOptions);
     }
 
     /**
@@ -271,10 +292,12 @@ final class HttpClient
         $elements = [];
 
         foreach ($body->fields as $name => $value) {
-            $elements[] = [
-                'name' => $name,
-                'contents' => $value,
-            ];
+            foreach (is_array($value) ? $value : [$value] as $item) {
+                $elements[] = [
+                    'name' => $name,
+                    'contents' => $item,
+                ];
+            }
         }
 
         foreach ($body->files as $name => $file) {

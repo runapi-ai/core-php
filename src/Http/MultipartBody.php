@@ -12,7 +12,7 @@ final readonly class MultipartBody
     /**
      * Create a multipart request body.
      *
-     * @param array<string, string> $fields
+     * @param array<string, string|list<string>> $fields
      * @param array<string, MultipartFile> $files
      */
     public function __construct(

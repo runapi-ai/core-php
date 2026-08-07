@@ -171,7 +171,7 @@ final readonly class ContractValidator
     }
 
     /**
-     * @param list<array{when?: array<string, mixed>, required?: list<string>, forbidden?: list<string>}> $rules
+     * @param list<array{when?: array<string, mixed>, required?: list<string>, required_any?: list<string>, forbidden?: list<string>, enum?: array<string, list<mixed>>}> $rules
      * @param array<string, mixed> $params
      */
     private function validateRules(array $rules, string $model, array $params): void
@@ -183,29 +183,78 @@ final readonly class ContractValidator
             }
 
             $context = $this->conditionDescription($conditions);
+            $qualifier = $context === '' ? '' : ' when ' . $context;
+
             foreach (($rule['required'] ?? []) as $field) {
                 $field = (string) $field;
                 if (!$this->fieldPresent($field, $params)) {
-                    throw new ValidationException($field . ' is required when ' . $context);
+                    throw new ValidationException($field . ' is required' . $qualifier);
+                }
+            }
+
+            $requiredAny = $rule['required_any'] ?? [];
+            if ($requiredAny !== []) {
+                $satisfied = false;
+                foreach ($requiredAny as $field) {
+                    if ($this->fieldPresent((string) $field, $params)) {
+                        $satisfied = true;
+                        break;
+                    }
+                }
+                if (!$satisfied) {
+                    throw new ValidationException(
+                        'one of ' . implode(', ', array_map('strval', $requiredAny)) . ' is required' . $qualifier
+                    );
                 }
             }
 
             foreach (($rule['forbidden'] ?? []) as $field) {
                 $field = (string) $field;
                 if ($this->fieldPresent($field, $params)) {
-                    throw new ValidationException($field . ' is not allowed when ' . $context);
+                    throw new ValidationException($field . ' is not allowed' . $qualifier);
+                }
+            }
+
+            foreach (($rule['enum'] ?? []) as $field => $allowed) {
+                $field = (string) $field;
+                if (!$this->fieldPresent($field, $params)) {
+                    continue;
+                }
+
+                $matched = false;
+                foreach ($allowed as $candidate) {
+                    if ((string) $candidate === (string) $params[$field]) {
+                        $matched = true;
+                        break;
+                    }
+                }
+                if (!$matched) {
+                    throw new ValidationException(
+                        $field . ' must be one of: ' . implode(', ', array_map('strval', $allowed)) . $qualifier
+                    );
                 }
             }
         }
     }
 
     /**
+     * A `when` entry is either ['present' => bool] or a scalar the supplied value
+     * must equal. Rules never resolve declared defaults.
+     *
      * @param array<string, mixed> $conditions
      * @param array<string, mixed> $params
      */
     private function conditionsMet(array $conditions, string $model, array $params): bool
     {
         foreach ($conditions as $field => $expected) {
+            if (is_array($expected) && array_key_exists('present', $expected)) {
+                if ($this->fieldPresent((string) $field, $params) !== ($expected['present'] === true)) {
+                    return false;
+                }
+
+                continue;
+            }
+
             if ($field === 'model') {
                 if ($model !== (string) $expected) {
                     return false;
@@ -214,7 +263,9 @@ final readonly class ContractValidator
                 continue;
             }
 
-            if (!array_key_exists($field, $params) || (string) $params[$field] !== (string) $expected) {
+            if (!array_key_exists($field, $params)
+                || (string) $params[$field] !== (string) $expected
+            ) {
                 return false;
             }
         }
@@ -230,6 +281,12 @@ final readonly class ContractValidator
         ksort($conditions);
         $parts = [];
         foreach ($conditions as $field => $value) {
+            if (is_array($value) && array_key_exists('present', $value)) {
+                $parts[] = $field . ($value['present'] === true ? ' is present' : ' is absent');
+
+                continue;
+            }
+
             $parts[] = $field . ' is ' . $value;
         }
 

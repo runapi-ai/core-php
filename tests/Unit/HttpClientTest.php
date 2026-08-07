@@ -19,6 +19,7 @@ use RunApi\Core\Errors\RateLimitException;
 use RunApi\Core\Errors\RunApiException;
 use RunApi\Core\Errors\ServerException;
 use RunApi\Core\Http\HttpClient;
+use RunApi\Core\Http\MultipartBody;
 use RunApi\Core\RequestOptions;
 use RunApi\Core\Tests\Fixtures\FakeClientException;
 use RunApi\Core\Tests\Fixtures\QueueHttpClient;
@@ -68,6 +69,44 @@ final class HttpClientTest extends TestCase
         self::assertSame('base', $request->getHeaderLine('X-Client'));
         self::assertSame('request', $request->getHeaderLine('X-Request'));
         self::assertSame('{"prompt":"hello"}', (string) $request->getBody());
+    }
+
+    public function testSendsRepeatedMultipartFields(): void
+    {
+        $transport = new QueueHttpClient([
+            new Response(200, ['Content-Type' => 'application/json'], '{"ok":true}'),
+        ]);
+        $client = new HttpClient(new ClientOptions(apiKey: 'test-key', httpClient: $transport, maxRetries: 0));
+
+        $client->request('post', '/v1/audio/transcriptions', [
+            'body' => new MultipartBody(fields: ['languages[]' => ['en', 'zh']]),
+        ]);
+
+        $body = (string) $transport->requests[0]->getBody();
+        self::assertSame(2, substr_count($body, 'name="languages[]"'));
+    }
+
+    public function testRawRequestPreservesTextAndContentType(): void
+    {
+        $transport = new QueueHttpClient([new Response(200, ['Content-Type' => 'text/vtt'], "WEBVTT\n")]);
+        $client = new HttpClient(new ClientOptions(apiKey: 'test-key', httpClient: $transport, maxRetries: 0));
+
+        $response = $client->requestRaw('post', '/v1/audio/transcriptions');
+
+        self::assertSame("WEBVTT\n", $response->body);
+        self::assertSame('text/vtt', $response->contentType);
+        self::assertSame("WEBVTT\n", $response->value());
+    }
+
+    public function testRawRequestDoesNotDecodeJsonLookingPlainText(): void
+    {
+        $body = '{"text":"literal transcription"}';
+        $transport = new QueueHttpClient([new Response(200, ['Content-Type' => 'text/plain'], $body)]);
+        $client = new HttpClient(new ClientOptions(apiKey: 'test-key', httpClient: $transport, maxRetries: 0));
+
+        $response = $client->requestRaw('post', '/v1/audio/transcriptions');
+
+        self::assertSame($body, $response->value());
     }
 
     public function testMapsErrorResponsesToTypedExceptions(): void

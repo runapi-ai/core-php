@@ -67,8 +67,8 @@ final class AllResourcesOfflineSmokeTest extends TestCase
     {
         $cases = self::discoverResourceCases();
 
-        self::assertCount(114, $cases);
-        self::assertCount(37, array_unique(array_map(static fn (ResourceCase $case): string => $case->package, $cases)));
+        self::assertCount(119, $cases);
+        self::assertCount(40, array_unique(array_map(static fn (ResourceCase $case): string => $case->package, $cases)));
     }
 
     public function testUniversalResourcesUseExpectedHttpBoundary(): void
@@ -152,28 +152,49 @@ final class AllResourcesOfflineSmokeTest extends TestCase
     public function testSyncResourceRun(ResourceCase $case): void
     {
         $transport = new QueueHttpClient([
-            new Response(200, [], json_encode($this->syncPayload($case), JSON_THROW_ON_ERROR)),
+            new Response(
+                200,
+                $case->outputKind === 'raw' ? ['Content-Type' => 'application/json'] : [],
+                json_encode($this->syncPayload($case), JSON_THROW_ON_ERROR),
+            ),
         ]);
         $client = $this->client($case, $transport);
         $resource = $client->{$case->resource};
 
-        $run = $resource->run($case->params + [
-            'callback_url' => '',
-            'null_option' => null,
-            'empty_list' => [],
-        ]);
+        if ($case->outputKind === 'raw') {
+            $params = $case->params;
+            $file = $params['file'];
+            unset($params['file']);
+            $run = $resource->run($file, $params);
+        } else {
+            $run = $resource->run($case->params + [
+                'callback_url' => '',
+                'null_option' => null,
+                'empty_list' => [],
+            ]);
+        }
 
-        self::assertInstanceOf(BaseModel::class, $run);
-        self::assertSame('kept', $run->toArray()['extra_field']);
+        if ($case->outputKind === 'raw') {
+            self::assertIsArray($run);
+            self::assertSame('kept', $run['extra_field']);
+        } else {
+            self::assertInstanceOf(BaseModel::class, $run);
+            self::assertSame('kept', $run->toArray()['extra_field']);
+        }
         self::assertCount(1, $transport->requests);
         self::assertSame('POST', $transport->requests[0]->getMethod());
         self::assertSame($case->endpoint, $transport->requests[0]->getUri()->getPath());
 
-        $body = json_decode((string) $transport->requests[0]->getBody(), true, flags: JSON_THROW_ON_ERROR);
-        self::assertIsArray($body);
-        self::assertArrayNotHasKey('callback_url', $body);
-        self::assertArrayNotHasKey('null_option', $body);
-        self::assertArrayNotHasKey('empty_list', $body);
+        if ($case->outputKind === 'raw') {
+            self::assertStringStartsWith('multipart/form-data; boundary=', $transport->requests[0]->getHeaderLine('Content-Type'));
+            self::assertStringContainsString('name="file"', (string) $transport->requests[0]->getBody());
+        } else {
+            $body = json_decode((string) $transport->requests[0]->getBody(), true, flags: JSON_THROW_ON_ERROR);
+            self::assertIsArray($body);
+            self::assertArrayNotHasKey('callback_url', $body);
+            self::assertArrayNotHasKey('null_option', $body);
+            self::assertArrayNotHasKey('empty_list', $body);
+        }
     }
 
     public function testRepresentativeValidationFailuresStayClientSide(): void
@@ -425,7 +446,7 @@ final class AllResourcesOfflineSmokeTest extends TestCase
 
     private static function endpoint(string $source, string $package, string $resource): string
     {
-        if (preg_match("/'\\/api\\/v1\\/[^']+'/", $source, $matches) === 1) {
+        if (preg_match("/'\\/(?:api\\/)?v1\\/[^']+'/", $source, $matches) === 1) {
             return trim($matches[0], "'");
         }
 
@@ -472,6 +493,7 @@ final class AllResourcesOfflineSmokeTest extends TestCase
         }
 
         return match (true) {
+            str_contains($source, 'requestRaw(') => 'raw',
             str_contains($source, 'CompletedSpeechToTextResponse') => 'text',
             str_contains($source, 'CompletedAudioTaskResponse'), str_contains($source, 'TextToSpeechResponse') => 'audio',
             str_contains($source, 'CompletedImageTaskResponse') => 'image',
@@ -644,6 +666,10 @@ final class AllResourcesOfflineSmokeTest extends TestCase
             $params['end_seconds'] = 20;
         }
 
+        if ($package === 'runapi-ai/openai-transcription' && $resource === 'speechToText') {
+            $params['file'] = __FILE__;
+        }
+
         if ($package === 'runapi-ai/elevenlabs' && $resource === 'textToSpeech') {
             $params['voice'] ??= 'Narrator';
         }
@@ -676,6 +702,14 @@ final class AllResourcesOfflineSmokeTest extends TestCase
         if ($package === 'runapi-ai/runway' && $resource === 'extendVideo') {
             $params['source_task_id'] ??= 'task_123';
             $params['output_resolution'] ??= '720p';
+        }
+
+        if ($package === 'runapi-ai/minimax-h3' && $resource === 'imageToVideo') {
+            $params['first_frame_image_url'] = self::FIRST_FRAME_URL;
+        }
+
+        if ($package === 'runapi-ai/minimax-h3' && $resource === 'textToVideo') {
+            $params['aspect_ratio'] = '16:9';
         }
 
         return $params;
