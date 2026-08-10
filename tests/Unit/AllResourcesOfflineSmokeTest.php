@@ -67,7 +67,7 @@ final class AllResourcesOfflineSmokeTest extends TestCase
     {
         $cases = self::discoverResourceCases();
 
-        self::assertCount(119, $cases);
+        self::assertCount(120, $cases);
         self::assertCount(40, array_unique(array_map(static fn (ResourceCase $case): string => $case->package, $cases)));
     }
 

@@ -1,5 +1,18 @@
 # Changelog
 
+## [v0.4.0](https://github.com/runapi-ai/core-php/releases/tag/v0.4.0) - 2026-08-10
+
+### Breaking
+- Reject OmniHuman audio-to-video prompts over 300 characters before sending the request.
+  Migration: Upgrade the package and shorten OmniHuman audio-to-video prompts to 300 characters or fewer.
+
+### Added
+- Add shared contract constraints for Suno music inspiration requests.
+
+### Changed
+- Update generated Seedream 5 Lite output quality constraints.
+
+
 ## [v0.3.0](https://github.com/runapi-ai/core-php/releases/tag/v0.3.0) - 2026-08-07
 
 ### Added

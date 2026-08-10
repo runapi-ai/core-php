@@ -2194,7 +2194,7 @@ final class ContractGen
                             'enum' => ['720p', '1080p'],
                         ],
                         'prompt' => [
-                            'max' => 1000,
+                            'max' => 300,
                             'length' => true,
                         ],
                         'seed' => [
@@ -3158,7 +3158,7 @@ final class ContractGen
                             'enum' => ['png', 'jpeg'],
                         ],
                         'output_quality' => [
-                            'enum' => ['basic', 'high'],
+                            'enum' => ['basic', 'high', 'ultra'],
                             'required' => true,
                         ],
                         'seed' => [
@@ -3263,7 +3263,7 @@ final class ContractGen
                             'enum' => ['png', 'jpeg'],
                         ],
                         'output_quality' => [
-                            'enum' => ['basic', 'high'],
+                            'enum' => ['basic', 'high', 'ultra'],
                             'required' => true,
                         ],
                         'seed' => [
@@ -4013,6 +4013,61 @@ final class ContractGen
                             'required' => true,
                         ],
                         'task_id' => [
+                            'required' => true,
+                        ],
+                    ],
+                ],
+            ],
+            'suno/inspire-music' => [
+                'models' => ['suno-v4', 'suno-v4.5', 'suno-v4.5-plus', 'suno-v5', 'suno-v5.5'],
+                'fields_by_model' => [
+                    'suno-v4' => [
+                        'audio_urls' => [
+                            'required' => true,
+                            'min_items' => 1,
+                            'max_items' => 4,
+                        ],
+                        'model' => [
+                            'required' => true,
+                        ],
+                    ],
+                    'suno-v4.5' => [
+                        'audio_urls' => [
+                            'required' => true,
+                            'min_items' => 1,
+                            'max_items' => 4,
+                        ],
+                        'model' => [
+                            'required' => true,
+                        ],
+                    ],
+                    'suno-v4.5-plus' => [
+                        'audio_urls' => [
+                            'required' => true,
+                            'min_items' => 1,
+                            'max_items' => 4,
+                        ],
+                        'model' => [
+                            'required' => true,
+                        ],
+                    ],
+                    'suno-v5' => [
+                        'audio_urls' => [
+                            'required' => true,
+                            'min_items' => 1,
+                            'max_items' => 4,
+                        ],
+                        'model' => [
+                            'required' => true,
+                        ],
+                    ],
+                    'suno-v5.5' => [
+                        'audio_urls' => [
+                            'required' => true,
+                            'min_items' => 1,
+                            'max_items' => 4,
+                        ],
+                        'model' => [
                             'required' => true,
                         ],
                     ],
