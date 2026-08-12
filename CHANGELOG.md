@@ -1,5 +1,16 @@
 # Changelog
 
+## [v0.4.1](https://github.com/runapi-ai/core-php/releases/tag/v0.4.1) - 2026-08-12
+
+### Added
+- Export the Seedream layer decomposition request contract for PHP SDK validation.
+- Add shared contract constraints for Seedance 2.5 requests.
+
+### Fixed
+- Apply the shared Runway aspect_ratio and first_frame_image_url conditional rules in PHP request validation.
+- Reject enable_safety_checker for Hailuo 02 Pro image-to-video and Wan 2.7 video edit requests.
+
+
 ## [v0.4.0](https://github.com/runapi-ai/core-php/releases/tag/v0.4.0) - 2026-08-10
 
 ### Breaking

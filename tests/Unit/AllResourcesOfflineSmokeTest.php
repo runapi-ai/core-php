@@ -67,7 +67,7 @@ final class AllResourcesOfflineSmokeTest extends TestCase
     {
         $cases = self::discoverResourceCases();
 
-        self::assertCount(120, $cases);
+        self::assertCount(121, $cases);
         self::assertCount(40, array_unique(array_map(static fn (ResourceCase $case): string => $case->package, $cases)));
     }
 
@@ -305,6 +305,13 @@ final class AllResourcesOfflineSmokeTest extends TestCase
             return $payload;
         }
 
+        if ($case->outputKind === 'layer_decomposition') {
+            $payload['base_image'] = ['url' => 'https://file.runapi.ai/base.jpg'];
+            $payload['layers'] = [['url' => 'https://file.runapi.ai/layer.png']];
+
+            return $payload;
+        }
+
         if ($case->outputKind === 'mask') {
             $payload['masks'] = [['url' => 'https://file.runapi.ai/mask.png']];
 
@@ -496,6 +503,7 @@ final class AllResourcesOfflineSmokeTest extends TestCase
             str_contains($source, 'requestRaw(') => 'raw',
             str_contains($source, 'CompletedSpeechToTextResponse') => 'text',
             str_contains($source, 'CompletedAudioTaskResponse'), str_contains($source, 'TextToSpeechResponse') => 'audio',
+            str_contains($source, 'CompletedDecomposeLayersResponse') => 'layer_decomposition',
             str_contains($source, 'CompletedImageTaskResponse') => 'image',
             str_contains($source, 'CompletedMaskTaskResponse') => 'mask',
             str_contains($source, 'CompletedSubjectStatusTaskResponse') => 'subject_status',
@@ -588,7 +596,7 @@ final class AllResourcesOfflineSmokeTest extends TestCase
 
             $matches = true;
             foreach ($when as $name => $value) {
-                if (!array_key_exists($name, $params) || $params[$name] !== $value) {
+                if (!self::conditionMatches((string) $name, $value, $params)) {
                     $matches = false;
                     break;
                 }
@@ -609,6 +617,67 @@ final class AllResourcesOfflineSmokeTest extends TestCase
         }
 
         return array_values(array_unique($fields));
+    }
+
+    /**
+     * @param array<string, mixed> $params
+     */
+    private static function conditionMatches(string $field, mixed $expected, array $params): bool
+    {
+        if (is_array($expected) && array_key_exists('present', $expected)) {
+            return self::fieldPresent($field, $params) === ($expected['present'] === true);
+        }
+
+        return array_key_exists($field, $params)
+            && (string) $params[$field] === (string) $expected;
+    }
+
+    /**
+     * @param array<string, mixed> $params
+     */
+    private static function fieldPresent(string $field, array $params): bool
+    {
+        if (!array_key_exists($field, $params)) {
+            return false;
+        }
+
+        $value = $params[$field];
+        if ($value === false) {
+            return true;
+        }
+
+        if (is_array($value)) {
+            foreach ($value as $item) {
+                if (self::presentValue($item)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        return self::presentValue($value);
+    }
+
+    private static function presentValue(mixed $value): bool
+    {
+        if ($value === null || $value === false) {
+            return false;
+        }
+
+        if ($value === true) {
+            return true;
+        }
+
+        if (is_string($value)) {
+            return trim($value) !== '';
+        }
+
+        if (is_array($value)) {
+            return $value !== [];
+        }
+
+        return true;
     }
 
     /**
