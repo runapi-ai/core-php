@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.4.2](https://github.com/runapi-ai/core-php/releases/tag/v0.4.2) - 2026-08-14
+
+### Fixed
+- Accept enable_safety_checker for Hailuo 02 Pro image-to-video and Wan 2.7 video edit requests.
+
+
 ## [v0.4.1](https://github.com/runapi-ai/core-php/releases/tag/v0.4.1) - 2026-08-12
 
 ### Added

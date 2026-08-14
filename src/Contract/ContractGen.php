@@ -1025,12 +1025,6 @@ final class ContractGen
                         ],
                     ],
                 ],
-                'rules' => [[
-                    'when' => [
-                        'model' => 'hailuo-02-image-to-video-pro',
-                    ],
-                    'forbidden' => ['enable_safety_checker'],
-                ]],
             ],
             'hailuo/text-to-video' => [
                 'models' => ['hailuo-02-text-to-video-pro', 'hailuo-02-text-to-video-standard'],
@@ -4850,7 +4844,7 @@ final class ContractGen
                     'when' => [
                         'model' => 'wan-2.7-edit-video',
                     ],
-                    'forbidden' => ['multi_shots', 'enable_safety_checker'],
+                    'forbidden' => ['multi_shots'],
                 ]],
             ],
             'wan/image-to-video' => [
