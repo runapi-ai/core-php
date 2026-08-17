@@ -67,7 +67,7 @@ final class AllResourcesOfflineSmokeTest extends TestCase
     {
         $cases = self::discoverResourceCases();
 
-        self::assertCount(121, $cases);
+        self::assertCount(124, $cases);
         self::assertCount(40, array_unique(array_map(static fn (ResourceCase $case): string => $case->package, $cases)));
     }
 
@@ -182,8 +182,21 @@ final class AllResourcesOfflineSmokeTest extends TestCase
             self::assertSame('kept', $run->toArray()['extra_field']);
         }
         self::assertCount(1, $transport->requests);
-        self::assertSame('POST', $transport->requests[0]->getMethod());
-        self::assertSame($case->endpoint, $transport->requests[0]->getUri()->getPath());
+        $isVoiceGet = $case->action === 'fish-audio/get-voice';
+        $isVoiceList = $case->action === 'fish-audio/list-voices';
+        $expectedMethod = $isVoiceGet || $isVoiceList ? 'GET' : 'POST';
+        $expectedPath = $isVoiceGet
+            ? rtrim($case->endpoint, '/') . '/' . rawurlencode((string) $case->params['voice_id'])
+            : $case->endpoint;
+
+        self::assertSame($expectedMethod, $transport->requests[0]->getMethod());
+        self::assertSame($expectedPath, $transport->requests[0]->getUri()->getPath());
+
+        if ($expectedMethod === 'GET') {
+            self::assertSame('', (string) $transport->requests[0]->getBody());
+
+            return;
+        }
 
         if ($case->outputKind === 'raw') {
             self::assertStringStartsWith('multipart/form-data; boundary=', $transport->requests[0]->getHeaderLine('Content-Type'));
@@ -340,6 +353,17 @@ final class AllResourcesOfflineSmokeTest extends TestCase
             'extra_field' => 'kept',
         ];
 
+        if (in_array($case->resource, ['createVoice', 'getVoice', 'listVoices'], true)) {
+            $payload['billing'] = [
+                'reservation' => null,
+                'settlement' => [
+                    'charged_amount_cents' => 0,
+                    'amount_micro_cents' => 0,
+                ],
+                'refund' => null,
+            ];
+        }
+
         if ($case->resource === 'textToSpeech' && $case->outputKind === 'audio') {
             $payload['audios'] = [[
                 'url' => 'https://file.runapi.ai/result.mp3',
@@ -358,6 +382,21 @@ final class AllResourcesOfflineSmokeTest extends TestCase
                 'name' => 'Guide',
                 'images' => [['url' => self::PORTRAIT_URL]],
             ];
+        } elseif (in_array($case->resource, ['createVoice', 'getVoice'], true)) {
+            $payload['voice'] = [
+                'voice_id' => 'voice_1',
+                'name' => 'Narrator',
+                'state' => 'trained',
+            ];
+        } elseif ($case->resource === 'listVoices') {
+            $payload['voices'] = [[
+                'voice_id' => 'voice_1',
+                'name' => 'Narrator',
+                'state' => 'trained',
+            ]];
+            $payload['total'] = 1;
+            $payload['page_number'] = 1;
+            $payload['page_size'] = 10;
         } elseif ($case->resource === 'generatePersona') {
             $payload['persona'] = [
                 'id' => 'persona_1',

@@ -8,16 +8,17 @@ use RunApi\Core\Http\HttpClient;
 use RunApi\Core\Resources\Account;
 use RunApi\Core\Resources\Files;
 use RunApi\Core\Resources\Pricing;
+use RunApi\Core\Resources\Uploads;
 
 /**
  * Core RunAPI PHP client.
  *
- * Exposes typed model resources plus the universal files and account resources.
+ * Exposes typed model resources plus the universal Files, Uploads, and account resources.
  */
 abstract class BaseClient
 {
     /**
-     * Universal file upload resource.
+     * Persistent File lifecycle and temporary URL upload resource.
      */
     public readonly Files $files;
     /**
@@ -26,6 +27,8 @@ abstract class BaseClient
     public readonly Account $account;
     /** Live Price Schedule and Price Quote resource. */
     public readonly Pricing $pricing;
+    /** Multipart Upload lifecycle resource. */
+    public readonly Uploads $uploads;
 
     protected readonly HttpClient $http;
 
@@ -38,5 +41,6 @@ abstract class BaseClient
         $this->files = new Files($this->http);
         $this->account = new Account($this->http);
         $this->pricing = new Pricing($this->http);
+        $this->uploads = new Uploads($this->http);
     }
 }

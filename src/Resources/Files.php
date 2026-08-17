@@ -7,7 +7,12 @@ namespace RunApi\Core\Resources;
 use Psr\Http\Message\StreamInterface;
 use RunApi\Core\Errors\ValidationException;
 use RunApi\Core\Http\HttpClient;
+use RunApi\Core\Http\MultipartBody;
+use RunApi\Core\Http\MultipartFile;
+use RunApi\Core\Models\DeletedProtocolFile;
 use RunApi\Core\Models\FileUploadResponse;
+use RunApi\Core\Models\ProtocolFile;
+use RunApi\Core\Models\ProtocolFileList;
 use RunApi\Core\RequestOptions;
 
 /**
@@ -18,6 +23,7 @@ final readonly class Files
     private const ENDPOINT = '/api/v1/files';
     private const PREPARE_ENDPOINT = self::ENDPOINT . '/prepare';
     private const CONFIRM_ENDPOINT = self::ENDPOINT . '/confirm';
+    private const PROTOCOL_ENDPOINT = '/v1/files';
 
     /**
      * Create a resource using the shared RunAPI HTTP transport.
@@ -43,6 +49,55 @@ final readonly class Files
             'body' => $this->jsonBody($params),
             'options' => $options,
         ]));
+    }
+
+    /**
+     * @param array<string, mixed> $params Must include file as a local path or named PSR-7 stream.
+     */
+    public function createFile(array $params, ?RequestOptions $options = null): ProtocolFile
+    {
+        $fileName = $this->optionalString($params, 'file_name');
+        $contentType = $this->optionalString($params, 'content_type');
+        $file = $params['file'] ?? null;
+        if (is_string($file)) {
+            $part = MultipartFile::fromPath($file, $fileName, $contentType);
+        } elseif ($file instanceof StreamInterface && $fileName !== null) {
+            $part = MultipartFile::fromStream($file, $fileName, $contentType);
+        } else {
+            throw new ValidationException('file must be a local path or a named PSR-7 stream');
+        }
+        $raw = $this->http->request('POST', self::PROTOCOL_ENDPOINT, [
+            'body' => new MultipartBody(
+                fields: ['purpose' => $this->optionalString($params, 'purpose') ?? 'user_data'],
+                files: ['file' => $part],
+            ),
+            'options' => $options,
+        ]);
+        return ProtocolFile::fromArray($raw);
+    }
+
+    public function list(?string $after = null, ?int $limit = null, ?string $order = null, ?string $purpose = null, ?RequestOptions $options = null): ProtocolFileList
+    {
+        $query = array_filter(compact('after', 'limit', 'order', 'purpose'), static fn (mixed $value): bool => $value !== null);
+        return ProtocolFileList::fromArray($this->http->request('GET', self::PROTOCOL_ENDPOINT, [
+            'query' => $query,
+            'options' => $options,
+        ]));
+    }
+
+    public function retrieve(string $fileId, ?RequestOptions $options = null): ProtocolFile
+    {
+        return ProtocolFile::fromArray($this->http->request('GET', $this->protocolFilePath($fileId), ['options' => $options]));
+    }
+
+    public function content(string $fileId, ?RequestOptions $options = null): string
+    {
+        return $this->http->requestRaw('GET', $this->protocolFilePath($fileId) . '/content', ['options' => $options])->body;
+    }
+
+    public function deleteFile(string $fileId, ?RequestOptions $options = null): DeletedProtocolFile
+    {
+        return DeletedProtocolFile::fromArray($this->http->request('DELETE', $this->protocolFilePath($fileId), ['options' => $options]));
     }
 
     /**
@@ -177,5 +232,10 @@ final readonly class Files
         }
 
         return $this->requiredString($params, $key);
+    }
+
+    private function protocolFilePath(string $fileId): string
+    {
+        return self::PROTOCOL_ENDPOINT . '/' . rawurlencode($this->requiredString(['file_id' => $fileId], 'file_id'));
     }
 }

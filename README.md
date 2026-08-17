@@ -3,7 +3,7 @@
 [![Packagist](https://img.shields.io/packagist/v/runapi-ai/core)](https://packagist.org/packages/runapi-ai/core)
 [![License](https://img.shields.io/github/license/runapi-ai/core-php)](https://github.com/runapi-ai/core-php/blob/main/LICENSE)
 
-The RunAPI Core PHP SDK provides shared authentication, PSR HTTP transport, retry, polling, typed errors, response objects, file upload, and account primitives for RunAPI PHP packages. Application code should normally install a concrete model package such as `runapi-ai/wan`; install `runapi-ai/core` directly only when building shared PHP SDK tooling.
+The RunAPI Core PHP SDK provides shared authentication, PSR HTTP transport, retry, polling, typed errors, response objects, Files, Uploads, and account primitives for RunAPI PHP packages. Application code should normally install a concrete model package such as `runapi-ai/wan`; install `runapi-ai/core` directly only when building shared PHP SDK tooling.
 
 ## Install
 
@@ -31,6 +31,25 @@ $options = new RequestOptions(headers: [
     'Idempotency-Key' => 'opaque-logical-task-123',
 ]);
 ```
+
+## Persistent Files And Multipart Uploads
+
+Every Provider Client exposes `$client->files` and `$client->uploads`. The existing `$client->files->create()` method still returns a temporary URL.
+
+```php
+$file = $client->files->createFile(['file' => './knowledge.pdf']);
+$content = $client->files->content($file->id);
+
+$upload = $client->uploads->create([
+    'bytes' => 1048576,
+    'filename' => 'archive.bin',
+    'mime_type' => 'application/octet-stream',
+]);
+$part = $client->uploads->addPart($upload->id, './archive.part-01');
+$completed = $client->uploads->complete($upload->id, [$part->id]);
+```
+
+Use `list()`, `retrieve()`, and `deleteFile()` for the remaining File lifecycle. See https://runapi.ai/docs/resources/files for limits and REST examples.
 
 ## Live Pricing
 

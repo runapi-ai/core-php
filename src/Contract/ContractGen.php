@@ -94,6 +94,45 @@ final class ContractGen
                     'required' => ['voice'],
                 ]],
             ],
+            'fish-audio/create-voice' => [
+                'models' => [],
+                'fields_by_model' => [
+                    '_' => [
+                        'name' => [
+                            'required' => true,
+                        ],
+                        'source_audio_url' => [
+                            'required' => true,
+                        ],
+                    ],
+                ],
+            ],
+            'fish-audio/get-voice' => [
+                'models' => [],
+                'fields_by_model' => [
+                    '_' => [
+                        'voice_id' => [
+                            'required' => true,
+                        ],
+                    ],
+                ],
+            ],
+            'fish-audio/list-voices' => [
+                'models' => [],
+                'fields_by_model' => [
+                    '_' => [
+                        'page_number' => [
+                            'min' => 1,
+                            'type' => 'integer',
+                        ],
+                        'page_size' => [
+                            'min' => 1,
+                            'max' => 100,
+                            'type' => 'integer',
+                        ],
+                    ],
+                ],
+            ],
             'fish-audio/text-to-speech' => [
                 'models' => ['s1', 's2-pro', 's2.1-pro'],
                 'fields_by_model' => [
@@ -4361,6 +4400,10 @@ final class ContractGen
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
                         ],
+                        'prompt' => [
+                            'max' => 3000,
+                            'length' => true,
+                        ],
                         'vocal_gender' => [
                             'enum' => ['male', 'female'],
                         ],
@@ -4380,6 +4423,10 @@ final class ContractGen
                         ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
+                        ],
+                        'prompt' => [
+                            'max' => 3000,
+                            'length' => true,
                         ],
                         'vocal_gender' => [
                             'enum' => ['male', 'female'],
@@ -4401,6 +4448,10 @@ final class ContractGen
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
                         ],
+                        'prompt' => [
+                            'max' => 3000,
+                            'length' => true,
+                        ],
                         'vocal_gender' => [
                             'enum' => ['male', 'female'],
                         ],
@@ -4420,6 +4471,10 @@ final class ContractGen
                         ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
+                        ],
+                        'prompt' => [
+                            'max' => 3000,
+                            'length' => true,
                         ],
                         'vocal_gender' => [
                             'enum' => ['male', 'female'],
@@ -4441,6 +4496,10 @@ final class ContractGen
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
                         ],
+                        'prompt' => [
+                            'max' => 3000,
+                            'length' => true,
+                        ],
                         'vocal_gender' => [
                             'enum' => ['male', 'female'],
                         ],
@@ -4460,6 +4519,10 @@ final class ContractGen
                         ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
+                        ],
+                        'prompt' => [
+                            'max' => 3000,
+                            'length' => true,
                         ],
                         'vocal_gender' => [
                             'enum' => ['male', 'female'],

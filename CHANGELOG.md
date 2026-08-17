@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.5.0](https://github.com/runapi-ai/core-php/releases/tag/v0.5.0) - 2026-08-17
+
+### Added
+- Publish reusable voice create, list, get, and text-to-speech input contract metadata.
+- Create, list, retrieve, download, and delete persistent Files, and compose Files from multipart Uploads while preserving temporary file uploads.
+
+### Fixed
+- Reject Suno text-to-music auto_lyrics prompts longer than 3000 characters before creating a task.
+
+
 ## [v0.4.2](https://github.com/runapi-ai/core-php/releases/tag/v0.4.2) - 2026-08-14
 
 ### Fixed

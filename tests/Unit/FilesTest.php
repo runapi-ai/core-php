@@ -159,4 +159,31 @@ final class FilesTest extends TestCase
 
         $files->create(['file' => '/path/that/does/not/exist.png']);
     }
+
+    public function testProtocolFileLifecyclePreservesBinaryContent(): void
+    {
+        $file = '{"id":"file_123","object":"file","bytes":3,"created_at":1,"filename":"input.bin","purpose":"user_data"}';
+        $transport = new QueueHttpClient([
+            new Response(200, ['Content-Type' => 'application/json'], $file),
+            new Response(200, ['Content-Type' => 'application/json'], '{"object":"list","data":[],"has_more":false}'),
+            new Response(200, ['Content-Type' => 'application/json'], $file),
+            new Response(200, ['Content-Type' => 'application/octet-stream'], "\x00\xff\x01"),
+            new Response(200, ['Content-Type' => 'application/json'], '{"id":"file_123","object":"file","deleted":true}'),
+        ]);
+        $files = new Files(new HttpClient(new ClientOptions(apiKey: 'test-key', httpClient: $transport)));
+        $path = tempnam(sys_get_temp_dir(), 'runapi-file-');
+        file_put_contents($path, "\x00\xff\x01");
+
+        self::assertSame('file_123', $files->createFile(['file' => $path, 'file_name' => 'input.bin'])->id);
+        self::assertFalse($files->list(limit: 1, order: 'asc')->hasMore);
+        self::assertSame('input.bin', $files->retrieve('file_123')->filename);
+        self::assertSame("\x00\xff\x01", $files->content('file_123'));
+        self::assertTrue($files->deleteFile('file_123')->deleted);
+
+        self::assertSame('/v1/files', $transport->requests[0]->getUri()->getPath());
+        self::assertSame('limit=1&order=asc', $transport->requests[1]->getUri()->getQuery());
+        self::assertSame('/v1/files/file_123/content', $transport->requests[3]->getUri()->getPath());
+        self::assertSame('DELETE', $transport->requests[4]->getMethod());
+        unlink($path);
+    }
 }
