@@ -755,7 +755,7 @@ final class ContractGen
                 ],
             ],
             'grok-imagine/edit-image' => [
-                'models' => ['grok-imagine-edit-image'],
+                'models' => ['grok-imagine-edit-image', 'grok-imagine-image-2-0'],
                 'fields_by_model' => [
                     'grok-imagine-edit-image' => [
                         'model' => [
@@ -765,7 +765,32 @@ final class ContractGen
                             'required' => true,
                         ],
                     ],
+                    'grok-imagine-image-2-0' => [
+                        'mask_indices' => [
+                            'min_items' => 1,
+                        ],
+                        'model' => [
+                            'required' => true,
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                        ],
+                        'source_task_id' => [
+                            'required' => true,
+                        ],
+                    ],
                 ],
+                'rules' => [[
+                    'when' => [
+                        'model' => 'grok-imagine-edit-image',
+                    ],
+                    'forbidden' => ['source_task_id', 'mask_indices'],
+                ], [
+                    'when' => [
+                        'model' => 'grok-imagine-image-2-0',
+                    ],
+                    'forbidden' => ['source_image_url', 'enable_safety_checker'],
+                ]],
             ],
             'grok-imagine/extend' => [
                 'models' => [],
@@ -897,9 +922,34 @@ final class ContractGen
                     'forbidden' => ['source_task_id', 'index', 'motion_style', 'enable_safety_checker'],
                 ]],
             ],
-            'grok-imagine/text-to-image' => [
-                'models' => ['grok-imagine-text-to-image'],
+            'grok-imagine/segment-map' => [
+                'models' => ['grok-imagine-image-2-0'],
                 'fields_by_model' => [
+                    'grok-imagine-image-2-0' => [
+                        'model' => [
+                            'required' => true,
+                        ],
+                        'source_task_id' => [
+                            'required' => true,
+                        ],
+                    ],
+                ],
+            ],
+            'grok-imagine/text-to-image' => [
+                'models' => ['grok-imagine-image-2-0', 'grok-imagine-text-to-image'],
+                'fields_by_model' => [
+                    'grok-imagine-image-2-0' => [
+                        'aspect_ratio' => [
+                            'enum' => ['1:1', '2:3', '3:2', '16:9', '9:16'],
+                            'required' => true,
+                        ],
+                        'model' => [
+                            'required' => true,
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                        ],
+                    ],
                     'grok-imagine-text-to-image' => [
                         'aspect_ratio' => [
                             'enum' => ['2:3', '3:2', '1:1', '16:9', '9:16'],
@@ -914,6 +964,12 @@ final class ContractGen
                         ],
                     ],
                 ],
+                'rules' => [[
+                    'when' => [
+                        'model' => 'grok-imagine-image-2-0',
+                    ],
+                    'forbidden' => ['enable_safety_checker', 'enable_pro'],
+                ]],
             ],
             'grok-imagine/text-to-video' => [
                 'models' => ['grok-imagine-text-to-video', 'grok-imagine-video-1.5-fast', 'grok-imagine-video-1.5-preview'],
@@ -1504,6 +1560,236 @@ final class ContractGen
                     ],
                 ],
             ],
+            'kling/edit-video' => [
+                'models' => ['kling-v3-omni-edit', 'kling-v3-omni-reference'],
+                'fields_by_model' => [
+                    'kling-v3-omni-edit' => [
+                        'aspect_ratio' => [
+                            'enum' => ['auto', '16:9', '9:16', '1:1'],
+                        ],
+                        'duration_seconds' => [
+                            'enum' => [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+                            'type' => 'integer',
+                        ],
+                        'model' => [
+                            'required' => true,
+                        ],
+                        'output_resolution' => [
+                            'enum' => ['720p', '1080p', '4k'],
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'min' => 1,
+                            'max' => 2500,
+                            'length' => true,
+                        ],
+                        'reference_image_urls' => [
+                            'min_items' => 1,
+                            'max_items' => 4,
+                        ],
+                    ],
+                    'kling-v3-omni-reference' => [
+                        'aspect_ratio' => [
+                            'enum' => ['auto', '16:9', '9:16', '1:1'],
+                        ],
+                        'duration_seconds' => [
+                            'enum' => [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+                            'type' => 'integer',
+                        ],
+                        'model' => [
+                            'required' => true,
+                        ],
+                        'output_resolution' => [
+                            'enum' => ['720p', '1080p', '4k'],
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'min' => 1,
+                            'max' => 2500,
+                            'length' => true,
+                        ],
+                        'reference_image_urls' => [
+                            'min_items' => 1,
+                            'max_items' => 4,
+                        ],
+                    ],
+                ],
+                'rules' => [[
+                    'when' => [
+                        'model' => 'kling-v3-omni-edit',
+                        'source_task_id' => [
+                            'present' => false,
+                        ],
+                        'source_video_url' => [
+                            'present' => false,
+                        ],
+                    ],
+                    'required_any' => ['source_video_url', 'source_task_id'],
+                ], [
+                    'when' => [
+                        'model' => 'kling-v3-omni-edit',
+                        'source_video_url' => [
+                            'present' => true,
+                        ],
+                    ],
+                    'forbidden' => ['source_task_id'],
+                ], [
+                    'when' => [
+                        'model' => 'kling-v3-omni-edit',
+                        'source_task_id' => [
+                            'present' => true,
+                        ],
+                    ],
+                    'forbidden' => ['source_video_url'],
+                ], [
+                    'enum' => [
+                        'aspect_ratio' => ['auto'],
+                        'duration_seconds' => [5],
+                    ],
+                    'when' => [
+                        'model' => 'kling-v3-omni-edit',
+                        'source_video_url' => [
+                            'present' => true,
+                        ],
+                        'reference_image_urls' => [
+                            'present' => false,
+                        ],
+                    ],
+                    'required' => ['aspect_ratio'],
+                ], [
+                    'enum' => [
+                        'aspect_ratio' => ['auto'],
+                        'duration_seconds' => [5],
+                    ],
+                    'when' => [
+                        'model' => 'kling-v3-omni-edit',
+                        'source_task_id' => [
+                            'present' => true,
+                        ],
+                        'reference_image_urls' => [
+                            'present' => false,
+                        ],
+                    ],
+                    'required' => ['aspect_ratio'],
+                ], [
+                    'enum' => [
+                        'aspect_ratio' => ['16:9', '9:16', '1:1'],
+                    ],
+                    'when' => [
+                        'model' => 'kling-v3-omni-edit',
+                        'source_video_url' => [
+                            'present' => true,
+                        ],
+                        'reference_image_urls' => [
+                            'present' => true,
+                        ],
+                    ],
+                    'required' => ['aspect_ratio'],
+                ], [
+                    'enum' => [
+                        'aspect_ratio' => ['16:9', '9:16', '1:1'],
+                    ],
+                    'when' => [
+                        'model' => 'kling-v3-omni-edit',
+                        'source_task_id' => [
+                            'present' => true,
+                        ],
+                        'reference_image_urls' => [
+                            'present' => true,
+                        ],
+                    ],
+                    'required' => ['aspect_ratio'],
+                ], [
+                    'when' => [
+                        'model' => 'kling-v3-omni-reference',
+                        'source_task_id' => [
+                            'present' => false,
+                        ],
+                        'source_video_url' => [
+                            'present' => false,
+                        ],
+                    ],
+                    'required_any' => ['source_video_url', 'source_task_id'],
+                ], [
+                    'when' => [
+                        'model' => 'kling-v3-omni-reference',
+                        'source_video_url' => [
+                            'present' => true,
+                        ],
+                    ],
+                    'forbidden' => ['source_task_id'],
+                ], [
+                    'when' => [
+                        'model' => 'kling-v3-omni-reference',
+                        'source_task_id' => [
+                            'present' => true,
+                        ],
+                    ],
+                    'forbidden' => ['source_video_url'],
+                ], [
+                    'enum' => [
+                        'aspect_ratio' => ['auto'],
+                        'enable_sound' => [false],
+                        'duration_seconds' => [5],
+                    ],
+                    'when' => [
+                        'model' => 'kling-v3-omni-reference',
+                        'source_video_url' => [
+                            'present' => true,
+                        ],
+                        'reference_image_urls' => [
+                            'present' => false,
+                        ],
+                    ],
+                    'required' => ['aspect_ratio'],
+                ], [
+                    'enum' => [
+                        'aspect_ratio' => ['auto'],
+                        'enable_sound' => [false],
+                        'duration_seconds' => [5],
+                    ],
+                    'when' => [
+                        'model' => 'kling-v3-omni-reference',
+                        'source_task_id' => [
+                            'present' => true,
+                        ],
+                        'reference_image_urls' => [
+                            'present' => false,
+                        ],
+                    ],
+                    'required' => ['aspect_ratio'],
+                ], [
+                    'enum' => [
+                        'aspect_ratio' => ['16:9', '9:16', '1:1'],
+                        'enable_sound' => [false],
+                    ],
+                    'when' => [
+                        'model' => 'kling-v3-omni-reference',
+                        'source_video_url' => [
+                            'present' => true,
+                        ],
+                        'reference_image_urls' => [
+                            'present' => true,
+                        ],
+                    ],
+                    'required' => ['aspect_ratio'],
+                ], [
+                    'enum' => [
+                        'aspect_ratio' => ['16:9', '9:16', '1:1'],
+                        'enable_sound' => [false],
+                    ],
+                    'when' => [
+                        'model' => 'kling-v3-omni-reference',
+                        'source_task_id' => [
+                            'present' => true,
+                        ],
+                        'reference_image_urls' => [
+                            'present' => true,
+                        ],
+                    ],
+                    'required' => ['aspect_ratio'],
+                ]],
+            ],
             'kling/extend-video' => [
                 'models' => ['kling-v2.5-turbo-image-to-video-pro', 'kling-v2.5-turbo-text-to-video-pro'],
                 'fields_by_model' => [
@@ -1786,7 +2072,7 @@ final class ContractGen
                 ]],
             ],
             'kling/text-to-video' => [
-                'models' => ['kling-3.0', 'kling-o1', 'kling-v2.1-master-text-to-video', 'kling-v2.5-turbo-text-to-video-pro', 'kling-v2.6', 'kling-v3-omni', 'kling-v3-turbo-text-to-video'],
+                'models' => ['kling-3.0', 'kling-o1', 'kling-v2.1-master-text-to-video', 'kling-v2.5-turbo-text-to-video-pro', 'kling-v2.6', 'kling-v3-omni', 'kling-v3-omni-reference', 'kling-v3-turbo-text-to-video'],
                 'fields_by_model' => [
                     'kling-3.0' => [
                         'aspect_ratio' => [
@@ -1895,6 +2181,33 @@ final class ContractGen
                             'min' => 1,
                             'max' => 2500,
                             'length' => true,
+                        ],
+                    ],
+                    'kling-v3-omni-reference' => [
+                        'aspect_ratio' => [
+                            'enum' => ['16:9', '9:16', '1:1'],
+                            'required' => true,
+                        ],
+                        'duration_seconds' => [
+                            'enum' => [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+                            'type' => 'integer',
+                        ],
+                        'model' => [
+                            'required' => true,
+                        ],
+                        'output_resolution' => [
+                            'enum' => ['720p', '1080p', '4k'],
+                        ],
+                        'prompt' => [
+                            'required' => true,
+                            'min' => 1,
+                            'max' => 2500,
+                            'length' => true,
+                        ],
+                        'reference_image_urls' => [
+                            'required' => true,
+                            'min_items' => 1,
+                            'max_items' => 7,
                         ],
                     ],
                     'kling-v3-turbo-text-to-video' => [
@@ -3124,7 +3437,7 @@ final class ContractGen
                             'enum' => ['mp4', 'mov'],
                         ],
                         'output_resolution' => [
-                            'enum' => ['480p', '720p'],
+                            'enum' => ['480p', '720p', '1080p'],
                         ],
                         'prompt' => [
                             'required' => true,

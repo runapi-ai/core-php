@@ -67,7 +67,7 @@ final class AllResourcesOfflineSmokeTest extends TestCase
     {
         $cases = self::discoverResourceCases();
 
-        self::assertCount(124, $cases);
+        self::assertCount(126, $cases);
         self::assertCount(40, array_unique(array_map(static fn (ResourceCase $case): string => $case->package, $cases)));
     }
 
@@ -327,6 +327,16 @@ final class AllResourcesOfflineSmokeTest extends TestCase
 
         if ($case->outputKind === 'mask') {
             $payload['masks'] = [['url' => 'https://file.runapi.ai/mask.png']];
+
+            return $payload;
+        }
+
+        if ($case->action === 'grok-imagine/segment-map') {
+            $payload['segments'] = [[
+                'url' => 'https://file.runapi.ai/segment.png',
+                'name' => 'subject',
+                'index' => 1,
+            ]];
 
             return $payload;
         }
@@ -818,6 +828,13 @@ final class AllResourcesOfflineSmokeTest extends TestCase
 
         if ($package === 'runapi-ai/minimax-h3' && $resource === 'textToVideo') {
             $params['aspect_ratio'] = '16:9';
+        }
+
+        if ($package === 'runapi-ai/kling' && $resource === 'editVideo') {
+            $params['source_video_url'] = self::VIDEO_URL;
+            $params['aspect_ratio'] = 'auto';
+            $params['duration_seconds'] = 5;
+            unset($params['source_task_id'], $params['reference_image_urls']);
         }
 
         return $params;

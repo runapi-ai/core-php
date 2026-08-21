@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.6.0](https://github.com/runapi-ai/core-php/releases/tag/v0.6.0) - 2026-08-21
+
+### Added
+- Add generated validation metadata for Grok Imagine Image 2.0 task requests.
+- Accept 1080p output resolution for Seedance 2.5 video generation.
+- Add shared contract validation for Kling V3 Omni reference-image and source-video editing workflows.
+
+
 ## [v0.5.0](https://github.com/runapi-ai/core-php/releases/tag/v0.5.0) - 2026-08-17
 
 ### Added
