@@ -756,6 +756,10 @@ final class AllResourcesOfflineSmokeTest extends TestCase
      */
     private static function withSpecialParams(string $package, string $resource, array $params): array
     {
+        if ($package === 'runapi-ai/grok-imagine' && $resource === 'segmentMap') {
+            $params['image_url'] ??= self::IMAGE_URL;
+        }
+
         if ($package === 'runapi-ai/suno') {
             $params['prompt'] ??= 'A warm synth-pop chorus about release day';
             $params['vocal_mode'] ??= 'auto_lyrics';
