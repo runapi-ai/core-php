@@ -1635,17 +1635,6 @@ final class ContractGen
                 'rules' => [[
                     'when' => [
                         'model' => 'kling-v3-omni-edit',
-                        'source_task_id' => [
-                            'present' => false,
-                        ],
-                        'source_video_url' => [
-                            'present' => false,
-                        ],
-                    ],
-                    'required_any' => ['source_video_url', 'source_task_id'],
-                ], [
-                    'when' => [
-                        'model' => 'kling-v3-omni-edit',
                         'source_video_url' => [
                             'present' => true,
                         ],
@@ -1719,6 +1708,32 @@ final class ContractGen
                     'required' => ['aspect_ratio'],
                 ], [
                     'when' => [
+                        'model' => 'kling-v3-omni-edit',
+                        'source_task_id' => [
+                            'present' => false,
+                        ],
+                        'source_video_url' => [
+                            'present' => false,
+                        ],
+                    ],
+                    'required_any' => ['source_video_url', 'source_task_id'],
+                ], [
+                    'enum' => [
+                        'aspect_ratio' => ['16:9', '9:16', '1:1'],
+                        'enable_sound' => [false],
+                    ],
+                    'when' => [
+                        'model' => 'kling-v3-omni-reference',
+                        'source_task_id' => [
+                            'present' => true,
+                        ],
+                        'reference_image_urls' => [
+                            'present' => true,
+                        ],
+                    ],
+                    'required' => ['aspect_ratio'],
+                ], [
+                    'when' => [
                         'model' => 'kling-v3-omni-reference',
                         'source_task_id' => [
                             'present' => false,
@@ -1784,21 +1799,6 @@ final class ContractGen
                     'when' => [
                         'model' => 'kling-v3-omni-reference',
                         'source_video_url' => [
-                            'present' => true,
-                        ],
-                        'reference_image_urls' => [
-                            'present' => true,
-                        ],
-                    ],
-                    'required' => ['aspect_ratio'],
-                ], [
-                    'enum' => [
-                        'aspect_ratio' => ['16:9', '9:16', '1:1'],
-                        'enable_sound' => [false],
-                    ],
-                    'when' => [
-                        'model' => 'kling-v3-omni-reference',
-                        'source_task_id' => [
                             'present' => true,
                         ],
                         'reference_image_urls' => [
@@ -3786,63 +3786,111 @@ final class ContractGen
                 'models' => ['suno-v4.5-plus', 'suno-v5', 'suno-v5.5'],
                 'fields_by_model' => [
                     'suno-v4.5-plus' => [
+                        'audio_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
                         'model' => [
                             'required' => true,
                         ],
                         'negative_tags' => [
                             'required' => true,
                         ],
+                        'style_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
                         'tags' => [
                             'required' => true,
+                            'max' => 1000,
+                            'length' => true,
                         ],
                         'title' => [
                             'required' => true,
+                            'max' => 80,
+                            'length' => true,
                         ],
                         'upload_url' => [
                             'required' => true,
                         ],
                         'vocal_gender' => [
                             'enum' => ['male', 'female'],
+                        ],
+                        'weirdness_constraint' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                     ],
                     'suno-v5' => [
+                        'audio_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
                         'model' => [
                             'required' => true,
                         ],
                         'negative_tags' => [
                             'required' => true,
                         ],
+                        'style_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
                         'tags' => [
                             'required' => true,
+                            'max' => 1000,
+                            'length' => true,
                         ],
                         'title' => [
                             'required' => true,
+                            'max' => 80,
+                            'length' => true,
                         ],
                         'upload_url' => [
                             'required' => true,
                         ],
                         'vocal_gender' => [
                             'enum' => ['male', 'female'],
+                        ],
+                        'weirdness_constraint' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                     ],
                     'suno-v5.5' => [
+                        'audio_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
                         'model' => [
                             'required' => true,
                         ],
                         'negative_tags' => [
                             'required' => true,
                         ],
+                        'style_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
                         'tags' => [
                             'required' => true,
+                            'max' => 1000,
+                            'length' => true,
                         ],
                         'title' => [
                             'required' => true,
+                            'max' => 80,
+                            'length' => true,
                         ],
                         'upload_url' => [
                             'required' => true,
                         ],
                         'vocal_gender' => [
                             'enum' => ['male', 'female'],
+                        ],
+                        'weirdness_constraint' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                     ],
                 ],
@@ -3936,8 +3984,14 @@ final class ContractGen
                 'models' => ['suno-v4.5-plus', 'suno-v5'],
                 'fields_by_model' => [
                     'suno-v4.5-plus' => [
+                        'audio_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
                         'lyrics' => [
                             'required' => true,
+                            'max' => 5000,
+                            'length' => true,
                         ],
                         'model' => [
                             'required' => true,
@@ -3947,20 +4001,38 @@ final class ContractGen
                         ],
                         'style' => [
                             'required' => true,
+                            'max' => 1000,
+                            'length' => true,
+                        ],
+                        'style_weight' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                         'title' => [
                             'required' => true,
+                            'max' => 80,
+                            'length' => true,
                         ],
                         'upload_url' => [
                             'required' => true,
                         ],
                         'vocal_gender' => [
                             'enum' => ['male', 'female'],
+                        ],
+                        'weirdness_constraint' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                     ],
                     'suno-v5' => [
+                        'audio_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
                         'lyrics' => [
                             'required' => true,
+                            'max' => 5000,
+                            'length' => true,
                         ],
                         'model' => [
                             'required' => true,
@@ -3970,15 +4042,27 @@ final class ContractGen
                         ],
                         'style' => [
                             'required' => true,
+                            'max' => 1000,
+                            'length' => true,
+                        ],
+                        'style_weight' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                         'title' => [
                             'required' => true,
+                            'max' => 80,
+                            'length' => true,
                         ],
                         'upload_url' => [
                             'required' => true,
                         ],
                         'vocal_gender' => [
                             'enum' => ['male', 'female'],
+                        ],
+                        'weirdness_constraint' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                     ],
                 ],
@@ -4033,11 +4117,35 @@ final class ContractGen
                 'models' => ['suno-v4', 'suno-v4.5', 'suno-v4.5-all', 'suno-v4.5-plus', 'suno-v5', 'suno-v5.5'],
                 'fields_by_model' => [
                     'suno-v4' => [
+                        'audio_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'lyrics' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
                         'model' => [
                             'required' => true,
                         ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
+                        ],
+                        'prompt' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                        'style' => [
+                            'max' => 1000,
+                            'length' => true,
+                        ],
+                        'style_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'title' => [
+                            'max' => 80,
+                            'length' => true,
                         ],
                         'upload_url' => [
                             'required' => true,
@@ -4048,14 +4156,42 @@ final class ContractGen
                         'vocal_mode' => [
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
                             'required' => true,
+                        ],
+                        'weirdness_constraint' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                     ],
                     'suno-v4.5' => [
+                        'audio_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'lyrics' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
                         'model' => [
                             'required' => true,
                         ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
+                        ],
+                        'prompt' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                        'style' => [
+                            'max' => 1000,
+                            'length' => true,
+                        ],
+                        'style_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'title' => [
+                            'max' => 80,
+                            'length' => true,
                         ],
                         'upload_url' => [
                             'required' => true,
@@ -4066,14 +4202,42 @@ final class ContractGen
                         'vocal_mode' => [
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
                             'required' => true,
+                        ],
+                        'weirdness_constraint' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                     ],
                     'suno-v4.5-all' => [
+                        'audio_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'lyrics' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
                         'model' => [
                             'required' => true,
                         ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
+                        ],
+                        'prompt' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                        'style' => [
+                            'max' => 1000,
+                            'length' => true,
+                        ],
+                        'style_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'title' => [
+                            'max' => 80,
+                            'length' => true,
                         ],
                         'upload_url' => [
                             'required' => true,
@@ -4084,14 +4248,42 @@ final class ContractGen
                         'vocal_mode' => [
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
                             'required' => true,
+                        ],
+                        'weirdness_constraint' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                     ],
                     'suno-v4.5-plus' => [
+                        'audio_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'lyrics' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
                         'model' => [
                             'required' => true,
                         ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
+                        ],
+                        'prompt' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                        'style' => [
+                            'max' => 1000,
+                            'length' => true,
+                        ],
+                        'style_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'title' => [
+                            'max' => 80,
+                            'length' => true,
                         ],
                         'upload_url' => [
                             'required' => true,
@@ -4102,14 +4294,42 @@ final class ContractGen
                         'vocal_mode' => [
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
                             'required' => true,
+                        ],
+                        'weirdness_constraint' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                     ],
                     'suno-v5' => [
+                        'audio_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'lyrics' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
                         'model' => [
                             'required' => true,
                         ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
+                        ],
+                        'prompt' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                        'style' => [
+                            'max' => 1000,
+                            'length' => true,
+                        ],
+                        'style_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'title' => [
+                            'max' => 80,
+                            'length' => true,
                         ],
                         'upload_url' => [
                             'required' => true,
@@ -4120,14 +4340,42 @@ final class ContractGen
                         'vocal_mode' => [
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
                             'required' => true,
+                        ],
+                        'weirdness_constraint' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                     ],
                     'suno-v5.5' => [
+                        'audio_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'lyrics' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
                         'model' => [
                             'required' => true,
                         ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
+                        ],
+                        'prompt' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                        'style' => [
+                            'max' => 1000,
+                            'length' => true,
+                        ],
+                        'style_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'title' => [
+                            'max' => 80,
+                            'length' => true,
                         ],
                         'upload_url' => [
                             'required' => true,
@@ -4138,6 +4386,10 @@ final class ContractGen
                         'vocal_mode' => [
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
                             'required' => true,
+                        ],
+                        'weirdness_constraint' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                     ],
                 ],
@@ -4165,11 +4417,35 @@ final class ContractGen
                 'models' => ['suno-v4', 'suno-v4.5', 'suno-v4.5-all', 'suno-v4.5-plus', 'suno-v5', 'suno-v5.5'],
                 'fields_by_model' => [
                     'suno-v4' => [
+                        'audio_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'lyrics' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
                         'model' => [
                             'required' => true,
                         ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
+                        ],
+                        'prompt' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                        'style' => [
+                            'max' => 1000,
+                            'length' => true,
+                        ],
+                        'style_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'title' => [
+                            'max' => 80,
+                            'length' => true,
                         ],
                         'upload_url_list' => [
                             'required' => true,
@@ -4182,14 +4458,42 @@ final class ContractGen
                         'vocal_mode' => [
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
                             'required' => true,
+                        ],
+                        'weirdness_constraint' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                     ],
                     'suno-v4.5' => [
+                        'audio_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'lyrics' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
                         'model' => [
                             'required' => true,
                         ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
+                        ],
+                        'prompt' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                        'style' => [
+                            'max' => 1000,
+                            'length' => true,
+                        ],
+                        'style_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'title' => [
+                            'max' => 80,
+                            'length' => true,
                         ],
                         'upload_url_list' => [
                             'required' => true,
@@ -4202,14 +4506,42 @@ final class ContractGen
                         'vocal_mode' => [
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
                             'required' => true,
+                        ],
+                        'weirdness_constraint' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                     ],
                     'suno-v4.5-all' => [
+                        'audio_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'lyrics' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
                         'model' => [
                             'required' => true,
                         ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
+                        ],
+                        'prompt' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                        'style' => [
+                            'max' => 1000,
+                            'length' => true,
+                        ],
+                        'style_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'title' => [
+                            'max' => 80,
+                            'length' => true,
                         ],
                         'upload_url_list' => [
                             'required' => true,
@@ -4222,14 +4554,42 @@ final class ContractGen
                         'vocal_mode' => [
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
                             'required' => true,
+                        ],
+                        'weirdness_constraint' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                     ],
                     'suno-v4.5-plus' => [
+                        'audio_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'lyrics' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
                         'model' => [
                             'required' => true,
                         ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
+                        ],
+                        'prompt' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                        'style' => [
+                            'max' => 1000,
+                            'length' => true,
+                        ],
+                        'style_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'title' => [
+                            'max' => 80,
+                            'length' => true,
                         ],
                         'upload_url_list' => [
                             'required' => true,
@@ -4242,14 +4602,42 @@ final class ContractGen
                         'vocal_mode' => [
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
                             'required' => true,
+                        ],
+                        'weirdness_constraint' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                     ],
                     'suno-v5' => [
+                        'audio_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'lyrics' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
                         'model' => [
                             'required' => true,
                         ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
+                        ],
+                        'prompt' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                        'style' => [
+                            'max' => 1000,
+                            'length' => true,
+                        ],
+                        'style_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'title' => [
+                            'max' => 80,
+                            'length' => true,
                         ],
                         'upload_url_list' => [
                             'required' => true,
@@ -4262,14 +4650,42 @@ final class ContractGen
                         'vocal_mode' => [
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
                             'required' => true,
+                        ],
+                        'weirdness_constraint' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                     ],
                     'suno-v5.5' => [
+                        'audio_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'lyrics' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
                         'model' => [
                             'required' => true,
                         ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
+                        ],
+                        'prompt' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                        'style' => [
+                            'max' => 1000,
+                            'length' => true,
+                        ],
+                        'style_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'title' => [
+                            'max' => 80,
+                            'length' => true,
                         ],
                         'upload_url_list' => [
                             'required' => true,
@@ -4282,6 +4698,10 @@ final class ContractGen
                         'vocal_mode' => [
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
                             'required' => true,
+                        ],
+                        'weirdness_constraint' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                     ],
                 ],
@@ -4309,6 +4729,14 @@ final class ContractGen
                 'models' => ['suno-v4', 'suno-v4.5', 'suno-v4.5-all', 'suno-v4.5-plus', 'suno-v5', 'suno-v5.5'],
                 'fields_by_model' => [
                     'suno-v4' => [
+                        'audio_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'lyrics' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
                         'model' => [
                             'required' => true,
                         ],
@@ -4319,11 +4747,39 @@ final class ContractGen
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
                         ],
+                        'prompt' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                        'style' => [
+                            'max' => 1000,
+                            'length' => true,
+                        ],
+                        'style_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'title' => [
+                            'max' => 80,
+                            'length' => true,
+                        ],
                         'vocal_gender' => [
                             'enum' => ['male', 'female'],
+                        ],
+                        'weirdness_constraint' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                     ],
                     'suno-v4.5' => [
+                        'audio_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'lyrics' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
                         'model' => [
                             'required' => true,
                         ],
@@ -4334,11 +4790,39 @@ final class ContractGen
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
                         ],
+                        'prompt' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                        'style' => [
+                            'max' => 1000,
+                            'length' => true,
+                        ],
+                        'style_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'title' => [
+                            'max' => 80,
+                            'length' => true,
+                        ],
                         'vocal_gender' => [
                             'enum' => ['male', 'female'],
+                        ],
+                        'weirdness_constraint' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                     ],
                     'suno-v4.5-all' => [
+                        'audio_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'lyrics' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
                         'model' => [
                             'required' => true,
                         ],
@@ -4349,11 +4833,39 @@ final class ContractGen
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
                         ],
+                        'prompt' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                        'style' => [
+                            'max' => 1000,
+                            'length' => true,
+                        ],
+                        'style_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'title' => [
+                            'max' => 80,
+                            'length' => true,
+                        ],
                         'vocal_gender' => [
                             'enum' => ['male', 'female'],
+                        ],
+                        'weirdness_constraint' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                     ],
                     'suno-v4.5-plus' => [
+                        'audio_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'lyrics' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
                         'model' => [
                             'required' => true,
                         ],
@@ -4364,11 +4876,39 @@ final class ContractGen
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
                         ],
+                        'prompt' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                        'style' => [
+                            'max' => 1000,
+                            'length' => true,
+                        ],
+                        'style_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'title' => [
+                            'max' => 80,
+                            'length' => true,
+                        ],
                         'vocal_gender' => [
                             'enum' => ['male', 'female'],
+                        ],
+                        'weirdness_constraint' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                     ],
                     'suno-v5' => [
+                        'audio_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'lyrics' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
                         'model' => [
                             'required' => true,
                         ],
@@ -4379,11 +4919,39 @@ final class ContractGen
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
                         ],
+                        'prompt' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                        'style' => [
+                            'max' => 1000,
+                            'length' => true,
+                        ],
+                        'style_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'title' => [
+                            'max' => 80,
+                            'length' => true,
+                        ],
                         'vocal_gender' => [
                             'enum' => ['male', 'female'],
+                        ],
+                        'weirdness_constraint' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                     ],
                     'suno-v5.5' => [
+                        'audio_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'lyrics' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
                         'model' => [
                             'required' => true,
                         ],
@@ -4394,8 +4962,28 @@ final class ContractGen
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
                         ],
+                        'prompt' => [
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                        'style' => [
+                            'max' => 1000,
+                            'length' => true,
+                        ],
+                        'style_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'title' => [
+                            'max' => 80,
+                            'length' => true,
+                        ],
                         'vocal_gender' => [
                             'enum' => ['male', 'female'],
+                        ],
+                        'weirdness_constraint' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                     ],
                 ],
@@ -4609,6 +5197,8 @@ final class ContractGen
                     '_' => [
                         'full_lyrics' => [
                             'required' => true,
+                            'max' => 5000,
+                            'length' => true,
                         ],
                         'infill_end_time' => [
                             'required' => true,
@@ -4618,15 +5208,21 @@ final class ContractGen
                         ],
                         'lyrics' => [
                             'required' => true,
+                            'max' => 5000,
+                            'length' => true,
                         ],
                         'model' => [
                             'enum' => ['suno-v4', 'suno-v4.5', 'suno-v4.5-all', 'suno-v4.5-plus', 'suno-v5', 'suno-v5.5'],
                         ],
                         'tags' => [
                             'required' => true,
+                            'max' => 1000,
+                            'length' => true,
                         ],
                         'title' => [
                             'required' => true,
+                            'max' => 80,
+                            'length' => true,
                         ],
                     ],
                 ],
@@ -4720,10 +5316,18 @@ final class ContractGen
                 'models' => ['suno-v4', 'suno-v4.5', 'suno-v4.5-all', 'suno-v4.5-plus', 'suno-v5', 'suno-v5.5'],
                 'fields_by_model' => [
                     'suno-v4' => [
+                        'audio_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
                         'duration_seconds' => [
                             'min' => 10,
                             'max' => 360,
                             'type' => 'integer',
+                        ],
+                        'lyrics' => [
+                            'max' => 5000,
+                            'length' => true,
                         ],
                         'model' => [
                             'required' => true,
@@ -4732,7 +5336,19 @@ final class ContractGen
                             'enum' => ['style', 'voice'],
                         ],
                         'prompt' => [
-                            'max' => 3000,
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                        'style' => [
+                            'max' => 1000,
+                            'length' => true,
+                        ],
+                        'style_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'title' => [
+                            'max' => 80,
                             'length' => true,
                         ],
                         'vocal_gender' => [
@@ -4741,13 +5357,25 @@ final class ContractGen
                         'vocal_mode' => [
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
                             'required' => true,
+                        ],
+                        'weirdness_constraint' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                     ],
                     'suno-v4.5' => [
+                        'audio_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
                         'duration_seconds' => [
                             'min' => 10,
                             'max' => 360,
                             'type' => 'integer',
+                        ],
+                        'lyrics' => [
+                            'max' => 5000,
+                            'length' => true,
                         ],
                         'model' => [
                             'required' => true,
@@ -4756,7 +5384,19 @@ final class ContractGen
                             'enum' => ['style', 'voice'],
                         ],
                         'prompt' => [
-                            'max' => 3000,
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                        'style' => [
+                            'max' => 1000,
+                            'length' => true,
+                        ],
+                        'style_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'title' => [
+                            'max' => 80,
                             'length' => true,
                         ],
                         'vocal_gender' => [
@@ -4765,13 +5405,25 @@ final class ContractGen
                         'vocal_mode' => [
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
                             'required' => true,
+                        ],
+                        'weirdness_constraint' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                     ],
                     'suno-v4.5-all' => [
+                        'audio_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
                         'duration_seconds' => [
                             'min' => 10,
                             'max' => 360,
                             'type' => 'integer',
+                        ],
+                        'lyrics' => [
+                            'max' => 5000,
+                            'length' => true,
                         ],
                         'model' => [
                             'required' => true,
@@ -4780,7 +5432,19 @@ final class ContractGen
                             'enum' => ['style', 'voice'],
                         ],
                         'prompt' => [
-                            'max' => 3000,
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                        'style' => [
+                            'max' => 1000,
+                            'length' => true,
+                        ],
+                        'style_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'title' => [
+                            'max' => 80,
                             'length' => true,
                         ],
                         'vocal_gender' => [
@@ -4789,13 +5453,25 @@ final class ContractGen
                         'vocal_mode' => [
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
                             'required' => true,
+                        ],
+                        'weirdness_constraint' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                     ],
                     'suno-v4.5-plus' => [
+                        'audio_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
                         'duration_seconds' => [
                             'min' => 10,
                             'max' => 360,
                             'type' => 'integer',
+                        ],
+                        'lyrics' => [
+                            'max' => 5000,
+                            'length' => true,
                         ],
                         'model' => [
                             'required' => true,
@@ -4804,7 +5480,19 @@ final class ContractGen
                             'enum' => ['style', 'voice'],
                         ],
                         'prompt' => [
-                            'max' => 3000,
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                        'style' => [
+                            'max' => 1000,
+                            'length' => true,
+                        ],
+                        'style_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'title' => [
+                            'max' => 80,
                             'length' => true,
                         ],
                         'vocal_gender' => [
@@ -4813,13 +5501,25 @@ final class ContractGen
                         'vocal_mode' => [
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
                             'required' => true,
+                        ],
+                        'weirdness_constraint' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                     ],
                     'suno-v5' => [
+                        'audio_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
                         'duration_seconds' => [
                             'min' => 10,
                             'max' => 360,
                             'type' => 'integer',
+                        ],
+                        'lyrics' => [
+                            'max' => 5000,
+                            'length' => true,
                         ],
                         'model' => [
                             'required' => true,
@@ -4828,7 +5528,19 @@ final class ContractGen
                             'enum' => ['style', 'voice'],
                         ],
                         'prompt' => [
-                            'max' => 3000,
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                        'style' => [
+                            'max' => 1000,
+                            'length' => true,
+                        ],
+                        'style_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'title' => [
+                            'max' => 80,
                             'length' => true,
                         ],
                         'vocal_gender' => [
@@ -4837,13 +5549,25 @@ final class ContractGen
                         'vocal_mode' => [
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
                             'required' => true,
+                        ],
+                        'weirdness_constraint' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                     ],
                     'suno-v5.5' => [
+                        'audio_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
                         'duration_seconds' => [
                             'min' => 10,
                             'max' => 360,
                             'type' => 'integer',
+                        ],
+                        'lyrics' => [
+                            'max' => 5000,
+                            'length' => true,
                         ],
                         'model' => [
                             'required' => true,
@@ -4852,7 +5576,19 @@ final class ContractGen
                             'enum' => ['style', 'voice'],
                         ],
                         'prompt' => [
-                            'max' => 3000,
+                            'max' => 5000,
+                            'length' => true,
+                        ],
+                        'style' => [
+                            'max' => 1000,
+                            'length' => true,
+                        ],
+                        'style_weight' => [
+                            'min' => 0,
+                            'max' => 1,
+                        ],
+                        'title' => [
+                            'max' => 80,
                             'length' => true,
                         ],
                         'vocal_gender' => [
@@ -4861,6 +5597,10 @@ final class ContractGen
                         'vocal_mode' => [
                             'enum' => ['auto_lyrics', 'exact_lyrics', 'instrumental'],
                             'required' => true,
+                        ],
+                        'weirdness_constraint' => [
+                            'min' => 0,
+                            'max' => 1,
                         ],
                     ],
                 ],

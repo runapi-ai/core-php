@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.6.2](https://github.com/runapi-ai/core-php/releases/tag/v0.6.2) - 2026-09-04
+
+### Added
+- Publish the HybridResource and HybridTask support used by synchronous and asynchronous PHP resources.
+
+
 ## [v0.6.1](https://github.com/runapi-ai/core-php/releases/tag/v0.6.1) - 2026-08-25
 
 ### Breaking

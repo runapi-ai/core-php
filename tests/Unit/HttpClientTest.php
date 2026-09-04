@@ -18,9 +18,12 @@ use RunApi\Core\Errors\NetworkException;
 use RunApi\Core\Errors\RateLimitException;
 use RunApi\Core\Errors\RunApiException;
 use RunApi\Core\Errors\ServerException;
+use RunApi\Core\Errors\ValidationException;
 use RunApi\Core\Http\HttpClient;
 use RunApi\Core\Http\MultipartBody;
+use RunApi\Core\Http\RawResponse;
 use RunApi\Core\RequestOptions;
+use RunApi\Core\Tasks\HybridTask;
 use RunApi\Core\Tests\Fixtures\FakeClientException;
 use RunApi\Core\Tests\Fixtures\QueueHttpClient;
 
@@ -107,6 +110,39 @@ final class HttpClientTest extends TestCase
         $response = $client->requestRaw('post', '/v1/audio/transcriptions');
 
         self::assertSame($body, $response->value());
+    }
+
+    public function testRawRequestFollowsAnOpaqueAbsoluteLocation(): void
+    {
+        $transport = new QueueHttpClient([new Response(200, ['Content-Type' => 'application/json'], '{"status":"processing"}')]);
+        $client = new HttpClient(new ClientOptions(apiKey: 'test-key', baseUrl: 'https://runapi.ai/base', httpClient: $transport, maxRetries: 0));
+
+        $client->requestRaw('get', 'https://runapi.ai/api/v1/tasks/task_123/result');
+
+        self::assertSame('https://runapi.ai/api/v1/tasks/task_123/result', (string) $transport->requests[0]->getUri());
+    }
+
+    public function testRawRequestRejectsCrossOriginAbsoluteLocationBeforeSendingCredentials(): void
+    {
+        $transport = new QueueHttpClient([]);
+        $client = new HttpClient(new ClientOptions(apiKey: 'test-key', baseUrl: 'https://runapi.ai', httpClient: $transport, maxRetries: 0));
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('Request URL must use the configured RunAPI origin');
+
+        try {
+            $client->requestRaw('get', 'https://attacker.example/tasks/task_123/result');
+        } finally {
+            self::assertSame([], $transport->requests);
+        }
+    }
+
+    public function testTaskRetryAfterAcceptsAnHttpDate(): void
+    {
+        $response = new RawResponse(200, '{}', 'application/json', ['Retry-After' => gmdate(DATE_RFC7231, time() + 5)]);
+
+        self::assertGreaterThan(0.0, HybridTask::retryAfter($response));
+        self::assertLessThanOrEqual(5.0, HybridTask::retryAfter($response));
     }
 
     public function testMapsErrorResponsesToTypedExceptions(): void

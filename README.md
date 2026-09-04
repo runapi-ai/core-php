@@ -32,6 +32,13 @@ $options = new RequestOptions(headers: [
 ]);
 ```
 
+## Recovering Interrupted Requests
+
+Normal `run()` calls wait for and return the endpoint's terminal response model.
+If a lower-level request is interrupted after RunAPI accepted it, persist the
+opaque Task Result URL from the response and use `subscribe()` to recover the
+result while respecting the server-supplied `Retry-After` delay.
+
 ## Persistent Files And Multipart Uploads
 
 Every Provider Client exposes `$client->files` and `$client->uploads`. The existing `$client->files->create()` method still returns a temporary URL.

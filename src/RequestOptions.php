@@ -21,4 +21,15 @@ final readonly class RequestOptions
         public ?float $maxWaitSeconds = null,
     ) {
     }
+
+    public function hasHeader(string $name): bool
+    {
+        foreach ($this->headers as $headerName => $_value) {
+            if (strcasecmp($headerName, $name) === 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

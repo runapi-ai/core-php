@@ -86,11 +86,11 @@ final class HttpClient
     {
         $response = $this->performRequest($method, $path, $request);
         $body = (string) $response->getBody();
-        if ($response->getStatusCode() < 200 || $response->getStatusCode() >= 300) {
+        if (!$this->isAcceptedStatus($response->getStatusCode(), $request)) {
             throw ErrorMapper::fromResponse($response, $body);
         }
 
-        return new RawResponse($response->getStatusCode(), $body, $response->getHeaderLine('Content-Type') ?: null);
+        return new RawResponse($response->getStatusCode(), $body, $response->getHeaderLine('Content-Type') ?: null, $response->getHeaders());
     }
 
     /**
@@ -243,7 +243,23 @@ final class HttpClient
 
     private function isIdempotent(RequestInterface $request): bool
     {
-        return in_array(strtoupper($request->getMethod()), Constants::IDEMPOTENT_METHODS, true);
+        return in_array(strtoupper($request->getMethod()), Constants::IDEMPOTENT_METHODS, true)
+            || (strtoupper($request->getMethod()) === 'POST' && $request->hasHeader('Idempotency-Key'));
+    }
+
+    /** @param array<string, mixed> $request */
+    private function isAcceptedStatus(int $statusCode, array $request): bool
+    {
+        if ($statusCode >= 200 && $statusCode < 300) {
+            return true;
+        }
+
+        $acceptedStatuses = $request['accepted_statuses'] ?? [];
+        if (!is_array($acceptedStatuses)) {
+            throw new \InvalidArgumentException('accepted_statuses must be an array');
+        }
+
+        return in_array($statusCode, $acceptedStatuses, true);
     }
 
     private function retryDelaySeconds(ResponseInterface $response, int $attempt): float
@@ -337,7 +353,14 @@ final class HttpClient
      */
     private function buildUrl(string $path, array $query): string
     {
-        $url = $this->baseUrl . '/' . ltrim($path, '/');
+        if (preg_match('#^https?://#i', $path) === 1) {
+            if (!$this->sameOrigin($path, $this->baseUrl)) {
+                throw new ValidationException('Request URL must use the configured RunAPI origin');
+            }
+            $url = $path;
+        } else {
+            $url = $this->baseUrl . '/' . ltrim($path, '/');
+        }
         $query = array_filter(
             $query,
             static fn (mixed $value): bool => $value !== null,
@@ -348,6 +371,29 @@ final class HttpClient
         }
 
         return $url . '?' . http_build_query($query);
+    }
+
+    private function sameOrigin(string $requested, string $configured): bool
+    {
+        $left = parse_url($requested);
+        $right = parse_url($configured);
+        if (!is_array($left) || !is_array($right)) {
+            return false;
+        }
+
+        return strtolower((string) ($left['scheme'] ?? '')) === strtolower((string) ($right['scheme'] ?? ''))
+            && strtolower((string) ($left['host'] ?? '')) === strtolower((string) ($right['host'] ?? ''))
+            && $this->originPort($left) === $this->originPort($right);
+    }
+
+    /** @param array<string, mixed> $url */
+    private function originPort(array $url): int
+    {
+        if (isset($url['port'])) {
+            return (int) $url['port'];
+        }
+
+        return strtolower((string) ($url['scheme'] ?? '')) === 'https' ? 443 : 80;
     }
 
     private function defaultClient(ClientOptions $options): ClientInterface

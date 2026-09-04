@@ -320,7 +320,7 @@ final class AllResourcesOfflineSmokeTest extends TestCase
 
         if ($case->outputKind === 'layer_decomposition') {
             $payload['base_image'] = ['url' => 'https://file.runapi.ai/base.jpg'];
-            $payload['layers'] = [['url' => 'https://file.runapi.ai/layer.png']];
+            $payload['layers'] = [['url' => 'https://file.runapi.ai/layer.png', 'z_index' => 1]];
 
             return $payload;
         }
