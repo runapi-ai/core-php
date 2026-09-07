@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.6.3](https://github.com/runapi-ai/core-php/releases/tag/v0.6.3) - 2026-09-07
+
+### Added
+- Add generated validation metadata for Gemini Omni Flash 1.1 video requests and frame controls.
+
+
 ## [v0.6.2](https://github.com/runapi-ai/core-php/releases/tag/v0.6.2) - 2026-09-04
 
 ### Added
