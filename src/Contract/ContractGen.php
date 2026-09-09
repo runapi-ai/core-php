@@ -2600,6 +2600,9 @@ final class ContractGen
                         'output_resolution' => [
                             'enum' => ['1k', '2k', '4k'],
                         ],
+                        'reference_image_urls' => [
+                            'max_items' => 8,
+                        ],
                     ],
                 ],
                 'rules' => [[
@@ -3565,6 +3568,9 @@ final class ContractGen
                     ],
                 ],
                 'rules' => [[
+                    'enum' => [
+                        'aspect_ratio' => ['auto'],
+                    ],
                     'when' => [
                         'model' => 'seedance-2.5',
                         'first_frame_image_url' => [

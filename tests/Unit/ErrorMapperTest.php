@@ -18,7 +18,28 @@ final class ErrorMapperTest extends TestCase
         self::assertSame('RunAPI request failed with status 400', $error->getMessage());
     }
 
-    public function testKeepsResourceValidationSummaryAndDetails(): void
+    public function testReadsRunApiErrorString(): void
+    {
+        $body = '{"error":"Bad input"}';
+
+        $error = ErrorMapper::fromResponse(new Response(400), $body);
+
+        self::assertInstanceOf(ValidationException::class, $error);
+        self::assertSame('Bad input', $error->getMessage());
+        self::assertSame($body, $error->responseBody);
+    }
+
+    public function testReadsLegacyNestedErrorMessage(): void
+    {
+        $error = ErrorMapper::fromResponse(
+            new Response(400),
+            '{"error":{"message":"Bad input"}}',
+        );
+
+        self::assertSame('Bad input', $error->getMessage());
+    }
+
+    public function testReadsValidationSummaryAndKeepsFieldErrors(): void
     {
         $body = '{"error":"Validation failed","errors":{"prompt":["is required"]}}';
 

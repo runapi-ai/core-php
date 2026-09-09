@@ -1,5 +1,14 @@
 # Changelog
 
+## [v0.6.4](https://github.com/runapi-ai/core-php/releases/tag/v0.6.4) - 2026-09-09
+
+### Changed
+- Validate Nano Banana Pro requests with no more than eight reference images.
+
+### Fixed
+- Reject non-auto aspect ratios for Seedance 2.5 frame-guided video requests before submission.
+
+
 ## [v0.6.3](https://github.com/runapi-ai/core-php/releases/tag/v0.6.3) - 2026-09-07
 
 ### Added
