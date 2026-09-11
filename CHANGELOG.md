@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.6.5](https://github.com/runapi-ai/core-php/releases/tag/v0.6.5) - 2026-09-11
+
+### Added
+- Add GPT Image 2.5 Flare and Sunburst request contracts to shared PHP metadata.
+
+
 ## [v0.6.4](https://github.com/runapi-ai/core-php/releases/tag/v0.6.4) - 2026-09-09
 
 ### Changed
