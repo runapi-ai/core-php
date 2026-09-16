@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.6.6](https://github.com/runapi-ai/core-php/releases/tag/v0.6.6) - 2026-09-16
+
+### Added
+- Add Suno V6 model variants to generated PHP core contract metadata.
+- Add the validation contracts for the Suno persona, voice, style-expansion, timestamped-lyrics, audio-export, music-visualization, and music-from-sample capabilities.
+
+### Changed
+- Refresh generated shared contract metadata used by model SDK validation.
+
+
 ## [v0.6.5](https://github.com/runapi-ai/core-php/releases/tag/v0.6.5) - 2026-09-11
 
 ### Added

@@ -67,7 +67,7 @@ final class AllResourcesOfflineSmokeTest extends TestCase
     {
         $cases = self::discoverResourceCases();
 
-        self::assertCount(128, $cases);
+        self::assertCount(135, $cases);
         self::assertCount(41, array_unique(array_map(static fn (ResourceCase $case): string => $case->package, $cases)));
     }
 
@@ -784,6 +784,11 @@ final class AllResourcesOfflineSmokeTest extends TestCase
         }
 
         if ($package === 'runapi-ai/suno' && $resource === 'addSamples') {
+            $params['start_seconds'] = 5;
+            $params['end_seconds'] = 20;
+        }
+
+        if ($package === 'runapi-ai/suno' && $resource === 'musicFromSample') {
             $params['start_seconds'] = 5;
             $params['end_seconds'] = 20;
         }
