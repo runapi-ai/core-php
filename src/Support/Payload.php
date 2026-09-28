@@ -42,6 +42,23 @@ final class Payload
     }
 
     /**
+     * Read a required numeric field from a response payload as float.
+     *
+     * JSON numbers may decode as int (0) or float (0.05).
+     *
+     * @param array<string, mixed> $payload
+     */
+    public static function float(array $payload, string $key): float
+    {
+        $value = $payload[$key] ?? null;
+        if (!is_int($value) && !is_float($value)) {
+            throw new ValidationException($key . ' must be a number');
+        }
+
+        return (float) $value;
+    }
+
+    /**
      * Read a required array field from a response payload.
      *
      * @param array<string, mixed> $payload

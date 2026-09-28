@@ -66,9 +66,16 @@ final class AllResourcesOfflineSmokeTest extends TestCase
     public function testDiscoversExpectedWorkspaceCoverage(): void
     {
         $cases = self::discoverResourceCases();
+        $contractActions = array_keys(self::contract());
+        $discoveredActions = array_map(static fn (ResourceCase $case): string => $case->action, $cases);
+        sort($contractActions);
+        sort($discoveredActions);
 
-        self::assertCount(135, $cases);
-        self::assertCount(41, array_unique(array_map(static fn (ResourceCase $case): string => $case->package, $cases)));
+        self::assertSame($contractActions, $discoveredActions);
+        self::assertSame(
+            count(array_unique(array_map(static fn (string $action): string => explode('/', $action, 2)[0], $contractActions))),
+            count(array_unique(array_map(static fn (ResourceCase $case): string => $case->package, $cases))),
+        );
     }
 
     public function testUniversalResourcesUseExpectedHttpBoundary(): void
@@ -76,17 +83,14 @@ final class AllResourcesOfflineSmokeTest extends TestCase
         $transport = new QueueHttpClient([
             new Response(200, [], '{"file_name":"sample.png","url":"https://file.runapi.ai/sample.png","size_bytes":12,"mime_type":"image/png","created_at":"2026-06-24T00:00:00Z","expires_at":"2026-06-25T00:00:00Z","extra_field":"kept"}'),
             new Response(200, [], '{"balance_cents":1000,"paid_balance_cents":900,"bonus_balance_cents":100,"spent_cents_today":10,"spent_cents_total":20,"extra_field":"kept"}'),
-            new Response(200, [], '{"id":1,"name":"Jane Doe","email":"jane@runapi.ai","account":{"id":2,"name":"Acme"},"extra_field":"kept"}'),
-        ]);
+            new Response(200, [], '{"id":1,"name":"Jane Doe","email":"jane@runapi.ai","account":{"id":2,"name":"Acme"},"extra_field":"kept"}')]);
         $client = new UniversalSmokeClient(new ClientOptions(apiKey: 'k', httpClient: $transport, maxRetries: 0));
 
         $file = $client->files->create([
             'source' => [
                 'type' => 'url',
-                'url' => self::IMAGE_URL,
-            ],
-            'file_name' => 'sample.png',
-        ]);
+                'url' => self::IMAGE_URL],
+            'file_name' => 'sample.png']);
         $balance = $client->account->balance();
         $info = $client->account->info();
 
@@ -110,16 +114,14 @@ final class AllResourcesOfflineSmokeTest extends TestCase
             new Response(200, [], '{"id":"create_task","extra_field":"kept"}'),
             new Response(200, [], json_encode($this->taskPayload('get_task', 'processing', $case), JSON_THROW_ON_ERROR)),
             new Response(200, [], '{"id":"run_task"}'),
-            new Response(200, [], json_encode($this->taskPayload('run_task', 'completed', $case, includeOutputs: true), JSON_THROW_ON_ERROR)),
-        ]);
+            new Response(200, [], json_encode($this->taskPayload('run_task', 'completed', $case, includeOutputs: true), JSON_THROW_ON_ERROR))]);
         $client = $this->client($case, $transport);
         $resource = $client->{$case->resource};
 
         $create = $resource->create($case->params + [
             'callback_url' => '',
             'null_option' => null,
-            'empty_list' => [],
-        ]);
+            'empty_list' => []]);
         $get = $resource->get('get_task');
         $run = $resource->run($case->params, new RequestOptions(pollIntervalSeconds: 0.0, maxWaitSeconds: 1.0));
 
@@ -156,8 +158,7 @@ final class AllResourcesOfflineSmokeTest extends TestCase
                 200,
                 $case->outputKind === 'raw' ? ['Content-Type' => 'application/json'] : [],
                 json_encode($this->syncPayload($case), JSON_THROW_ON_ERROR),
-            ),
-        ]);
+            )]);
         $client = $this->client($case, $transport);
         $resource = $client->{$case->resource};
 
@@ -170,8 +171,7 @@ final class AllResourcesOfflineSmokeTest extends TestCase
             $run = $resource->run($case->params + [
                 'callback_url' => '',
                 'null_option' => null,
-                'empty_list' => [],
-            ]);
+                'empty_list' => []]);
         }
 
         if ($case->outputKind === 'raw') {
@@ -220,24 +220,21 @@ final class AllResourcesOfflineSmokeTest extends TestCase
         $client->textToImage->create([
             'model' => 'z-image',
             'prompt' => str_repeat('a', 1001),
-            'aspect_ratio' => '16:9',
-        ]);
+            'aspect_ratio' => '16:9']);
     }
 
     public function testRepresentativeAsyncFailureAndTimeoutExceptions(): void
     {
         $failedTransport = new QueueHttpClient([
             new Response(200, [], '{"id":"failed_task"}'),
-            new Response(200, [], '{"id":"failed_task","status":"failed","error":"generation failed"}'),
-        ]);
+            new Response(200, [], '{"id":"failed_task","status":"failed","error":"generation failed"}')]);
         $failedClient = new \RunApi\ZImage\ZImageClient(new ClientOptions(apiKey: 'k', httpClient: $failedTransport, maxRetries: 0));
 
         try {
             $failedClient->textToImage->run([
                 'model' => 'z-image',
                 'prompt' => 'A quiet studio scene',
-                'aspect_ratio' => '16:9',
-            ], new RequestOptions(pollIntervalSeconds: 0.0, maxWaitSeconds: 1.0));
+                'aspect_ratio' => '16:9'], new RequestOptions(pollIntervalSeconds: 0.0, maxWaitSeconds: 1.0));
             self::fail('Expected task failure exception.');
         } catch (TaskFailedException $exception) {
             self::assertSame('generation failed', $exception->getMessage());
@@ -245,16 +242,14 @@ final class AllResourcesOfflineSmokeTest extends TestCase
 
         $timeoutTransport = new QueueHttpClient([
             new Response(200, [], '{"id":"pending_task"}'),
-            new Response(200, [], '{"id":"pending_task","status":"processing"}'),
-        ]);
+            new Response(200, [], '{"id":"pending_task","status":"processing"}')]);
         $timeoutClient = new \RunApi\ZImage\ZImageClient(new ClientOptions(apiKey: 'k', httpClient: $timeoutTransport, maxRetries: 0));
 
         $this->expectException(TaskTimeoutException::class);
         $timeoutClient->textToImage->run([
             'model' => 'z-image',
             'prompt' => 'A quiet studio scene',
-            'aspect_ratio' => '16:9',
-        ], new RequestOptions(pollIntervalSeconds: 0.0, maxWaitSeconds: 0.0));
+            'aspect_ratio' => '16:9'], new RequestOptions(pollIntervalSeconds: 0.0, maxWaitSeconds: 0.0));
     }
 
     private function client(ResourceCase $case, QueueHttpClient $transport): BaseClient
@@ -275,8 +270,7 @@ final class AllResourcesOfflineSmokeTest extends TestCase
         $payload = [
             'id' => $id,
             'status' => $status,
-            'extra_field' => 'kept',
-        ];
+            'extra_field' => 'kept'];
 
         if (!$includeOutputs) {
             return $payload;
@@ -297,8 +291,7 @@ final class AllResourcesOfflineSmokeTest extends TestCase
         if ($case->outputKind === 'lyrics') {
             $payload['lyrics'] = [[
                 'title' => 'Release Day',
-                'text' => "Verse one\nChorus line",
-            ]];
+                'text' => "Verse one\nChorus line"]];
 
             return $payload;
         }
@@ -306,8 +299,7 @@ final class AllResourcesOfflineSmokeTest extends TestCase
         if ($case->outputKind === 'separated_audio') {
             $payload['separated_audios'] = [
                 'vocal_url' => 'https://file.runapi.ai/vocal.mp3',
-                'instrumental_url' => 'https://file.runapi.ai/instrumental.mp3',
-            ];
+                'instrumental_url' => 'https://file.runapi.ai/instrumental.mp3'];
 
             return $payload;
         }
@@ -335,8 +327,7 @@ final class AllResourcesOfflineSmokeTest extends TestCase
             $payload['segments'] = [[
                 'url' => 'https://file.runapi.ai/segment.png',
                 'name' => 'subject',
-                'index' => 1,
-            ]];
+                'index' => 1]];
 
             return $payload;
         }
@@ -360,66 +351,48 @@ final class AllResourcesOfflineSmokeTest extends TestCase
         $payload = [
             'id' => 'sync_result',
             'status' => 'completed',
-            'extra_field' => 'kept',
-        ];
-
-        if (in_array($case->resource, ['createVoice', 'getVoice', 'listVoices'], true)) {
-            $payload['billing'] = [
-                'reservation' => null,
-                'settlement' => [
-                    'charged_amount_cents' => 0,
-                    'amount_micro_cents' => 0,
-                ],
-                'refund' => null,
-            ];
-        }
+            'extra_field' => 'kept'];
 
         if ($case->resource === 'textToSpeech' && $case->outputKind === 'audio') {
             $payload['audios'] = [[
                 'url' => 'https://file.runapi.ai/result.mp3',
                 'format' => 'mp3',
                 'mime_type' => 'audio/mpeg',
-                'size_bytes' => 128,
-            ]];
+                'size_bytes' => 128]];
         } elseif ($case->resource === 'createAudio') {
             $payload['audio'] = [
                 'id' => 'audio_1',
-                'name' => 'Narrator',
-            ];
+                'name' => 'Narrator'];
+        } elseif ($case->resource === 'systemOne') {
+            $payload['answers'] = ['recommendation' => 'Option A'];
         } elseif ($case->resource === 'createCharacter') {
             $payload['character'] = [
                 'id' => 'character_1',
                 'name' => 'Guide',
-                'images' => [['url' => self::PORTRAIT_URL]],
-            ];
+                'images' => [['url' => self::PORTRAIT_URL]]];
         } elseif (in_array($case->resource, ['createVoice', 'getVoice'], true)) {
             $payload['voice'] = [
                 'voice_id' => 'voice_1',
                 'name' => 'Narrator',
-                'state' => 'trained',
-            ];
+                'state' => 'trained'];
         } elseif ($case->resource === 'listVoices') {
             $payload['voices'] = [[
                 'voice_id' => 'voice_1',
                 'name' => 'Narrator',
-                'state' => 'trained',
-            ]];
+                'state' => 'trained']];
             $payload['total'] = 1;
             $payload['page_number'] = 1;
             $payload['page_size'] = 10;
         } elseif ($case->resource === 'generatePersona') {
             $payload['persona'] = [
                 'id' => 'persona_1',
-                'name' => 'Indie Pop',
-            ];
+                'name' => 'Indie Pop'];
         } elseif ($case->resource === 'getTimestampedLyrics') {
             $payload['lyrics'] = [
                 [
                     'text' => 'hello',
                     'start_time' => 0.0,
-                    'end_time' => 1.0,
-                ],
-            ];
+                    'end_time' => 1.0]];
         } elseif ($case->resource === 'boostStyle') {
             $payload['style'] = 'indie pop, warm drums';
         } elseif ($case->resource === 'checkVoice') {
@@ -557,7 +530,7 @@ final class AllResourcesOfflineSmokeTest extends TestCase
             str_contains($source, 'CompletedMaskTaskResponse') => 'mask',
             str_contains($source, 'CompletedSubjectStatusTaskResponse') => 'subject_status',
             str_contains($source, 'CompletedVideoTaskResponse') => 'video',
-            default => 'none',
+            default => 'none'
         };
     }
 
@@ -818,12 +791,10 @@ final class AllResourcesOfflineSmokeTest extends TestCase
                 'voice_name' => 'Fenrir',
                 'accent' => 'British (RP)',
                 'style' => 'Deadpan',
-                'pace' => 'Natural',
-            ]];
+                'pace' => 'Natural']];
             $params['dialogue_turns'] = [[
                 'speaker_id' => 'Speaker 1',
-                'text' => 'Welcome.',
-            ]];
+                'text' => 'Welcome.']];
         }
 
         if ($package === 'runapi-ai/runway' && $resource === 'extendVideo') {
@@ -905,7 +876,7 @@ final class AllResourcesOfflineSmokeTest extends TestCase
             'audio_id' => 'audio_123',
             'language_code', 'language' => 'en',
             'domain_name' => 'runapi.ai',
-            default => 'sample',
+            default => 'sample'
         };
     }
 

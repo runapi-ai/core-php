@@ -8,10 +8,8 @@ use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use RunApi\Core\Models\TaskCreateResponse;
-use RunApi\Core\Models\TaskRefund;
-use RunApi\Core\Models\TaskReservation;
 use RunApi\Core\Models\TaskResponse;
-use RunApi\Core\Models\TaskSettlement;
+use RunApi\Core\Models\TaskUsage;
 
 final class TaskResponseTest extends TestCase
 {
@@ -21,7 +19,7 @@ final class TaskResponseTest extends TestCase
 
         self::assertSame('task_123', $response->id);
         self::assertSame('processing', $response->status);
-        self::assertSame(['id' => 'task_123', 'status' => 'processing', 'error' => null, 'billing' => null], $response->toArray());
+        self::assertSame(['id' => 'task_123', 'status' => 'processing', 'error' => null, 'usage' => null], $response->toArray());
     }
 
     public function testPreservesRawPayload(): void
@@ -32,20 +30,13 @@ final class TaskResponseTest extends TestCase
         self::assertSame($raw, $response->toArray());
     }
 
-    public function testHydratesTypedBillingFacts(): void
+    public function testHydratesTypedUsageCost(): void
     {
-        $raw = ['id' => 'task_123', 'status' => 'completed', 'billing' => ['reservation' => ['amount_cents' => 12], 'settlement' => ['charged_amount_cents' => 11, 'amount_micro_cents' => 1050000], 'refund' => ['refunded_at' => '2026-07-23T12:00:00.000000Z']]];
+        $raw = ['id' => 'task_123', 'status' => 'completed', 'usage' => ['cost' => 0.05]];
         $response = new TaskResponse('task_123', 'completed', raw: $raw);
 
-        $billing = $response->billing;
-        self::assertNotNull($billing);
-        self::assertNotNull($billing->reservation);
-        self::assertNotNull($billing->settlement);
-        self::assertNotNull($billing->refund);
-        self::assertSame(12, $billing->reservation->amountCents);
-        self::assertSame(11, $billing->settlement->chargedAmountCents);
-        self::assertSame(1050000, $billing->settlement->amountMicroCents);
-        self::assertSame('2026-07-23T12:00:00.000000Z', $billing->refund->refundedAt);
+        self::assertInstanceOf(TaskUsage::class, $response->usage);
+        self::assertSame(0.05, $response->usage->cost);
     }
 
     public function testKeepsRawPayloadInTheExistingPositionalArgumentSlots(): void
@@ -59,10 +50,8 @@ final class TaskResponseTest extends TestCase
 
     #[RunInSeparateProcess]
     #[PreserveGlobalState(false)]
-    public function testAutoloadsPublicBillingFactTypes(): void
+    public function testAutoloadsPublicUsageType(): void
     {
-        self::assertTrue(class_exists(TaskReservation::class));
-        self::assertTrue(class_exists(TaskSettlement::class));
-        self::assertTrue(class_exists(TaskRefund::class));
+        self::assertTrue(class_exists(TaskUsage::class));
     }
 }

@@ -1,5 +1,19 @@
 # Changelog
 
+## [v0.7.0](https://github.com/runapi-ai/core-php/releases/tag/v0.7.0) - 2026-09-28
+
+### Added
+- Add typesafe/system-one and jev-latest to generated PHP core contract metadata.
+- Return usage.cost as a float USD amount on completed async Task query and webhook envelopes.
+
+### Changed
+- Add remaster_audio variation_category and updated Live delegation descriptions to generated PHP core contract metadata.
+
+### Removed
+- Remove the public Task billing object from Task envelopes.
+  Migration: Read usage.cost on completed Task envelopes. Create, processing, and failed envelopes omit usage.
+
+
 ## [v0.6.6](https://github.com/runapi-ai/core-php/releases/tag/v0.6.6) - 2026-09-16
 
 ### Added

@@ -6,10 +6,11 @@ namespace RunApi\Core\Models;
 
 use RunApi\Core\Support\Payload;
 
-final readonly class TaskReservation extends BaseModel
+/** RunAPI-owned cost on a completed Task envelope. */
+final readonly class TaskUsage extends BaseModel
 {
     /** @param array<string, mixed> $raw */
-    public function __construct(public int $amountCents, array $raw)
+    public function __construct(public float $cost, array $raw)
     {
         parent::__construct($raw);
     }
@@ -17,6 +18,6 @@ final readonly class TaskReservation extends BaseModel
     /** @param array<string, mixed> $raw */
     public static function fromArray(array $raw): self
     {
-        return new self(Payload::int($raw, 'amount_cents'), $raw);
+        return new self(Payload::float($raw, 'cost'), $raw);
     }
 }

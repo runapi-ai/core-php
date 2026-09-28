@@ -1823,17 +1823,6 @@ final class ContractGen
                 'rules' => [[
                     'when' => [
                         'model' => 'kling-v3-omni-edit',
-                        'source_task_id' => [
-                            'present' => false,
-                        ],
-                        'source_video_url' => [
-                            'present' => false,
-                        ],
-                    ],
-                    'required_any' => ['source_video_url', 'source_task_id'],
-                ], [
-                    'when' => [
-                        'model' => 'kling-v3-omni-edit',
                         'source_video_url' => [
                             'present' => true,
                         ],
@@ -1907,6 +1896,32 @@ final class ContractGen
                     'required' => ['aspect_ratio'],
                 ], [
                     'when' => [
+                        'model' => 'kling-v3-omni-edit',
+                        'source_task_id' => [
+                            'present' => false,
+                        ],
+                        'source_video_url' => [
+                            'present' => false,
+                        ],
+                    ],
+                    'required_any' => ['source_video_url', 'source_task_id'],
+                ], [
+                    'enum' => [
+                        'aspect_ratio' => ['16:9', '9:16', '1:1'],
+                        'enable_sound' => [false],
+                    ],
+                    'when' => [
+                        'model' => 'kling-v3-omni-reference',
+                        'source_task_id' => [
+                            'present' => true,
+                        ],
+                        'reference_image_urls' => [
+                            'present' => true,
+                        ],
+                    ],
+                    'required' => ['aspect_ratio'],
+                ], [
+                    'when' => [
                         'model' => 'kling-v3-omni-reference',
                         'source_task_id' => [
                             'present' => false,
@@ -1972,21 +1987,6 @@ final class ContractGen
                     'when' => [
                         'model' => 'kling-v3-omni-reference',
                         'source_video_url' => [
-                            'present' => true,
-                        ],
-                        'reference_image_urls' => [
-                            'present' => true,
-                        ],
-                    ],
-                    'required' => ['aspect_ratio'],
-                ], [
-                    'enum' => [
-                        'aspect_ratio' => ['16:9', '9:16', '1:1'],
-                        'enable_sound' => [false],
-                    ],
-                    'when' => [
-                        'model' => 'kling-v3-omni-reference',
-                        'source_task_id' => [
                             'present' => true,
                         ],
                         'reference_image_urls' => [
@@ -5873,6 +5873,9 @@ final class ContractGen
                         'source_task_id' => [
                             'required' => true,
                         ],
+                        'variation_category' => [
+                            'enum' => ['subtle', 'normal', 'high'],
+                        ],
                     ],
                     'suno-v4.5' => [
                         'audio_id' => [
@@ -5883,6 +5886,9 @@ final class ContractGen
                         ],
                         'source_task_id' => [
                             'required' => true,
+                        ],
+                        'variation_category' => [
+                            'enum' => ['subtle', 'normal', 'high'],
                         ],
                     ],
                     'suno-v4.5-plus' => [
@@ -5895,6 +5901,9 @@ final class ContractGen
                         'source_task_id' => [
                             'required' => true,
                         ],
+                        'variation_category' => [
+                            'enum' => ['subtle', 'normal', 'high'],
+                        ],
                     ],
                     'suno-v5' => [
                         'audio_id' => [
@@ -5906,6 +5915,9 @@ final class ContractGen
                         'source_task_id' => [
                             'required' => true,
                         ],
+                        'variation_category' => [
+                            'enum' => ['subtle', 'normal', 'high'],
+                        ],
                     ],
                     'suno-v5.5' => [
                         'audio_id' => [
@@ -5916,6 +5928,9 @@ final class ContractGen
                         ],
                         'source_task_id' => [
                             'required' => true,
+                        ],
+                        'variation_category' => [
+                            'enum' => ['subtle', 'normal', 'high'],
                         ],
                     ],
                 ],
@@ -6657,6 +6672,23 @@ final class ContractGen
                         'upscale_factor' => [
                             'enum' => [1, 2, 4],
                             'type' => 'integer',
+                        ],
+                    ],
+                ],
+            ],
+            'typesafe/system-one' => [
+                'models' => ['jev-latest'],
+                'fields_by_model' => [
+                    'jev-latest' => [
+                        'model' => [
+                            'enum' => ['jev-latest'],
+                            'required' => true,
+                        ],
+                        'questions' => [
+                            'required' => true,
+                        ],
+                        'state' => [
+                            'required' => true,
                         ],
                     ],
                 ],
