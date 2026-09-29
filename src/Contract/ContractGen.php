@@ -58,6 +58,9 @@ final class ContractGen
                 'models' => ['sound-effect-v2'],
                 'fields_by_model' => [
                     'sound-effect-v2' => [
+                        'duration_seconds' => [
+                            'required' => true,
+                        ],
                         'output_format' => [
                             'enum' => ['mp3_22050_32', 'mp3_44100_32', 'mp3_44100_64', 'mp3_44100_96', 'mp3_44100_128', 'mp3_44100_192', 'pcm_8000', 'pcm_16000', 'pcm_22050', 'pcm_24000', 'pcm_44100', 'pcm_48000', 'ulaw_8000', 'alaw_8000', 'opus_48000_32', 'opus_48000_64', 'opus_48000_96', 'opus_48000_128', 'opus_48000_192'],
                         ],
@@ -1326,6 +1329,23 @@ final class ContractGen
                         ],
                     ],
                 ],
+                'rules' => [[
+                    'enum' => [
+                        'output_resolution' => ['768p'],
+                    ],
+                    'when' => [
+                        'model' => 'hailuo-2.3-image-to-video-pro',
+                        'duration_seconds' => 10,
+                    ],
+                ], [
+                    'enum' => [
+                        'output_resolution' => ['768p'],
+                    ],
+                    'when' => [
+                        'model' => 'hailuo-2.3-image-to-video-standard',
+                        'duration_seconds' => 10,
+                    ],
+                ]],
             ],
             'hailuo/text-to-video' => [
                 'models' => ['hailuo-02-text-to-video-pro', 'hailuo-02-text-to-video-standard'],
@@ -2207,10 +2227,28 @@ final class ContractGen
                     ],
                     'forbidden' => ['output_resolution', 'enable_sound', 'reference_image_urls', 'reference_video_url', 'reference_video_type', 'preserve_reference_video_audio'],
                 ], [
+                    'enum' => [
+                        'enable_sound' => [false],
+                    ],
+                    'when' => [
+                        'mode' => 'std',
+                        'model' => 'kling-v2.6',
+                    ],
+                ], [
                     'when' => [
                         'model' => 'kling-v2.6',
                     ],
                     'forbidden' => ['output_resolution', 'negative_prompt', 'cfg_scale', 'reference_image_urls', 'reference_video_url', 'reference_video_type', 'preserve_reference_video_audio'],
+                ], [
+                    'enum' => [
+                        'enable_sound' => [false],
+                    ],
+                    'when' => [
+                        'mode' => [
+                            'present' => false,
+                        ],
+                        'model' => 'kling-v2.6',
+                    ],
                 ], [
                     'when' => [
                         'model' => 'kling-v3-omni',
@@ -2238,6 +2276,7 @@ final class ContractGen
                         ],
                         'output_resolution' => [
                             'enum' => ['720p', '1080p'],
+                            'required' => true,
                         ],
                         'reference_video_url' => [
                             'required' => true,
@@ -2463,6 +2502,24 @@ final class ContractGen
                         'model' => 'kling-v2.6',
                     ],
                     'forbidden' => ['output_resolution', 'negative_prompt', 'cfg_scale', 'multi_shots', 'multi_prompt', 'first_frame_image_url', 'last_frame_image_url', 'kling_elements', 'reference_image_urls', 'reference_video_url', 'reference_video_type', 'preserve_reference_video_audio'],
+                ], [
+                    'enum' => [
+                        'enable_sound' => [false],
+                    ],
+                    'when' => [
+                        'mode' => 'std',
+                        'model' => 'kling-v2.6',
+                    ],
+                ], [
+                    'enum' => [
+                        'enable_sound' => [false],
+                    ],
+                    'when' => [
+                        'mode' => [
+                            'present' => false,
+                        ],
+                        'model' => 'kling-v2.6',
+                    ],
                 ], [
                     'when' => [
                         'model' => 'kling-v3-omni',
@@ -3989,6 +4046,8 @@ final class ContractGen
                         ],
                         'negative_tags' => [
                             'required' => true,
+                            'max' => 200,
+                            'length' => true,
                         ],
                         'style_weight' => [
                             'min' => 0,
@@ -4025,6 +4084,8 @@ final class ContractGen
                         ],
                         'negative_tags' => [
                             'required' => true,
+                            'max' => 200,
+                            'length' => true,
                         ],
                         'style_weight' => [
                             'min' => 0,
@@ -4061,6 +4122,8 @@ final class ContractGen
                         ],
                         'negative_tags' => [
                             'required' => true,
+                            'max' => 200,
+                            'length' => true,
                         ],
                         'style_weight' => [
                             'min' => 0,
@@ -4192,6 +4255,8 @@ final class ContractGen
                         ],
                         'negative_tags' => [
                             'required' => true,
+                            'max' => 200,
+                            'length' => true,
                         ],
                         'style' => [
                             'required' => true,
@@ -4233,6 +4298,8 @@ final class ContractGen
                         ],
                         'negative_tags' => [
                             'required' => true,
+                            'max' => 200,
+                            'length' => true,
                         ],
                         'style' => [
                             'required' => true,
@@ -4332,6 +4399,10 @@ final class ContractGen
                         'model' => [
                             'required' => true,
                         ],
+                        'negative_tags' => [
+                            'max' => 200,
+                            'length' => true,
+                        ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
                         ],
@@ -4377,6 +4448,10 @@ final class ContractGen
                         ],
                         'model' => [
                             'required' => true,
+                        ],
+                        'negative_tags' => [
+                            'max' => 200,
+                            'length' => true,
                         ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
@@ -4424,6 +4499,10 @@ final class ContractGen
                         'model' => [
                             'required' => true,
                         ],
+                        'negative_tags' => [
+                            'max' => 200,
+                            'length' => true,
+                        ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
                         ],
@@ -4469,6 +4548,10 @@ final class ContractGen
                         ],
                         'model' => [
                             'required' => true,
+                        ],
+                        'negative_tags' => [
+                            'max' => 200,
+                            'length' => true,
                         ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
@@ -4516,6 +4599,10 @@ final class ContractGen
                         'model' => [
                             'required' => true,
                         ],
+                        'negative_tags' => [
+                            'max' => 200,
+                            'length' => true,
+                        ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
                         ],
@@ -4561,6 +4648,10 @@ final class ContractGen
                         ],
                         'model' => [
                             'required' => true,
+                        ],
+                        'negative_tags' => [
+                            'max' => 200,
+                            'length' => true,
                         ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
@@ -4608,6 +4699,10 @@ final class ContractGen
                         'model' => [
                             'required' => true,
                         ],
+                        'negative_tags' => [
+                            'max' => 200,
+                            'length' => true,
+                        ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
                         ],
@@ -4654,6 +4749,10 @@ final class ContractGen
                         'model' => [
                             'required' => true,
                         ],
+                        'negative_tags' => [
+                            'max' => 200,
+                            'length' => true,
+                        ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
                         ],
@@ -4699,6 +4798,10 @@ final class ContractGen
                         ],
                         'model' => [
                             'required' => true,
+                        ],
+                        'negative_tags' => [
+                            'max' => 200,
+                            'length' => true,
                         ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
@@ -5226,6 +5329,10 @@ final class ContractGen
                         'model' => [
                             'required' => true,
                         ],
+                        'negative_tags' => [
+                            'max' => 200,
+                            'length' => true,
+                        ],
                         'parameter_mode' => [
                             'enum' => ['source', 'custom'],
                             'required' => true,
@@ -5268,6 +5375,10 @@ final class ContractGen
                         ],
                         'model' => [
                             'required' => true,
+                        ],
+                        'negative_tags' => [
+                            'max' => 200,
+                            'length' => true,
                         ],
                         'parameter_mode' => [
                             'enum' => ['source', 'custom'],
@@ -5312,6 +5423,10 @@ final class ContractGen
                         'model' => [
                             'required' => true,
                         ],
+                        'negative_tags' => [
+                            'max' => 200,
+                            'length' => true,
+                        ],
                         'parameter_mode' => [
                             'enum' => ['source', 'custom'],
                             'required' => true,
@@ -5354,6 +5469,10 @@ final class ContractGen
                         ],
                         'model' => [
                             'required' => true,
+                        ],
+                        'negative_tags' => [
+                            'max' => 200,
+                            'length' => true,
                         ],
                         'parameter_mode' => [
                             'enum' => ['source', 'custom'],
@@ -5398,6 +5517,10 @@ final class ContractGen
                         'model' => [
                             'required' => true,
                         ],
+                        'negative_tags' => [
+                            'max' => 200,
+                            'length' => true,
+                        ],
                         'parameter_mode' => [
                             'enum' => ['source', 'custom'],
                             'required' => true,
@@ -5440,6 +5563,10 @@ final class ContractGen
                         ],
                         'model' => [
                             'required' => true,
+                        ],
+                        'negative_tags' => [
+                            'max' => 200,
+                            'length' => true,
                         ],
                         'parameter_mode' => [
                             'enum' => ['source', 'custom'],
@@ -5484,6 +5611,10 @@ final class ContractGen
                         'model' => [
                             'required' => true,
                         ],
+                        'negative_tags' => [
+                            'max' => 200,
+                            'length' => true,
+                        ],
                         'parameter_mode' => [
                             'enum' => ['source', 'custom'],
                             'required' => true,
@@ -5527,6 +5658,10 @@ final class ContractGen
                         'model' => [
                             'required' => true,
                         ],
+                        'negative_tags' => [
+                            'max' => 200,
+                            'length' => true,
+                        ],
                         'parameter_mode' => [
                             'enum' => ['source', 'custom'],
                             'required' => true,
@@ -5569,6 +5704,10 @@ final class ContractGen
                         ],
                         'model' => [
                             'required' => true,
+                        ],
+                        'negative_tags' => [
+                            'max' => 200,
+                            'length' => true,
                         ],
                         'parameter_mode' => [
                             'enum' => ['source', 'custom'],
@@ -5619,6 +5758,8 @@ final class ContractGen
                     '_' => [
                         'prompt' => [
                             'required' => true,
+                            'max' => 200,
+                            'length' => true,
                         ],
                     ],
                 ],
@@ -5958,6 +6099,10 @@ final class ContractGen
                         'model' => [
                             'enum' => ['suno-v6', 'suno-v6-wild', 'suno-v6-mini', 'suno-v4', 'suno-v4.5', 'suno-v4.5-all', 'suno-v4.5-plus', 'suno-v5', 'suno-v5.5'],
                         ],
+                        'negative_tags' => [
+                            'max' => 200,
+                            'length' => true,
+                        ],
                         'tags' => [
                             'required' => true,
                             'max' => 1000,
@@ -6086,6 +6231,10 @@ final class ContractGen
                         'model' => [
                             'required' => true,
                         ],
+                        'negative_tags' => [
+                            'max' => 200,
+                            'length' => true,
+                        ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
                         ],
@@ -6133,6 +6282,10 @@ final class ContractGen
                         ],
                         'model' => [
                             'required' => true,
+                        ],
+                        'negative_tags' => [
+                            'max' => 200,
+                            'length' => true,
                         ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
@@ -6182,6 +6335,10 @@ final class ContractGen
                         'model' => [
                             'required' => true,
                         ],
+                        'negative_tags' => [
+                            'max' => 200,
+                            'length' => true,
+                        ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
                         ],
@@ -6229,6 +6386,10 @@ final class ContractGen
                         ],
                         'model' => [
                             'required' => true,
+                        ],
+                        'negative_tags' => [
+                            'max' => 200,
+                            'length' => true,
                         ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
@@ -6278,6 +6439,10 @@ final class ContractGen
                         'model' => [
                             'required' => true,
                         ],
+                        'negative_tags' => [
+                            'max' => 200,
+                            'length' => true,
+                        ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
                         ],
@@ -6325,6 +6490,10 @@ final class ContractGen
                         ],
                         'model' => [
                             'required' => true,
+                        ],
+                        'negative_tags' => [
+                            'max' => 200,
+                            'length' => true,
                         ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
@@ -6374,6 +6543,10 @@ final class ContractGen
                         'model' => [
                             'required' => true,
                         ],
+                        'negative_tags' => [
+                            'max' => 200,
+                            'length' => true,
+                        ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
                         ],
@@ -6422,6 +6595,10 @@ final class ContractGen
                         'model' => [
                             'required' => true,
                         ],
+                        'negative_tags' => [
+                            'max' => 200,
+                            'length' => true,
+                        ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
                         ],
@@ -6469,6 +6646,10 @@ final class ContractGen
                         ],
                         'model' => [
                             'required' => true,
+                        ],
+                        'negative_tags' => [
+                            'max' => 200,
+                            'length' => true,
                         ],
                         'persona_type' => [
                             'enum' => ['style', 'voice'],
@@ -6885,6 +7066,9 @@ final class ContractGen
                         ],
                     ],
                     'wan-2.6-flash-edit-video' => [
+                        'audio' => [
+                            'required' => true,
+                        ],
                         'duration_seconds' => [
                             'type' => 'integer',
                         ],
@@ -6942,6 +7126,7 @@ final class ContractGen
                     ],
                     'wan-2.5-image-to-video' => [
                         'duration_seconds' => [
+                            'enum' => [5, 10],
                             'required' => true,
                             'type' => 'integer',
                         ],
@@ -6950,6 +7135,7 @@ final class ContractGen
                         ],
                         'output_resolution' => [
                             'enum' => ['720p', '1080p'],
+                            'required' => true,
                         ],
                         'seed' => [
                             'type' => 'integer',
@@ -7109,10 +7295,12 @@ final class ContractGen
                     ],
                     'wan-2.5-text-to-video' => [
                         'duration_seconds' => [
+                            'enum' => [5, 10],
                             'type' => 'integer',
                         ],
                         'output_resolution' => [
                             'enum' => ['720p', '1080p'],
+                            'required' => true,
                         ],
                         'seed' => [
                             'type' => 'integer',

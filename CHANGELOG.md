@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.8.0](https://github.com/runapi-ai/core-php/releases/tag/v0.8.0) - 2026-09-29
+
+### Changed
+- Require output_resolution for Wan 2.5 and Kling 3.0 motion control, audio for Wan 2.6 Flash edit, and duration_seconds for sound effects, add the Kling 2.6 sound-mode and Hailuo 2.3 1080p duration rules, and record server defaults for optional media fields, in generated PHP core contract metadata.
+- Generated PHP core contract metadata accepts only duration_seconds 5 or 10 for wan-2.5-image-to-video and wan-2.5-text-to-video.
+
+### Fixed
+- Contract rule validation messages write booleans as true/false instead of an empty string and check narrowed enum fields in field-name order, matching the other RunAPI SDKs.
+
+
 ## [v0.7.0](https://github.com/runapi-ai/core-php/releases/tag/v0.7.0) - 2026-09-28
 
 ### Added

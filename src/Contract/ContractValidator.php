@@ -215,7 +215,10 @@ final readonly class ContractValidator
                 }
             }
 
-            foreach (($rule['enum'] ?? []) as $field => $allowed) {
+            $narrowed = $rule['enum'] ?? [];
+            // Sorted like the condition keys so the first reported field matches every SDK.
+            ksort($narrowed, SORT_STRING);
+            foreach ($narrowed as $field => $allowed) {
                 $field = (string) $field;
                 if (!$this->fieldPresent($field, $params)) {
                     continue;
@@ -230,7 +233,7 @@ final readonly class ContractValidator
                 }
                 if (!$matched) {
                     throw new ValidationException(
-                        $field . ' must be one of: ' . implode(', ', array_map('strval', $allowed)) . $qualifier
+                        $field . ' must be one of: ' . implode(', ', array_map($this->ruleValueLabel(...), $allowed)) . $qualifier
                     );
                 }
             }
@@ -278,7 +281,7 @@ final readonly class ContractValidator
      */
     private function conditionDescription(array $conditions): string
     {
-        ksort($conditions);
+        ksort($conditions, SORT_STRING);
         $parts = [];
         foreach ($conditions as $field => $value) {
             if (is_array($value) && array_key_exists('present', $value)) {
@@ -287,10 +290,22 @@ final readonly class ContractValidator
                 continue;
             }
 
-            $parts[] = $field . ' is ' . $value;
+            $parts[] = $field . ' is ' . $this->ruleValueLabel($value);
         }
 
         return implode(' and ', $parts);
+    }
+
+    /**
+     * Render booleans as JSON does; strval(false) is an empty string.
+     */
+    private function ruleValueLabel(mixed $value): string
+    {
+        if (is_bool($value)) {
+            return $value ? 'true' : 'false';
+        }
+
+        return (string) $value;
     }
 
     /**
