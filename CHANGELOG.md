@@ -1,5 +1,18 @@
 # Changelog
 
+## [v0.9.0](https://github.com/runapi-ai/core-php/releases/tag/v0.9.0) - 2026-09-30
+
+### Changed
+- Send request parameters to the service without local validation. Model ids and parameter values the service supports work without an SDK upgrade; static types and enum constants remain for completion.
+  Migration: Invalid parameters now throw `ValidationException` built from the service's 400 response, including its status and message, instead of a `ValidationException` thrown locally before the request.
+
+### Removed
+- Remove `ContractGen`, `ContractRepository`, and `ContractValidator` from `RunApi\Core\Contract`.
+  Migration: Send parameters directly; the service validates them.
+- Remove the unused resource action method and constructor argument.
+  Migration: Construct configured resources with their endpoint and response classes; omit the action argument.
+
+
 ## [v0.8.0](https://github.com/runapi-ai/core-php/releases/tag/v0.8.0) - 2026-09-29
 
 ### Changed

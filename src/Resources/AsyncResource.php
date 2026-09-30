@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace RunApi\Core\Resources;
 
-use RunApi\Core\Contract\ContractValidator;
-use RunApi\Core\Errors\ValidationException;
 use RunApi\Core\Http\HttpClient;
 use RunApi\Core\Models\TaskCreateResponse;
 use RunApi\Core\Models\TaskResponse;
@@ -22,7 +20,6 @@ abstract readonly class AsyncResource
      */
     public function __construct(
         protected HttpClient $http,
-        protected ContractValidator $validator = new ContractValidator(),
         protected Poller $poller = new Poller(),
     ) {
     }
@@ -34,13 +31,8 @@ abstract readonly class AsyncResource
      */
     public function create(array $params, ?RequestOptions $options = null): TaskCreateResponse
     {
-        $model = $this->model($params);
-        $this->validator->validate($this->action(), $model, $params);
-        $params = $this->compact($params);
-        $this->validate($params, $model);
-
         return TaskCreateResponse::fromArray($this->http->request('post', $this->endpoint(), [
-            'body' => $params,
+            'body' => $this->compact($params),
             'options' => $options,
         ]));
     }
@@ -70,7 +62,6 @@ abstract readonly class AsyncResource
 
     abstract protected function endpoint(): string;
 
-    abstract protected function action(): string;
 
     /**
      * @param array<string, mixed> $raw
@@ -78,23 +69,6 @@ abstract readonly class AsyncResource
     abstract protected function hydrate(array $raw): TaskResponse;
 
     abstract protected function hydrateCompleted(TaskResponse $response): TaskResponse;
-
-    /**
-     * @param array<string, mixed> $params
-     */
-    protected function model(array $params): string
-    {
-        $model = $params['model'] ?? null;
-        if ($model === null || $model === '') {
-            return '_';
-        }
-
-        if (!is_string($model)) {
-            throw new ValidationException('model must be a string');
-        }
-
-        return $model;
-    }
 
     /**
      * @param array<string, mixed> $params
@@ -117,32 +91,5 @@ abstract readonly class AsyncResource
         }
 
         return $result;
-    }
-
-    /**
-     * @param list<string> $allowed
-     */
-    protected function validateModel(string $model, array $allowed): void
-    {
-        if (!in_array($model, $allowed, true)) {
-            throw new ValidationException('model must be one of the allowed values');
-        }
-    }
-
-    /**
-     * @param array<string, mixed> $params
-     */
-    protected function requireField(array $params, string $field): void
-    {
-        if (!array_key_exists($field, $params) || $params[$field] === null || $params[$field] === '') {
-            throw new ValidationException($field . ' is required');
-        }
-    }
-
-    /**
-     * @param array<string, mixed> $params
-     */
-    protected function validate(array $params, string $model): void
-    {
     }
 }

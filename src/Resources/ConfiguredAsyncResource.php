@@ -20,15 +20,12 @@ readonly class ConfiguredAsyncResource extends AsyncResource
      *
      * @param class-string<TaskResponse> $responseClass
      * @param class-string<TaskResponse> $completedResponseClass
-     * @param list<string> $models
      */
     public function __construct(
         HttpClient $http,
         private string $endpoint,
-        private string $action,
         private string $responseClass,
         private string $completedResponseClass,
-        private array $models = [],
     ) {
         parent::__construct($http);
     }
@@ -48,10 +45,6 @@ readonly class ConfiguredAsyncResource extends AsyncResource
         return $this->endpoint;
     }
 
-    protected function action(): string
-    {
-        return $this->action;
-    }
 
     /**
      * @param array<string, mixed> $raw
@@ -84,21 +77,5 @@ readonly class ConfiguredAsyncResource extends AsyncResource
         }
 
         return $completed;
-    }
-
-    /**
-     * @param array<string, mixed> $params
-     */
-    protected function validate(array $params, string $model): void
-    {
-        if ($this->models === []) {
-            return;
-        }
-
-        if ($model === '_') {
-            throw new ValidationException('model is required');
-        }
-
-        $this->validateModel($model, $this->models);
     }
 }

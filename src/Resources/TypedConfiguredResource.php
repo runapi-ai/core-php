@@ -19,20 +19,17 @@ readonly class TypedConfiguredResource extends ConfiguredAsyncResource
      *
      * @param class-string<TaskResponse> $expectedResponseClass
      * @param class-string<TaskResponse> $expectedCompletedResponseClass
-     * @param list<string> $models
      */
     public function __construct(
         HttpClient $http,
         string $endpoint,
-        string $action,
         string $responseClass,
         string $completedResponseClass,
-        array $models = [],
         private string $resourceName = 'resource',
         private string $expectedResponseClass = TaskResponse::class,
         private string $expectedCompletedResponseClass = TaskResponse::class,
     ) {
-        parent::__construct($http, $endpoint, $action, $responseClass, $completedResponseClass, $models);
+        parent::__construct($http, $endpoint, $responseClass, $completedResponseClass);
     }
 
     /**

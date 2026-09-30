@@ -11,7 +11,6 @@ use RunApi\Core\BaseClient;
 use RunApi\Core\ClientOptions;
 use RunApi\Core\Errors\TaskFailedException;
 use RunApi\Core\Errors\TaskTimeoutException;
-use RunApi\Core\Errors\ValidationException;
 use RunApi\Core\Models\BaseModel;
 use RunApi\Core\Models\TaskCreateResponse;
 use RunApi\Core\Models\TaskResponse;
@@ -61,21 +60,6 @@ final class AllResourcesOfflineSmokeTest extends TestCase
                 yield $case->package . '::' . $case->resource => [$case];
             }
         }
-    }
-
-    public function testDiscoversExpectedWorkspaceCoverage(): void
-    {
-        $cases = self::discoverResourceCases();
-        $contractActions = array_keys(self::contract());
-        $discoveredActions = array_map(static fn (ResourceCase $case): string => $case->action, $cases);
-        sort($contractActions);
-        sort($discoveredActions);
-
-        self::assertSame($contractActions, $discoveredActions);
-        self::assertSame(
-            count(array_unique(array_map(static fn (string $action): string => explode('/', $action, 2)[0], $contractActions))),
-            count(array_unique(array_map(static fn (ResourceCase $case): string => $case->package, $cases))),
-        );
     }
 
     public function testUniversalResourcesUseExpectedHttpBoundary(): void
@@ -182,8 +166,8 @@ final class AllResourcesOfflineSmokeTest extends TestCase
             self::assertSame('kept', $run->toArray()['extra_field']);
         }
         self::assertCount(1, $transport->requests);
-        $isVoiceGet = $case->action === 'fish-audio/get-voice';
-        $isVoiceList = $case->action === 'fish-audio/list-voices';
+        $isVoiceGet = $case->package === 'runapi-ai/fish-audio' && $case->resource === 'getVoice';
+        $isVoiceList = $case->package === 'runapi-ai/fish-audio' && $case->resource === 'listVoices';
         $expectedMethod = $isVoiceGet || $isVoiceList ? 'GET' : 'POST';
         $expectedPath = $isVoiceGet
             ? rtrim($case->endpoint, '/') . '/' . rawurlencode((string) $case->params['voice_id'])
@@ -208,19 +192,6 @@ final class AllResourcesOfflineSmokeTest extends TestCase
             self::assertArrayNotHasKey('null_option', $body);
             self::assertArrayNotHasKey('empty_list', $body);
         }
-    }
-
-    public function testRepresentativeValidationFailuresStayClientSide(): void
-    {
-        $client = new \RunApi\ZImage\ZImageClient(new ClientOptions(apiKey: 'k', httpClient: new QueueHttpClient([]), maxRetries: 0));
-
-        $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('prompt must be at most 1000 characters');
-
-        $client->textToImage->create([
-            'model' => 'z-image',
-            'prompt' => str_repeat('a', 1001),
-            'aspect_ratio' => '16:9']);
     }
 
     public function testRepresentativeAsyncFailureAndTimeoutExceptions(): void
@@ -323,7 +294,7 @@ final class AllResourcesOfflineSmokeTest extends TestCase
             return $payload;
         }
 
-        if ($case->action === 'grok-imagine/segment-map') {
+        if ($case->package === 'runapi-ai/grok-imagine' && $case->resource === 'segmentMap') {
             $payload['segments'] = [[
                 'url' => 'https://file.runapi.ai/segment.png',
                 'name' => 'subject',
@@ -417,7 +388,6 @@ final class AllResourcesOfflineSmokeTest extends TestCase
             return $cases;
         }
 
-        $contract = self::contract();
         $cases = [];
         $packagesRoot = realpath(__DIR__ . '/../../..');
         if ($packagesRoot === false) {
@@ -441,10 +411,9 @@ final class AllResourcesOfflineSmokeTest extends TestCase
                 $resourceFile = dirname($clientFile) . '/Resources/' . $match[1] . '.php';
                 $resourceSource = (string) file_get_contents($resourceFile);
                 $endpoint = self::endpoint($resourceSource, $package, $match[2]);
-                $action = self::action($resourceSource, $package, $endpoint);
                 $type = str_contains($resourceSource, 'function create(') || str_contains($resourceSource, 'extends AudioResource') ? 'async' : 'sync';
                 $outputKind = self::outputKind($resourceSource, $package);
-                $params = self::paramsFor($action, $contract, $resourceSource, $package, $match[2]);
+                $params = self::paramsFor($resourceSource, $package, $match[2]);
 
                 $cases[] = new ResourceCase(
                     package: $package,
@@ -453,7 +422,6 @@ final class AllResourcesOfflineSmokeTest extends TestCase
                     resource: $match[2],
                     type: $type,
                     endpoint: $endpoint,
-                    action: $action,
                     outputKind: $outputKind,
                     params: $params,
                 );
@@ -463,14 +431,6 @@ final class AllResourcesOfflineSmokeTest extends TestCase
         usort($cases, static fn (ResourceCase $a, ResourceCase $b): int => [$a->package, $a->resource] <=> [$b->package, $b->resource]);
 
         return $cases;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private static function contract(): array
-    {
-        return \RunApi\Core\Contract\ContractGen::contract();
     }
 
     private static function endpoint(string $source, string $package, string $resource): string
@@ -486,25 +446,6 @@ final class AllResourcesOfflineSmokeTest extends TestCase
         }
 
         throw new \RuntimeException('Unable to infer endpoint for ' . $package . '::' . $resource);
-    }
-
-    private static function action(string $source, string $package, string $endpoint): string
-    {
-        if (preg_match("/'([a-z0-9.\\-]+\\/[a-z0-9\\-]+)'/", $source, $matches) === 1) {
-            return $matches[1];
-        }
-
-        if ($package === 'runapi-ai/suno') {
-            $actionName = self::match($source, '/new self\(\s*\$http,\s*\'[^\']+\',\s*\'([^\']+)\'/s');
-
-            return 'suno/' . $actionName;
-        }
-
-        $parts = explode('/', trim($endpoint, '/'));
-        $provider = str_replace('_', '-', $parts[2] ?? '');
-        $resource = str_replace('_', '-', $parts[3] ?? '');
-
-        return $provider . '/' . $resource;
     }
 
     private static function outputKind(string $source, string $package): string
@@ -534,172 +475,15 @@ final class AllResourcesOfflineSmokeTest extends TestCase
         };
     }
 
-    /**
-     * @param array<string, mixed> $contract
-     *
-     * @return array<string, mixed>
-     */
-    private static function paramsFor(string $action, array $contract, string $source, string $package, string $resource): array
+    /** @return array<string, mixed> */
+    private static function paramsFor(string $source, string $package, string $resource): array
     {
-        $actionContract = $contract[$action] ?? null;
-        $models = is_array($actionContract) ? ($actionContract['models'] ?? []) : [];
-        $model = is_array($models) && $models !== [] ? $models[0] : '_';
-        $fields = [];
-
-        if (is_array($actionContract)) {
-            $fieldsByModel = $actionContract['fields_by_model'] ?? [];
-            if (is_array($fieldsByModel)) {
-                $fields = $fieldsByModel[$model] ?? $fieldsByModel['_'] ?? [];
-            }
-        }
-
         $params = [];
-        if ($model !== '_') {
-            $params['model'] = $model;
-        }
-
-        if (is_array($fields)) {
-            foreach ($fields as $name => $schema) {
-                if ($name === 'rules' || !is_array($schema)) {
-                    continue;
-                }
-
-                if ($name === 'model') {
-                    $params['model'] = $model;
-                    continue;
-                }
-
-                if (($schema['required'] ?? false) === true || $name === 'prompt') {
-                    $params[$name] = self::sampleValue($name, $schema);
-                }
-            }
-        }
-
         foreach (self::phpDocRequiredFields($source) as $name) {
-            $schema = is_array($fields) && isset($fields[$name]) && is_array($fields[$name]) ? $fields[$name] : [];
-            $params[$name] ??= self::sampleValue($name, $schema);
-        }
-
-        foreach (self::inlineRequiredFields($source) as $name) {
-            $params[$name] ??= self::sampleValue($name, []);
-        }
-
-        if (is_array($actionContract)) {
-            foreach (self::conditionalRequiredRuleFields($actionContract['rules'] ?? [], $params) as $name) {
-                $schema = is_array($fields) && isset($fields[$name]) && is_array($fields[$name]) ? $fields[$name] : [];
-                $params[$name] ??= self::sampleValue($name, $schema);
-            }
+            $params[$name] = self::sampleValue($name, []);
         }
 
         return self::withSpecialParams($package, $resource, $params);
-    }
-
-    /**
-     * @param array<string, mixed> $params
-     *
-     * @return list<string>
-     */
-    private static function conditionalRequiredRuleFields(mixed $rules, array $params): array
-    {
-        if (!is_array($rules)) {
-            return [];
-        }
-
-        $fields = [];
-        foreach ($rules as $rule) {
-            if (!is_array($rule)) {
-                continue;
-            }
-
-            $when = $rule['when'] ?? [];
-            if (!is_array($when) || $when === []) {
-                continue;
-            }
-
-            $matches = true;
-            foreach ($when as $name => $value) {
-                if (!self::conditionMatches((string) $name, $value, $params)) {
-                    $matches = false;
-                    break;
-                }
-            }
-
-            if (!$matches) {
-                continue;
-            }
-
-            $required = $rule['required'] ?? [];
-            if (!is_array($required)) {
-                continue;
-            }
-
-            foreach ($required as $name) {
-                $fields[] = (string) $name;
-            }
-        }
-
-        return array_values(array_unique($fields));
-    }
-
-    /**
-     * @param array<string, mixed> $params
-     */
-    private static function conditionMatches(string $field, mixed $expected, array $params): bool
-    {
-        if (is_array($expected) && array_key_exists('present', $expected)) {
-            return self::fieldPresent($field, $params) === ($expected['present'] === true);
-        }
-
-        return array_key_exists($field, $params)
-            && (string) $params[$field] === (string) $expected;
-    }
-
-    /**
-     * @param array<string, mixed> $params
-     */
-    private static function fieldPresent(string $field, array $params): bool
-    {
-        if (!array_key_exists($field, $params)) {
-            return false;
-        }
-
-        $value = $params[$field];
-        if ($value === false) {
-            return true;
-        }
-
-        if (is_array($value)) {
-            foreach ($value as $item) {
-                if (self::presentValue($item)) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        return self::presentValue($value);
-    }
-
-    private static function presentValue(mixed $value): bool
-    {
-        if ($value === null || $value === false) {
-            return false;
-        }
-
-        if ($value === true) {
-            return true;
-        }
-
-        if (is_string($value)) {
-            return trim($value) !== '';
-        }
-
-        if (is_array($value)) {
-            return $value !== [];
-        }
-
-        return true;
     }
 
     /**
@@ -713,16 +497,6 @@ final class AllResourcesOfflineSmokeTest extends TestCase
     }
 
     /**
-     * @return list<string>
-     */
-    private static function inlineRequiredFields(string $source): array
-    {
-        preg_match_all('/requireField\(\$params, \'([^\']+)\'\)/', $source, $matches);
-
-        return array_values(array_unique($matches[1]));
-    }
-
-    /**
      * @param array<string, mixed> $params
      *
      * @return array<string, mixed>
@@ -731,6 +505,10 @@ final class AllResourcesOfflineSmokeTest extends TestCase
     {
         if ($package === 'runapi-ai/grok-imagine' && $resource === 'segmentMap') {
             $params['image_url'] ??= self::IMAGE_URL;
+        }
+
+        if ($package === 'runapi-ai/fish-audio' && $resource === 'getVoice') {
+            $params['voice_id'] = 'voice_1';
         }
 
         if ($package === 'runapi-ai/suno') {
@@ -912,7 +690,6 @@ final readonly class ResourceCase
         public string $resource,
         public string $type,
         public string $endpoint,
-        public string $action,
         public string $outputKind,
         public array $params,
     ) {

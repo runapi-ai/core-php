@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace RunApi\Core\Resources;
 
 use Generator;
-use RunApi\Core\Contract\ContractValidator;
 use RunApi\Core\Errors\TaskFailedException;
 use RunApi\Core\Errors\ValidationException;
 use RunApi\Core\Http\HttpClient;
@@ -24,9 +23,7 @@ abstract readonly class HybridResource
     public function __construct(
         protected HttpClient $http,
         private string $endpoint,
-        private string $action,
         private string $responseClass,
-        private ContractValidator $validator = new ContractValidator(),
     ) {
     }
 
@@ -93,11 +90,6 @@ abstract readonly class HybridResource
     private function executeRaw(array $params, ?RequestOptions $options, string $method = 'POST', ?string $path = null, string $placement = 'body'): RawResponse
     {
         $params = $this->compact($params);
-        $model = $params['model'] ?? '_';
-        if (!is_string($model)) {
-            throw new ValidationException('model must be a string');
-        }
-        $this->validator->validate($this->action, $model, $params);
 
         $request = ['options' => $options, 'accepted_statuses' => [202]];
         if ($placement === 'body') {
