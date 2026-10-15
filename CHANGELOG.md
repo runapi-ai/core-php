@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.10.0](https://github.com/runapi-ai/core-php/releases/tag/v0.10.0) - 2026-10-15
+
+### Added
+- Add generated HeyGen Video input contract metadata.
+- Expose the optional generated_images field in completed task usage.
+- Add Vidu Q4 image-to-video and reference-to-video creation and task retrieval.
+
+
 ## [v0.9.0](https://github.com/runapi-ai/core-php/releases/tag/v0.9.0) - 2026-09-30
 
 ### Changed

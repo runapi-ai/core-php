@@ -10,7 +10,7 @@ use RunApi\Core\Support\Payload;
 final readonly class TaskUsage extends BaseModel
 {
     /** @param array<string, mixed> $raw */
-    public function __construct(public float $cost, array $raw)
+    public function __construct(public float $cost, array $raw, public ?int $generatedImages = null)
     {
         parent::__construct($raw);
     }
@@ -18,6 +18,10 @@ final readonly class TaskUsage extends BaseModel
     /** @param array<string, mixed> $raw */
     public static function fromArray(array $raw): self
     {
-        return new self(Payload::float($raw, 'cost'), $raw);
+        return new self(
+            Payload::float($raw, 'cost'),
+            $raw,
+            isset($raw['generated_images']) ? Payload::int($raw, 'generated_images') : null
+        );
     }
 }
