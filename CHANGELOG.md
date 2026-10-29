@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.10.1](https://github.com/runapi-ai/core-php/releases/tag/v0.10.1) - 2026-10-29
+
+### Changed
+- Refresh the PHP SDK dependency lock to Guzzle 7.15.2 or newer without known high or critical advisories.
+
+
 ## [v0.10.0](https://github.com/runapi-ai/core-php/releases/tag/v0.10.0) - 2026-10-15
 
 ### Added
